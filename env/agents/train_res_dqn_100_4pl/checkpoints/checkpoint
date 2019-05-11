@@ -1,4 +1,0 @@
-model_checkpoint_path: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/train_res_dqn_100_4pl/checkpoints/tf_ckpt-450"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/train_res_dqn_100_4pl/checkpoints/tf_ckpt-350"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/train_res_dqn_100_4pl/checkpoints/tf_ckpt-400"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/train_res_dqn_100_4pl/checkpoints/tf_ckpt-450"
