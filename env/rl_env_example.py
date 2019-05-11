@@ -20,8 +20,9 @@ import getopt
 import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
+from agents.rainbow.dqn_agent import DQNAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent}
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'DQN': DQNAgent}
 
 
 class Runner(object):
@@ -46,6 +47,7 @@ class Runner(object):
       while not done:
         for agent_id, agent in enumerate(agents):
           observation = observations['player_observations'][agent_id]
+
           action = agent.act(observation)
           if observation['current_player'] == agent_id:
             assert action is not None

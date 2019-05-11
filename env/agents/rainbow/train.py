@@ -96,11 +96,12 @@ def launch_experiment():
 
 
 def main(unused_argv):
-  """This main function acts as a wrapper around a gin-configurable experiment.
 
+  """This main function acts as a wrapper around a gin-configurable experiment.
   Args:
     unused_argv: Arguments (unused).
   """
+
   launch_experiment()
 
 if __name__ == '__main__':

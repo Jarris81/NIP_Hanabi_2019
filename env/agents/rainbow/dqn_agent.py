@@ -31,9 +31,12 @@ import random
 
 import gin.tf
 import numpy as np
-import replay_memory
+#import replay_memory
 import tensorflow as tf
+import sys
 
+### Needed when Script gets imported from home directory ###
+sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/rainbow')
 
 slim = tf.contrib.slim
 

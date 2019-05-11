@@ -112,7 +112,7 @@ def load_gin_configs(gin_files, gin_bindings):
 
 
 @gin.configurable
-def create_environment(game_type='Hanabi-Full', num_players=2):
+def create_environment(game_type='Hanabi-Small', num_players=4):
   """Creates the Hanabi environment.
 
   Args:
