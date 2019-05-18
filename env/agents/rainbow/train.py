@@ -92,6 +92,7 @@ def launch_experiment():
                                 obs_stacker,
                                 experiment_logger, experiment_checkpointer,
                                 checkpoint_dir,
+                                train=True,
                                 logging_file_prefix=FLAGS.logging_file_prefix)
 
 

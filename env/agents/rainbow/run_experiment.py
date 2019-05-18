@@ -18,7 +18,7 @@
 # This file is a fork of the original Dopamine code incorporating changes for
 # the multiplayer setting and the Hanabi Learning Environment.
 #
-"""Run methods for training a DQN agent on Atari.
+"""Run methods for training/simulating a DQN agent on Atari.
 
 Methods in this module are usually referenced by |train.py|.
 """
@@ -160,10 +160,12 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
   Raises:
     ValueError: if an unknown agent type is requested.
   """
+
   if agent_type == 'DQN':
     return dqn_agent.DQNAgent(observation_size=obs_stacker.observation_size(),
                               num_actions=environment.num_moves(),
                               num_players=environment.players)
+
   elif agent_type == 'Rainbow':
     return rainbow_agent.RainbowAgent(
         observation_size=obs_stacker.observation_size(),
@@ -205,17 +207,26 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
   experiment_checkpointer = checkpointer.Checkpointer(
       checkpoint_dir, checkpoint_file_prefix)
 
+
+
   start_iteration = 0
 
   # Check if checkpoint exists. Note that the existence of checkpoint 0 means
   # that we have finished iteration 0 (so we will start from iteration 1).
   latest_checkpoint_version = checkpointer.get_latest_checkpoint_number(
       checkpoint_dir)
+
   if latest_checkpoint_version >= 0:
     dqn_dictionary = experiment_checkpointer.load_checkpoint(
         latest_checkpoint_version)
+
+    print(dqn_dictionary)
+
     if agent.unbundle(
         checkpoint_dir, latest_checkpoint_version, dqn_dictionary):
+
+      #print("\n\n\nerror 225\n\n\n")
+
       assert 'logs' in dqn_dictionary
       assert 'current_iteration' in dqn_dictionary
       experiment_logger.data = dqn_dictionary['logs']
@@ -332,7 +343,7 @@ def run_one_episode(agent, environment, obs_stacker):
 
   agent.end_episode(reward_since_last_action)
 
-  tf.logging.info('EPISODE: %d %g', step_number, total_reward)
+  tf.logging.info('Finished EPISODE: Step Number: %d Total Reward: %g', step_number, total_reward)
   return step_number, total_reward
 
 
@@ -373,7 +384,7 @@ def run_one_phase(agent, environment, obs_stacker, min_steps, statistics,
 
 
 @gin.configurable
-def run_one_iteration(agent, environment, obs_stacker,
+def run_one_training_iteration(agent, environment, obs_stacker,
                       iteration, training_steps,
                       evaluate_every_n=100,
                       num_evaluation_games=100):
@@ -435,6 +446,46 @@ def run_one_iteration(agent, environment, obs_stacker,
 
   return statistics.data_lists
 
+@gin.configurable
+def run_one_simulation_iteration(agent, environment, obs_stacker, iteration, training_steps,):
+  """Runs one iteration of agent/environment interaction.
+
+  An iteration involves running several episodes until a certain number of
+  steps are obtained.
+
+  Args:
+    agent: Agent playing hanabi.
+    environment: The Hanabi environment.
+    obs_stacker: Observation stacker object.
+    iteration: int, current iteration number, used as a global_step.
+    training_steps: int, the number of training steps to perform.
+    evaluate_every_n: int, frequency of evaluation.
+    num_evaluation_games: int, number of games per evaluation.
+
+  Returns:
+    A dict containing summary statistics for this iteration.
+  """
+  start_time = time.time()
+
+  statistics = iteration_statistics.IterationStatistics()
+
+  # Also run an evaluation phase if desired.
+  episode_data = []
+  agent.eval_mode = True
+  # Collect episode data for all games.
+  for _ in range(iteration):
+    episode_data.append(run_one_episode(agent, environment, obs_stacker))
+
+  eval_episode_length, eval_episode_return = map(np.mean, zip(*episode_data))
+
+  statistics.append({
+      'eval_episode_lengths': eval_episode_length,
+      'eval_episode_returns': eval_episode_return
+  })
+  tf.logging.info('Average eval. episode length: %.2f  Return: %.2f',
+                  eval_episode_length, eval_episode_return)
+
+  return statistics.data_lists
 
 def log_experiment(experiment_logger, iteration, statistics,
                    logging_file_prefix='log', log_every_n=1):
@@ -480,31 +531,51 @@ def run_experiment(agent,
                    experiment_logger,
                    experiment_checkpointer,
                    checkpoint_dir,
+                   train,
                    num_iterations=200,
                    training_steps=5000,
+                   simulation_steps=100,
                    logging_file_prefix='log',
                    log_every_n=1,
                    checkpoint_every_n=1):
-  """Runs a full experiment, spread over multiple iterations."""
-  tf.logging.info('Beginning training...')
-  if num_iterations <= start_iteration:
-    tf.logging.warning('num_iterations (%d) < start_iteration(%d)',
-                       num_iterations, start_iteration)
-    return
 
-  for iteration in range(start_iteration, num_iterations):
-    start_time = time.time()
-    statistics = run_one_iteration(agent, environment, obs_stacker, iteration,
-                                   training_steps)
-    tf.logging.info('Iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
-    start_time = time.time()
-    log_experiment(experiment_logger, iteration, statistics,
-                   logging_file_prefix, log_every_n)
-    tf.logging.info('Logging iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
-    start_time = time.time()
-    checkpoint_experiment(experiment_checkpointer, agent, experiment_logger,
-                          iteration, checkpoint_dir, checkpoint_every_n)
-    tf.logging.info('Checkpointing iteration %d took %d seconds', iteration,
-                    time.time() - start_time)
+  """Runs a full experiment, spread over multiple iterations."""
+  if (train == True):
+      tf.logging.info('Beginning training...')
+
+      if num_iterations <= start_iteration:
+        tf.logging.warning('num_iterations (%d) < start_iteration(%d)',
+                           num_iterations, start_iteration)
+        return
+
+      for iteration in range(start_iteration, num_iterations):
+        start_time = time.time()
+        statistics = run_one_training_iteration(agent, environment, obs_stacker, iteration,
+                                       training_steps)
+        tf.logging.info('Iteration %d took %d seconds', iteration,
+                        time.time() - start_time)
+        start_time = time.time()
+        log_experiment(experiment_logger, iteration, statistics,
+                       logging_file_prefix, log_every_n)
+        tf.logging.info('Logging iteration %d took %d seconds', iteration,
+                        time.time() - start_time)
+        start_time = time.time()
+        checkpoint_experiment(experiment_checkpointer, agent, experiment_logger,
+                              iteration, checkpoint_dir, checkpoint_every_n)
+        tf.logging.info('Checkpointing iteration %d took %d seconds', iteration,
+                        time.time() - start_time)
+  else:
+      tf.logging.info('Beginning Simulation...')
+
+      if num_iterations <= start_iteration:
+        tf.logging.warning('num_iterations (%d) < start_iteration(%d)',
+                           num_iterations, start_iteration)
+        return
+
+      for iteration in range(start_iteration, num_iterations):
+        start_time = time.time()
+        statistics = run_one_simulation_iteration(agent, environment, obs_stacker, iteration,
+                                       simulation_steps)
+        tf.logging.info('Iteration %d took %d seconds', iteration, time.time() - start_time)
+
+        print(statistics)

@@ -434,6 +434,7 @@ class HanabiEnv(Environment):
     # ipdb.set_trace()
     obs_dict["vectorized"] = self.observation_encoder.encode(observation)
     obs_dict["pyhanabi"] = observation
+    #obs_dict["history"] = observation.last_moves()
 
     return obs_dict
 

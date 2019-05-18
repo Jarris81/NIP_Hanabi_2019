@@ -49,6 +49,7 @@ from __future__ import print_function
 
 import os
 import pickle
+import gin
 import tensorflow as tf
 
 CHECKPOINT_DURATION = 4
@@ -75,6 +76,7 @@ def get_latest_checkpoint_number(base_directory):
     return latest_iteration
   except ValueError:
     return -1
+
 
 
 class Checkpointer(object):

@@ -17,9 +17,8 @@
 #
 # This file is a fork of the original Dopamine code incorporating changes for
 # the multiplayer setting and the Hanabi Learning Environment.
-#
-"""Implementation of a DQN agent adapted to the multiplayer setting."""
 
+"""Implementation of a DQN agent adapted to the multiplayer setting."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -28,15 +27,15 @@ import collections
 import math
 import os
 import random
-
-import gin.tf
-import numpy as np
-#import replay_memory
-import tensorflow as tf
 import sys
 
 ### Needed when Script gets imported from home directory ###
 sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/rainbow')
+
+import gin.tf
+import numpy as np
+import replay_memory
+import tensorflow as tf
 
 slim = tf.contrib.slim
 
@@ -155,6 +154,9 @@ class DQNAgent(object):
     tf.logging.info('\t tf_device: %s', tf_device)
     tf.logging.info('\t use_staging: %s', use_staging)
     tf.logging.info('\t optimizer: %s', optimizer)
+
+    # Allows loading only graph
+    self.allow_partial_reload = True
 
     # Global variables.
     self.num_actions = num_actions
@@ -501,29 +503,40 @@ class DQNAgent(object):
     return bundle_dictionary
 
   def unbundle(self, checkpoint_dir, iteration_number, bundle_dictionary):
-    """Restores the agent from a checkpoint.
 
-    Restores the agent's Python objects to those specified in bundle_dictionary,
-    and restores the TensorFlow objects to those specified in the
-    checkpoint_dir. If the checkpoint_dir does not exist, will not reset the
-      agent's state.
-
-    Args:
-      checkpoint_dir: str, path to the checkpoint saved by `tf.Save`.
-      iteration_number: int, checkpoint version.
-      bundle_dictionary: Dictionary containing this class's Python objects.
-
-    Returns:
-      A boolean indicating whether unbundling was successful.
-    """
-    try:
-      # replay.load() will throw a GOSError if it does not find all the
-      # necessary files, in which case we should abort the process.
-      self._replay.load(checkpoint_dir, iteration_number)
-    except tf.errors.NotFoundError:
-      return False
-    for key in self.__dict__:
-      if key in bundle_dictionary:
-        self.__dict__[key] = bundle_dictionary[key]
-    self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
-    return True
+      """Restores the agent from a checkpoint.
+      Restores the agent's Python objects to those specified in bundle_dictionary,
+      and restores the TensorFlow objects to those specified in the
+      checkpoint_dir. If the checkpoint_dir does not exist, will not reset the
+        agent's state.
+      Args:
+        checkpoint_dir: str, path to the checkpoint saved by tf.Save.
+        iteration_number: int, checkpoint version, used when restoring the replay
+          buffer.
+        bundle_dictionary: dict, containing additional Python objects owned by
+          the agent.
+      Returns:
+        bool, True if unbundling was successful.
+      """
+      try:
+        # self._replay.load() will throw a NotFoundError if it does not find all
+        # the necessary files.
+        self._replay.load(checkpoint_dir, iteration_number)
+      except tf.errors.NotFoundError:
+        if not self.allow_partial_reload:
+          # If we don't allow partial reloads, we will return False.
+          return False
+        tf.logging.warning('Unable to reload replay buffer!')
+      if bundle_dictionary is not None:
+        for key in self.__dict__:
+          if key in bundle_dictionary:
+            self.__dict__[key] = bundle_dictionary[key]
+      elif not self.allow_partial_reload:
+        return False
+      else:
+        tf.logging.warning("Unable to reload the agent's parameters!")
+      # Restore the agent's TensorFlow graph.
+      self._saver.restore(self._sess,
+                          os.path.join(checkpoint_dir,
+                                       'tf_ckpt-{}'.format(iteration_number)))
+      return True
