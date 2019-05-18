@@ -1,1 +1,5 @@
 *.pyc
+*.idea/
+env/CMakeFiles/
+env/hanabi_lib/CMakeFiles
+env/CMakeCache.txt
