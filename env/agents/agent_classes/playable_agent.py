@@ -21,7 +21,7 @@ flags.DEFINE_string('checkpoint_dir', '',
 
 class RLPlayer(object):
 
-    def __init__(self,agent,env,tf_device='/cpu:*'):
+    def __init__(self,agent,env,observation_size,history_size,tf_device='/cpu:*'):
 
         """Initializes the agent and constructs its graph.
         Vars:
@@ -31,11 +31,9 @@ class RLPlayer(object):
           tf_device: str, Tensorflow device on which to run computations.
         """
 
-        self.history_size=1
-        self.obs_stacker = xp.create_obs_stacker(env,history_size=self.history_size)
-        self.observation_size = self.obs_stacker.observation_size()
-
         self.num_actions = env.num_moves()
+        self.observation_size = observation_size
+        self.history_size = history_size
 
         if env==None:
             print("Specify environment")
@@ -97,21 +95,25 @@ if __name__=="__main__":
     game_type = "Hanabi-Small"
     num_players = 4
     env = xp.create_environment(game_type='Hanabi-Small', num_players=4)
-    print(env.num_moves())
+
+    # Setup Obs Stacker that keeps track of Observation for all agents ! Already includes logic for distinguishing the view between different agents
+    history_size=1
+    obs_stacker = xp.create_obs_stacker(env,history_size=history_size)
+    observation_size = obs_stacker.observation_size()
 
     ### Set up the RL-Player, reload weights from trained model
     agent = "DQN"
-    player = RLPlayer(agent=agent,env=env)
+
+    ### Specify model weights to be loaded
     path = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/playable_models"
-    bool = player.load_model_weights(path,iteration_number=20)
-    print(bool)
+    iteration_no=400
+
+    player = RLPlayer(agent,env,observation_size,history_size)
 
     # Simulate 1 Move
     # Parse the current players observation to a vector
     obs_stacker.reset_stack()
     observations = env.reset()
     current_player, legal_moves, observation_vector = (xp.parse_observations(observations, env.num_moves(), obs_stacker))
-
     action = player.select_action(observation_vector, legal_moves)
-
-    print(action)
+    print("Player: {}, move: {}".format(current_player,action))
