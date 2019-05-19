@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/playable_models/tf_ckpt-0"
+all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/playable_models/tf_ckpt-0"

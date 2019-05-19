@@ -26,14 +26,14 @@ RainbowAgent.epsilon_decay_period = 1000 # agent steps
 RainbowAgent.tf_device = '/cpu:*'  # '/cpu:*' use for non-GPU version
 WrappedReplayMemory.replay_capacity = 50000
 
-run_experiment.training_steps = 500
-run_experiment.num_iterations = 500
+run_experiment.training_steps = 2000
+run_experiment.num_iterations = 2000
 run_experiment.checkpoint_every_n = 50
 run_one_training_iteration.evaluate_every_n = 10
 
 # Small Hanabi.
-create_environment.game_type = 'Hanabi-Full-CardKnowledge'
-create_environment.num_players = 2
+create_environment.game_type = 'Hanabi-Small'
+create_environment.num_players = 4
 
 create_agent.agent_type = 'DQN'
 create_obs_stacker.history_size = 1

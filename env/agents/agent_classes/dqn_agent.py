@@ -205,11 +205,17 @@ class DQNAgent(object):
     # Set up a session and initialize variables.
     self._sess = tf.Session(
         '', config=tf.ConfigProto(allow_soft_placement=True))
+    writer = tf.summary.FileWriter("/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/graphs", self._sess.graph)
     self._init_op = tf.global_variables_initializer()
     self._sess.run(self._init_op)
 
+    ### Specify variables to save here
+    #var_list = [self._q]
+    var_list = tf.get_collection(
+        tf.GraphKeys.TRAINABLE_VARIABLES, scope='Online')
+
+    self._playSaver = tf.train.Saver(var_list)
     self._saver = tf.train.Saver(max_to_keep=3)
-    self._online_saver = tf.train.Saver({"v2": v2})
 
     # This keeps tracks of the observed transitions during play, for each
     # player.
@@ -494,6 +500,11 @@ class DQNAgent(object):
     self._saver.save(
         self._sess,
         os.path.join(checkpoint_dir, 'tf_ckpt'),
+        global_step=iteration_number)
+
+    self._playSaver.save(
+        self._sess,
+        os.path.join("/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/playable_models", 'tf_ckpt'),
         global_step=iteration_number)
     self._replay.save(checkpoint_dir, iteration_number)
     bundle_dictionary = {}
