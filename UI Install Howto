@@ -16,7 +16,7 @@ These instructions assume you are running Ubuntu 18.04.1 LTS.
             Follow the prompts.
     Unpack the server to GOPATH:
         cd "$GOPATH/"
-	unzip go.zip
+	unzip the UI/go.zip there
     Install the project dependencies:
         cd "$GOPATH/src/github.com/Zamiell/hanabi-live/install"
         ./install_dependencies
@@ -45,3 +45,10 @@ sudo "$GOPATH/bin/src"
 server should run now
 open a browser and type localhost
 
+
+PLAY:
+to play with an agent you need python3
+pip install websocket websocket-client
+
+Copy the client.py, commandsWebSocket.py, and game_state_wrapper.py to the deepmind repository and run
+python client.py
