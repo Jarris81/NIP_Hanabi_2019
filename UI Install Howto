@@ -1,0 +1,47 @@
+Server Installation (for Linux)
+
+These instructions assume you are running Ubuntu 18.04.1 LTS.
+
+    Install Golang:
+        sudo add-apt-repository ppa:longsleep/golang-backports
+        (if you don't do this, it will install a version of Golang that is very old)
+        sudo apt update
+        sudo apt install golang-go -y
+        mkdir "$HOME/go"
+        export GOPATH=$HOME/go && echo 'export GOPATH=$HOME/go' >> ~/.profile
+        export PATH=$PATH:$GOPATH/bin && echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.profile
+    Install MariaDB:
+        sudo apt install mariadb-server -y
+        sudo mysql_secure_installation
+            Follow the prompts.
+    Unpack the server to GOPATH:
+        cd "$GOPATH/"
+	unzip go.zip
+    Install the project dependencies:
+        cd "$GOPATH/src/github.com/Zamiell/hanabi-live/install"
+        ./install_dependencies
+    Set up a database user and import the database schema:
+        sudo mysql -u root -p
+            CREATE DATABASE hanabi;
+            CREATE USER 'hanabiuser'@'localhost' IDENTIFIED BY 'pass';
+            (change the password to something else)
+            GRANT ALL PRIVILEGES ON hanabi.* to 'hanabiuser'@'localhost';
+            FLUSH PRIVILEGES;
+        ./install/install_database_schema.sh
+    cd 
+    Set up automated database backups:
+        crontab -e
+
+# Every day, backup the "hanabi" database
+0 0 * * * /root/go/src/github.com/Zamiell/hanabi-live/make_database_dump.sh
+
+COMPILE:
+cd "$HOME/go/src/github.com/Zamiell/hanabi-live/src/"
+go install
+
+RUN:
+[for some reason you HAVE to start from here !] cd "$HOME/go" 
+sudo "$GOPATH/bin/src" 
+server should run now
+open a browser and type localhost
+
