@@ -40,7 +40,6 @@ import tensorflow as tf
 
 LENIENT_SCORE = False
 
-
 class ObservationStacker(object):
   """Class for stacking agent observations."""
 
@@ -112,7 +111,7 @@ def load_gin_configs(gin_files, gin_bindings):
 
 
 @gin.configurable
-def create_environment(game_type='Hanabi-Small', num_players=4):
+def create_environment(game_type='Hanabi-Full', num_players=4):
   """Creates the Hanabi environment.
 
   Args:
@@ -129,7 +128,7 @@ def create_environment(game_type='Hanabi-Small', num_players=4):
 
 
 @gin.configurable
-def create_obs_stacker(environment, history_size=4):
+def create_obs_stacker(environment, history_size=1):
   """Creates an observation stacker.
 
   Args:
@@ -206,8 +205,6 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
   """
   experiment_checkpointer = checkpointer.Checkpointer(
       checkpoint_dir, checkpoint_file_prefix)
-
-
 
   start_iteration = 0
 
@@ -409,9 +406,7 @@ def run_one_training_iteration(agent, environment, obs_stacker,
 
   # First perform the training phase, during which the agent learns.
   agent.eval_mode = False
-  number_steps, sum_returns, num_episodes = (
-      run_one_phase(agent, environment, obs_stacker, training_steps, statistics,
-                    'train'))
+  number_steps, sum_returns, num_episodes = (run_one_phase(agent, environment, obs_stacker, training_steps, statistics,'train'))
   time_delta = time.time() - start_time
   tf.logging.info('Average training steps per second: %.2f',
                   number_steps / time_delta)

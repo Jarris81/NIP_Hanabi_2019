@@ -32,7 +32,7 @@ run_experiment.checkpoint_every_n = 50
 run_one_training_iteration.evaluate_every_n = 10
 
 # Small Hanabi.
-create_environment.game_type = 'Hanabi-Small'
+create_environment.game_type = 'Hanabi-Full-CardKnowledge'
 create_environment.num_players = 4
 
 create_agent.agent_type = 'DQN'
