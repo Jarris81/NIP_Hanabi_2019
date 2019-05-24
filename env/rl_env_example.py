@@ -20,10 +20,8 @@ import getopt
 import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
-from agents.rainbow.dqn_agent import DQNAgent
 
-AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'DQN': DQNAgent}
-
+AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent}
 
 class Runner(object):
   """Runner class."""
@@ -59,6 +57,9 @@ class Runner(object):
                                             current_player_action))
         observations, reward, done, unused_info = self.environment.step(
             current_player_action)
+        print("\nStart Observaion\n")
+        print(observations)
+        print("\nEnd Observaion\n")
         episode_reward += reward
       rewards.append(episode_reward)
       print('Running episode: %d' % episode)
@@ -66,7 +67,7 @@ class Runner(object):
     return rewards
 
 if __name__ == "__main__":
-  flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'SimpleAgent'}
+  flags = {'players': 4, 'num_episodes': 1, 'agent_class': 'SimpleAgent'}
   options, arguments = getopt.getopt(sys.argv[1:], '',
                                      ['players=',
                                       'num_episodes=',
