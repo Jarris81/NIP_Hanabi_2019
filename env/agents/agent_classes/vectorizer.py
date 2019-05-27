@@ -2,7 +2,6 @@ import numpy as np
 np.set_printoptions(threshold=np.inf)
 import pyhanabi as utils
 
-
 COLOR_CHAR = ["R", "Y", "G", "W", "B"]
 
 ### Helper Functions ###
@@ -14,7 +13,7 @@ COLOR_CHAR = ["R", "Y", "G", "W", "B"]
 # Check Board
 # Check Discaad Pile
 
-def color_plausible(color, hand_knowledge):
+def color_plausible(color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
     color = utils.color_idx_to_char(color)
     # print("Hand Knowledge: {}".format(hand_knowledge))
     # print("Color: {}".format(color))
@@ -25,16 +24,60 @@ def color_plausible(color, hand_knowledge):
     # print("Color is plausible ? -> {}".format(plausible))
     return plausible
 
-def rank_plausible(rank, hand_knowledge):
+def rank_plausible(rank, color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
     plausible = True
     # print("Hand Knowledge: {}".format(hand_knowledge))
     # print("Rank: {}".format(rank))
+
+    #TODO
+    # 1. Need to encode COMMON card knowledge: What do I know, what the other player knows ?
+    # 2. Infere from opponents hand if card plausible - Isn't actually used ... but can be infered from board
+    # 3. Infere from Firework if card plausible - Isn't actually used ... but can be infered from board
+    #
+    # OWN HAND
     for card_knowledge in hand_knowledge:
         if (card_knowledge["rank"] == rank):
             plausible = False
-    # print(plausible)
-    return plausible
 
+    # OPONENTS HANDS
+    # counts contains full number of cards of each color. If after iterating through fireworks, discard_pile and ops hands stil cards left -> rank plausible
+    # count = num_cards(color,rank)
+    #
+    # color_char = utils.color_idx_to_char(color)
+    #
+    # print("Color we are looking at: {}".format(color_char))
+    # print("Rank we are looking at: {}".format(rank))
+
+    # # iterate over each opponents hand
+    # for hand in hands:
+    #     for card in hand:
+    #         tmp_card = card
+    #         if tmp_card["color"] == color_char:
+    #             tmp_color = utils.color_char_to_idx(tmp_card["color"])
+    #             tmp_rank = tmp_card["rank"]
+    #             if tmp_rank == rank:
+    #                 print("card {}".format(tmp_card))
+    #                 count -= 1
+    #                 if count <= 0:
+    #                     plausible = False
+    #
+    # print("Rank plausible ? -> {}\n".format(plausible))
+    #
+    # # Iterate over discard pile
+    # for card in discard_pile_knowledge:
+    #     tmp_card = card
+    #     if tmp_card["color"] == color_char:
+    #         tmp_color = utils.color_char_to_idx(tmp_card["color"])
+    #         tmp_rank = tmp_card["rank"]
+    #         if tmp_rank == rank:
+    #             print("card {}".format(tmp_card))
+    #             count -= 1
+    #             if count <= 0:
+    #                 plausible = False
+    # print("Rank plausible ? -> {}\n".format(plausible))
+
+
+    return plausible
 
 '''
 Used to vectorize/encode player-dependent state-dicts and action dicts that are used
@@ -80,20 +123,23 @@ class ObservationVectorizer(object):
             # Compute total state length
             self.hands_bit_length = (self.num_players - 1) * self.hand_size * \
                             self.bits_per_card + self.num_players
+            print("hand encoding section in range: {}-{}".format(0,self.hands_bit_length))
 
             self.board_bit_length = self.max_deck_size - self.num_players * \
                             self.hand_size + self.num_colors * self.num_ranks \
                                 + self.max_info_tokens + self.max_life_tokens
+            print("board encoding section in range: {}-{}".format(self.hands_bit_length,self.hands_bit_length+self.board_bit_length))
 
             self.discard_pile_bit_length = self.max_deck_size
+            print("discard pile encoding in range: {}-{}".format(self.hands_bit_length+self.board_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length))
 
             self.last_action_bit_length = self.num_players + 4 + self.num_players + \
                             self.num_colors + self.num_ranks \
                                 + self.hand_size + self.hand_size + self.bits_per_card + 2
-
+            print("last action encoding in range {}-{}".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length))
             self.card_knowledge_bit_length = self.num_players * self.hand_size *\
                             (self.bits_per_card + self.num_colors + self.num_ranks)
-
+            print("card knowledge encoding in range: {}-{}\n".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length+self.card_knowledge_bit_length))
             self.total_state_length = self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length \
                                     + self.last_action_bit_length + self.card_knowledge_bit_length
             self.obs_vec = np.zeros(self.total_state_length)
@@ -109,6 +155,8 @@ class ObservationVectorizer(object):
         self.encode_discards(obs)
         self.encode_last_action(obs)
         self.encode_card_knowledge(obs)
+
+        return self.obs_vec
 
     def encode_hands(self,obs):
         # start of the vectorized observation
@@ -194,44 +242,67 @@ class ObservationVectorizer(object):
         else:
             print("TODO LAST ACTION ENCODING")
 
+        # print("Actual length before card_knowledge encoding: {}".format(self.offset))
+
         assert self.offset - (self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length + self.last_action_bit_length) == 0
         return True
 
     def encode_card_knowledge(self,obs):
         hands = obs["observed_hands"]
         card_knowledge_list = obs["card_knowledge"]
-        # print(card_knowledge_list)
+        discard_pile_knowledge = obs["discard_pile"]
+        fireworks_knowledge = obs["fireworks"]
+
+        # print("Card Knowledge: {}\n".format(card_knowledge_list))
         num_cards = 0
 
-        for hand_knowledge in card_knowledge_list:
+        #### REMOVE AFTER DEBUGGING ####
+        error_list = [254, 255, 278, 286, 306, 488, 489, 490, 491, 492, 498, 499, 500,
+       501, 502, 503, 504, 505, 506, 507, 523, 524, 525, 526, 527]
+
+
+        for ih,hand_knowledge in enumerate(card_knowledge_list):
+            # print("Card Knowledge List: {}".format(card_knowledge_list))
+            print("Player index: {}".format(ih))
             for card_knowledge in hand_knowledge:
-                num_cards = 0
+                # print("Card Knowledge: {}".format(card_knowledge))
                 for color in range(self.num_colors):
-                    if color_plausible(color, hand_knowledge):
+                    if color_plausible(color, hand_knowledge,hands,discard_pile_knowledge,fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
                         for rank in range(self.num_ranks):
-                            if rank_plausible(rank, hand_knowledge):
+                            if rank_plausible(rank, color, hand_knowledge,hands,discard_pile_knowledge,fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+                                # print("Color: {}".format(color))
+                                # print("Rank: {}".format(rank))
                                 card_index = color * self.num_ranks + rank
+                                # print("Card Index: {}".format(card_index))
+                                if ((self.offset+card_index) in error_list):
+                                    print(self.offset+card_index)
+                                    print("Failed encoded card: {}, with index: {}, at hand_index: {}".format(card_knowledge, card_index, ih))
+                                    print("Wrongly assigned 'plausible' to color: {}, rank: {}".format(utils.color_idx_to_char(color),rank))
+                                # if (ih==1):
+                                #     print(card)
                                 self.obs_vec[self.offset + card_index] = 1
+                                # print("changed obs_vec")
 
-            self.offset += self.bits_per_card
+                # print("Self Offset before increasing: {}".format(self.offset))
+                self.offset += self.bits_per_card
+                # print("Self Offset after increasing: {}".format(self.offset))
 
-            # Encode explicitly revealed colors and ranks
-            if card_knowledge["color"] != None:
-                color = utils.color_char_to_idx(card_knowledge["color"])
-                self.obs_vec[self.offset + color] = 1
+                # Encode explicitly revealed colors and ranks
+                if card_knowledge["color"] != None:
+                    color = utils.color_char_to_idx(card_knowledge["color"])
+                    self.obs_vec[self.offset + color] = 1
 
-            self.offset += self.num_colors
+                self.offset += self.num_colors
 
-            if card_knowledge["rank"] != None:
-                self.obs_vec[self.offset + rank] = 1
+                if card_knowledge["rank"] != None:
+                    self.obs_vec[self.offset + rank] = 1
 
-            self.offset += self.num_ranks
+                self.offset += self.num_ranks
+                num_cards += 1
+                # print("Num cards: {}".format(num_cards))
 
-            num_cards += 1
+            if num_cards < self.hand_size:
+                self.offset += (self.hand_size - num_cards) * (self.bits_per_card + self.num_colors + self.num_ranks)
 
-        if num_cards < self.hand_size:
-            self.offset += (self.hand_size - num_cards) * (self.bits_per_card + self.num_colors + self.num_ranks)
-
-        print(self.offset)
         assert self.offset - (self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length + self.last_action_bit_length + self.card_knowledge_bit_length) == 0
         return True

@@ -126,82 +126,83 @@ class RLPlayer(object):
         vectorized = self.env.ObservationEncoder.encode(observation)
         return vectorized
 
-def get_mock_observation():
 
-# '''
-#
-# Example Observaion from Mock game:
-#
-# {'num_players': 4, 'information_tokens': 0, 'current_player': 1, 'life_tokens': 1, 'vectorized': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'fireworks': {'Y': 2, 'B': 3, 'R': 0, 'W': 1, 'G': 3}, 'current_player_offset': 0, 'observed_hands': [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}], [{'color': 'B', 'rank': 3}, {'color': 'G', 'rank': 1}, {'color': 'R', 'rank': 3}, {'color': 'B', 'rank': 0}], [{'color': 'R', 'rank': 2}, {'color': 'G', 'rank': 2}, {'color': 'W', 'rank': 1}, {'color': 'R', 'rank': 0}], [{'color': 'Y', 'rank': 0}, {'color': 'W', 'rank': 1}, {'color': 'R', 'rank': 0}, {'color': 'B', 'rank': 4}]], 'legal_moves': [{'card_index': 0, 'action_type': 'DISCARD'}, {'card_index': 1, 'action_type': 'DISCARD'}, {'card_index': 2, 'action_type': 'DISCARD'}, {'card_index': 3, 'action_type': 'DISCARD'}, {'card_index': 0, 'action_type': 'PLAY'}, {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}], 'deck_size': 20, 'legal_moves_as_int': [0, 1, 2, 3, 4, 5, 6, 7], 'pyhanabi': Life tokens: 1
-# Info tokens: 0
-# Fireworks: R0 Y2 G3 W1 B3
-# Hands:
-# Cur player
-# XX || XX|RGW12345
-# XX || XX|RGW12345
-# XX || XX|RGW12345
-# XX || XX|RYGWB12345
-# -----
-# B4 || BX|B12345
-# G2 || XX|RYGW12345
-# R4 || XX|RYGW12345
-# B1 || BX|B12345
-# -----
-# R3 || XX|R12345
-# G3 || GX|G12345
-# W2 || WX|W12345
-# R1 || XX|RYGWB12345
-# -----
-# Y1 || XX|RYGWB12345
-# W2 || XX|RYGWB12345
-# R1 || XX|RYGWB12345
-# B5 || XX|RYGWB12345
-# Deck size: 20
-# Discards: W5 G1 Y2 Y1 B1, 'discard_pile': [{'color': 'W', 'rank': 4}, {'color': 'G', 'rank': 0}, {'color': 'Y', 'rank': 1}, {'color': 'Y', 'rank': 0}, {'color': 'B', 'rank': 0}], 'card_knowledge': [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': 'B', 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': 'B', 'rank': None}], [{'color': None, 'rank': None}, {'color': 'G', 'rank': None}, {'color': 'W', 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]}
-#
-# '''
+def get_mock_observation_mid_state_2pl():
 
-    vectorized = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    vectorized = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    num_players = 4
+    num_players = 2
     life_tokens = 1
-    information_tokens = 0
-    deck_size = 20
+    information_tokens = 8
+    deck_size = 31
+    current_player = 0
+    current_player_offset = 0
 
-    legal_moves_as_int = [0, 1, 2, 3, 4, 5, 6, 7]
+    legal_moves_as_int = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 20, 22, 23, 25, 28, 29, 31, 33, 34, 36, 37]
 
-    legal_moves = [{'card_index': 0, 'action_type': 'DISCARD'}, {'card_index': 1, 'action_type': 'DISCARD'},
-    {'card_index': 2, 'action_type': 'DISCARD'}, {'card_index': 3, 'action_type': 'DISCARD'}, {'card_index': 0, 'action_type': 'PLAY'},
-    {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}]
+    legal_moves = [{'card_index': 0, 'action_type': 'PLAY'}, {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}, {'card_index': 4, 'action_type': 'PLAY'}, {'color': 'R', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'G', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'B', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'target_offset': 1, 'rank': 2, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 3, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 4, 'action_type': 'REVEAL_RANK'}]
 
-    fireworks = {'Y': 2, 'B': 3, 'R': 0, 'W': 1, 'G': 3}
+    fireworks = {'Y': 1, 'B': 1, 'R': 0, 'W': 2, 'G': 0}
 
-    observed_hands = [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}],
-    [{'color': 'B', 'rank': 3}, {'color': 'G', 'rank': 1}, {'color': 'R', 'rank': 3}, {'color': 'B', 'rank': 0}],
-    [{'color': 'R', 'rank': 2}, {'color': 'G', 'rank': 2}, {'color': 'W', 'rank': 1}, {'color': 'R', 'rank': 0}],
-    [{'color': 'Y', 'rank': 0}, {'color': 'W', 'rank': 1}, {'color': 'R', 'rank': 0}, {'color': 'B', 'rank': 4}]]
+    observed_hands = [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}], [{'color': 'G', 'rank': 2}, {'color': 'G', 'rank': 2}, {'color': 'B', 'rank': 3}, {'color': 'G', 'rank': 4}, {'color': 'R', 'rank': 2}]]
 
-    discard_pile = [{'color': 'W', 'rank': 4}, {'color': 'G', 'rank': 0}, {'color': 'Y', 'rank': 1}, {'color': 'Y', 'rank': 0}, {'color': 'B', 'rank': 0}]
+    discard_pile = [{'color': 'W', 'rank': 0}, {'color': 'B', 'rank': 2}, {'color': 'B', 'rank': 4}, {'color': 'R', 'rank': 0}, {'color': 'G', 'rank': 3}]
 
-    card_knowledge = [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}],
-    [{'color': 'B', 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': 'B', 'rank': None}],
-    [{'color': None, 'rank': None}, {'color': 'G', 'rank': None}, {'color': 'W', 'rank': None}, {'color': None, 'rank': None}],
-    [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
-
+    card_knowledge = [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
 
     observation = {
-        'current_player': 0,
-        'current_player_offset': 0,
-        'life_tokens': 3,
-        'information_tokens': 8,
-        'num_players': 4,
-        'deck_size': 34,
+        'current_player': current_player,
+        'current_player_offset': current_player_offset,
+        'life_tokens': life_tokens,
+        'information_tokens': information_tokens,
+        'num_players': num_players,
+        'deck_size': deck_size,
         'fireworks': fireworks,
         'legal_moves': legal_moves,
         'observed_hands': observed_hands,  # moves own hand to front
         'discard_pile': discard_pile,
         'card_knowledge': card_knowledge,
-        'vectorized': None,  # Currently not needed, we can implement it later on demand
+        'vectorized': vectorized,  # Currently not needed, we can implement it later on demand
+        'last_moves': []  # actually not contained in the returned dict of th
+    }
+
+    return observation
+
+def get_mock_observation_init_state():
+
+    vectorized = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    num_players = 2
+    life_tokens = 3
+    information_tokens = 8
+    deck_size = 40
+
+    legal_moves_as_int = [5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 18]
+
+    legal_moves = [{'card_index': 0, 'action_type': 'PLAY'}, {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}, {'card_index': 4, 'action_type': 'PLAY'}, {'color': 'R', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'Y', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'W', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'target_offset': 1, 'rank': 0, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 2, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 3, 'action_type': 'REVEAL_RANK'}]
+
+    fireworks = {'Y': 0, 'B': 0, 'R': 0, 'W': 0, 'G': 0}
+
+    observed_hands = [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}], [{'color': 'W', 'rank': 3}, {'color': 'R', 'rank': 2}, {'color': 'Y', 'rank': 2}, {'color': 'Y', 'rank': 0}, {'color': 'R', 'rank': 0}]]
+
+    discard_pile = []
+
+    card_knowledge = [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
+
+
+    observation = {
+        'current_player': 0,
+        'current_player_offset': 0,
+        'life_tokens': life_tokens,
+        'information_tokens': information_tokens,
+        'num_players': num_players,
+        'deck_size': deck_size,
+        'fireworks': fireworks,
+        'legal_moves': legal_moves,
+        'observed_hands': observed_hands,  # moves own hand to front
+        'discard_pile': discard_pile,
+        'card_knowledge': card_knowledge,
+        'vectorized': vectorized,  # Currently not needed, we can implement it later on demand
         'last_moves': []  # actually not contained in the returned dict of th
     }
 
@@ -211,13 +212,14 @@ if __name__=="__main__":
 
     ### Set up the environment
     game_type = "Hanabi-Full"
-    num_players = 4
+    num_players = 2
 
-    env = xp.create_environment(game_type=game_type, num_players=num_players)
+    # env1 = xp.create_environment(game_type=game_type, num_players=num_players)
+    env2 = xp.create_environment(game_type=game_type, num_players=num_players)
 
     # Setup Obs Stacker that keeps track of Observation for all agents ! Already includes logic for distinguishing the view between different agents
     history_size = 1
-    obs_stacker = xp.create_obs_stacker(env,history_size=history_size)
+    obs_stacker = xp.create_obs_stacker(env2,history_size=history_size)
     observation_size = obs_stacker.observation_size()
 
     ### Set up the RL-Player, reload weights from trained model
@@ -233,11 +235,35 @@ if __name__=="__main__":
     # Parse the current players observation to a vector
     # obs_stacker.reset_stack()
     # print(len(encoder.obs_vec))
-    observations = env.reset()
+    #observations = env.reset()
 
-    mock_observation = get_mock_observation()
-    obs_vectorizer = vectorizer.ObservationVectorizer(env)
-    print(obs_vectorizer.vectorize_observation(mock_observation))
+    # mock_observation_1 = get_mock_observation_init_state()
+    mock_observation_2 = get_mock_observation_mid_state_2pl()
+
+    # obs_vectorizer1 = vectorizer.ObservationVectorizer(env1)
+    obs_vectorizer2 = vectorizer.ObservationVectorizer(env2)
+
+    # vectorized_obs_vectorizer1 = obs_vectorizer1.vectorize_observation(mock_observation_1)
+    # vectorized_obs_mock1 = mock_observation_1["vectorized"]
+
+    vectorized_obs_vectorizer2 = obs_vectorizer2.vectorize_observation(mock_observation_2)
+    vectorized_obs_mock2 = mock_observation_2["vectorized"]
+
+    # wrong_indices1 = np.where(np.equal(vectorized_obs_vectorizer1, vectorized_obs_mock1)*1 != 1)
+    wrong_indices2 = np.where(np.equal(vectorized_obs_vectorizer2, vectorized_obs_mock2)*1 != 1)
+
+    # EVALUATION
+    # 1. Vector was wrong by 0 elements
+    # print("Wrong indices Init State mock obs: {}".format(wrong_indices1))
+    # print("Length of wrong indices: {}\n".format(wrong_indices1[0].shape))
+    
+    print("Wrong indices Mid State mock obs: {}".format(wrong_indices2))
+    print("Length of wrong indices: {}\n".format(wrong_indices2[0].shape))
+
+    for idx in wrong_indices2[0]:
+        print("Wrongly Encoded Value at index: {} : {}".format(idx,vectorized_obs_vectorizer2[idx]))
+        print("Right Value at index: {} should have been: {}\n".format(idx,vectorized_obs_mock2[idx]))
+        # print("Right value should be: {}".format(vectorized_obs_mock2[int(idx)]))
 
     # print(mock_observation)
     # encoded = env.observation_encoder.encode(mock_observation)
