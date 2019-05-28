@@ -38,6 +38,7 @@ class Runner(object):
     rewards = []
     for episode in range(flags['num_episodes']):
       observations = self.environment.reset()
+      print("Initial Observations-Object: \n {}".format(observations))
       agents = [self.agent_class(self.agent_config)
                 for _ in range(self.flags['players'])]
       done = False
@@ -47,9 +48,16 @@ class Runner(object):
           observation = observations['player_observations'][agent_id]
 
           action = agent.act(observation)
+
           if observation['current_player'] == agent_id:
+
+            print("\CURRENT PLAYER Agent Observation\n")
+            print(observation)
+            print("\nEnd CURRENT PLAYER Observation\n")
+
             assert action is not None
             current_player_action = action
+            print("Current Agent Player Action: {}".format(current_player_action))
           else:
             assert action is None
         # Make an environment step.
@@ -57,9 +65,9 @@ class Runner(object):
                                             current_player_action))
         observations, reward, done, unused_info = self.environment.step(
             current_player_action)
-        print("\nStart Observaion\n")
+        print("\nStart WHOLE Observations OBJECT AFTER ACION\n")
         print(observations)
-        print("\nEnd Observaion\n")
+        print("\nEnd WHOLE OBSERVATION Observaions\n")
         episode_reward += reward
       rewards.append(episode_reward)
       print('Running episode: %d' % episode)

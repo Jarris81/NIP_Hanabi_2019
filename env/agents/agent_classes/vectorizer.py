@@ -13,31 +13,55 @@ COLOR_CHAR = ["R", "Y", "G", "W", "B"]
 # Check Board
 # Check Discaad Pile
 
-def color_plausible(color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
+#def color_plausible(color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
+def color_plausible(color, player_hand, card_id, card_color_revealed):
+
     color = utils.color_idx_to_char(color)
-    # print("Hand Knowledge: {}".format(hand_knowledge))
-    # print("Color: {}".format(color))
+
+    if card_color_revealed == True :
+        if color == player_hand[card_id]["color"]:
+            return True
+        else:
+            return False
+    print("Hand Knowledge: {}".format(player_hand))
     plausible = True
-    for card_knowledge in hand_knowledge:
-        if (card_knowledge["color"] == color):
+
+    for i,card in enumerate(player_hand):
+        print("Check our Card: {}, ID:{} against looped(plausible) Card: {}, ID:{}".format(player_hand[card_id],card_id,card,i))
+        print("Color that we are checking if plausible: {}\n".format(color))
+        tmp_color = card["color"]
+        if (tmp_color == color):
             plausible = False
-    # print("Color is plausible ? -> {}".format(plausible))
+
+    print("Color is plausible ? -> {}\n".format(plausible))
+
     return plausible
 
-def rank_plausible(rank, color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
-    plausible = True
-    # print("Hand Knowledge: {}".format(hand_knowledge))
-    # print("Rank: {}".format(rank))
+#def rank_plausible(rank, color, hand_knowledge, hands, discard_pile_knowledge, fireworks_knowledge, num_colors, num_ranks, num_cards):
+def rank_plausible(rank, color, player_hand, card_id, card_rank_revealed):
 
-    #TODO
-    # 1. Need to encode COMMON card knowledge: What do I know, what the other player knows ?
-    # 2. Infere from opponents hand if card plausible - Isn't actually used ... but can be infered from board
-    # 3. Infere from Firework if card plausible - Isn't actually used ... but can be infered from board
-    #
-    # OWN HAND
-    for card_knowledge in hand_knowledge:
-        if (card_knowledge["rank"] == rank):
+    if card_rank_revealed == True:
+        if rank == player_hand[card_id][rank]:
+            return True
+        else:
+            return False
+
+    plausible = True
+
+    for i,card in enumerate(player_hand):
+        tmp_rank = card["rank"]
+        if (card["rank"] == rank):
             plausible = False
+    print("RANK IS PLAUSIBLE: {}\n".format(plausible))
+
+
+
+    #TODO: pOSSIBLE IMPROVEMENTS
+    # 1. Need to encode COMMON card knowledge: What do I know, what the other player knows ?
+    # 2. Infere from opponents hand if card plausible - Isn't actually used ... but can be infered from board (code below)
+    # 3. Infere from Firework if card plausible - Isn't actually used ... but can be infered from board (code below)
+
+
 
     # OPONENTS HANDS
     # counts contains full number of cards of each color. If after iterating through fireworks, discard_pile and ops hands stil cards left -> rank plausible
@@ -47,7 +71,7 @@ def rank_plausible(rank, color, hand_knowledge, hands, discard_pile_knowledge, f
     #
     # print("Color we are looking at: {}".format(color_char))
     # print("Rank we are looking at: {}".format(rank))
-
+    #
     # # iterate over each opponents hand
     # for hand in hands:
     #     for card in hand:
@@ -75,7 +99,6 @@ def rank_plausible(rank, color, hand_knowledge, hands, discard_pile_knowledge, f
     #             if count <= 0:
     #                 plausible = False
     # print("Rank plausible ? -> {}\n".format(plausible))
-
 
     return plausible
 
@@ -254,50 +277,81 @@ class ObservationVectorizer(object):
         fireworks_knowledge = obs["fireworks"]
 
         # print("Card Knowledge: {}\n".format(card_knowledge_list))
-        num_cards = 0
 
         #### REMOVE AFTER DEBUGGING ####
-        error_list = [254, 255, 278, 286, 306, 488, 489, 490, 491, 492, 498, 499, 500,
-       501, 502, 503, 504, 505, 506, 507, 523, 524, 525, 526, 527]
+        error_list = [254, 257, 259, 261, 271, 275, 433, 434, 435, 436, 437, 503, 504,
+       505, 506, 507, 538, 539, 540, 541, 542, 573, 574, 575, 576, 577]
 
 
-        for ih,hand_knowledge in enumerate(card_knowledge_list):
-            # print("Card Knowledge List: {}".format(card_knowledge_list))
-            print("Player index: {}".format(ih))
-            for card_knowledge in hand_knowledge:
-                # print("Card Knowledge: {}".format(card_knowledge))
+        for ih, player_hand in enumerate(card_knowledge_list):
+
+            num_cards = 0
+
+            print("##########################################")
+            print("############### PLAYER {} ################".format(ih+1))
+            print("##########################################\n")
+
+            for card_id, card in enumerate(player_hand):
+                print("##########################################")
+                print("tmp-card id: {}".format(card_id))
+                print("##########################################")
+                if card["color"] != None:
+                    card_color_revealed = True
+                else:
+                    card_color_revealed = False
+                if card["rank"] != None:
+                    card_rank_revealed = True
+                else:
+                    card_rank_revealed = False
+
                 for color in range(self.num_colors):
-                    if color_plausible(color, hand_knowledge,hands,discard_pile_knowledge,fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+
+                    if color_plausible(color, player_hand, card_id, card_color_revealed):
+                    #if color_plausible(color, player_hand, hands, discard_pile_knowledge, fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+
                         for rank in range(self.num_ranks):
-                            if rank_plausible(rank, color, hand_knowledge,hands,discard_pile_knowledge,fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
-                                # print("Color: {}".format(color))
-                                # print("Rank: {}".format(rank))
+
+                            if rank_plausible(rank, color, player_hand, card_id, card_rank_revealed):
+                            #if rank_plausible(rank, color, hand_knowledge, hands,discard_pile_knowledge, fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+
                                 card_index = color * self.num_ranks + rank
-                                # print("Card Index: {}".format(card_index))
+
                                 if ((self.offset+card_index) in error_list):
                                     print(self.offset+card_index)
-                                    print("Failed encoded card: {}, with index: {}, at hand_index: {}".format(card_knowledge, card_index, ih))
-                                    print("Wrongly assigned 'plausible' to color: {}, rank: {}".format(utils.color_idx_to_char(color),rank))
-                                # if (ih==1):
-                                #     print(card)
-                                self.obs_vec[self.offset + card_index] = 1
-                                # print("changed obs_vec")
+                                    print("\nFailed encoded card: {}, with index: {}, at hand_index: {}".format(card, card_id, ih))
+                                    print("Wrongly assigned 'plausible' to color: {}, rank: {}\n".format(utils.color_idx_to_char(color),rank))
 
-                # print("Self Offset before increasing: {}".format(self.offset))
+                                self.obs_vec[self.offset + card_index] = 1
+
+
                 self.offset += self.bits_per_card
                 # print("Self Offset after increasing: {}".format(self.offset))
 
                 # Encode explicitly revealed colors and ranks
-                if card_knowledge["color"] != None:
-                    color = utils.color_char_to_idx(card_knowledge["color"])
+                if card["color"] != None:
+                    color = utils.color_char_to_idx(card["color"])
+                    print("Color: {} at card: {}, from player {} was hinted\n".format(card["color"],card_id,ih))
+                    if ((self.offset + color) in error_list):
+                        print("\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+                        print("Color: {} at card: {}, with obs_vec_index:{} from player {} was wrongly set as hinted\n".format(card["color"],card,self.offset + color,ih))
+
                     self.obs_vec[self.offset + color] = 1
 
+                print("Offset BEFORE color add: {}".format(self.offset))
                 self.offset += self.num_colors
+                print("Offset AFTER color add: {}".format(self.offset))
 
-                if card_knowledge["rank"] != None:
+                if card["rank"] != None:
+                    rank = card["rank"]
+                    if ((self.offset + rank) in error_list):
+                        print("\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+                        print("Rank: {} at card: {}, with obs_vec_index:{} from player {} was wrongly set as hinted\n".format(rank,card,self.offset + color,ih))
+                    print("Rank: {} at card: {}, from player {} was hinted".format(rank,card_id,ih))
                     self.obs_vec[self.offset + rank] = 1
 
+                print("Offset BEFORE rank add: {}".format(self.offset))
                 self.offset += self.num_ranks
+                print("Offset AFTER rank add: {}".format(self.offset))
                 num_cards += 1
                 # print("Num cards: {}".format(num_cards))
 

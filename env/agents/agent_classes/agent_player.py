@@ -126,29 +126,62 @@ class RLPlayer(object):
         vectorized = self.env.ObservationEncoder.encode(observation)
         return vectorized
 
+def get_mock_observation_mid_state_4pl():
+    # TBD
+    return
+
+
 
 def get_mock_observation_mid_state_2pl():
 
-    vectorized = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+#
+# Life tokens: 1
+# Info tokens: 5
+# Fireworks: R0 Y0 G0 W1 B2
+# Hands:
+# Cur player
+# XX || RX|R12345
+# XX || GX|G12345
+# XX || BX|B12345
+# XX || XX|YWB12345   -> CAN'T BE YELLOW NOR WHITE
+# XX || RX|R12345
+# -----
+# R3 || XX|RYGW12345   -> CAN'T BE YELLOW NOR WHITE
+# Y2 || XX|RYGW12345   -> CAN'T BE YELLOW NOR WHITE
+# W2 || XX|RYGW12345   -> CAN'T BE YELLOW NOR WHITE
+# B4 || XX|RYGWB12345  -> CAN'T BE YELLOW NOR WHITE
+# G3 || XX|RYGWB12345
+# Deck size: 34
+# Discards: G3 B4 B1
+#
+# End CURRENT PLAYER Observation
+#
+# Current Agent Player Action: {'card_index': 0, 'action_type': 'PLAY'}
+# Agent: 0 action: {'card_index': 0, 'action_type': 'PLAY'}
+#
+# TERMINAL STATE
+
+    # Full Game in mock_2pl_game.txt - last MOVE: Agent: 0 action: {'card_index': 0, 'action_type': 'PLAY'}
+    vectorized = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     num_players = 2
     life_tokens = 1
-    information_tokens = 8
-    deck_size = 31
+    information_tokens = 5
+    deck_size = 34
     current_player = 0
     current_player_offset = 0
 
-    legal_moves_as_int = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 20, 22, 23, 25, 28, 29, 31, 33, 34, 36, 37]
+    legal_moves_as_int = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18]
 
-    legal_moves = [{'card_index': 0, 'action_type': 'PLAY'}, {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}, {'card_index': 4, 'action_type': 'PLAY'}, {'color': 'R', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'G', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'B', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'target_offset': 1, 'rank': 2, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 3, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 4, 'action_type': 'REVEAL_RANK'}]
+    legal_moves = [{'card_index': 0, 'action_type': 'DISCARD'}, {'card_index': 1, 'action_type': 'DISCARD'}, {'card_index': 2, 'action_type': 'DISCARD'}, {'card_index': 3, 'action_type': 'DISCARD'}, {'card_index': 4, 'action_type': 'DISCARD'}, {'card_index': 0, 'action_type': 'PLAY'}, {'card_index': 1, 'action_type': 'PLAY'}, {'card_index': 2, 'action_type': 'PLAY'}, {'card_index': 3, 'action_type': 'PLAY'}, {'card_index': 4, 'action_type': 'PLAY'}, {'color': 'R', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'Y', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'G', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'W', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'color': 'B', 'target_offset': 1, 'action_type': 'REVEAL_COLOR'}, {'target_offset': 1, 'rank': 1, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 2, 'action_type': 'REVEAL_RANK'}, {'target_offset': 1, 'rank': 3, 'action_type': 'REVEAL_RANK'}]
 
-    fireworks = {'Y': 1, 'B': 1, 'R': 0, 'W': 2, 'G': 0}
+    fireworks = {'Y': 0, 'B': 2, 'R': 0, 'W': 1, 'G': 0}
 
-    observed_hands = [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}], [{'color': 'G', 'rank': 2}, {'color': 'G', 'rank': 2}, {'color': 'B', 'rank': 3}, {'color': 'G', 'rank': 4}, {'color': 'R', 'rank': 2}]]
+    observed_hands = [[{'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}, {'color': None, 'rank': -1}], [{'color': 'R', 'rank': 2}, {'color': 'Y', 'rank': 1}, {'color': 'W', 'rank': 1}, {'color': 'B', 'rank': 3}, {'color': 'G', 'rank': 2}]]
 
-    discard_pile = [{'color': 'W', 'rank': 0}, {'color': 'B', 'rank': 2}, {'color': 'B', 'rank': 4}, {'color': 'R', 'rank': 0}, {'color': 'G', 'rank': 3}]
+    discard_pile = [{'color': 'G', 'rank': 2}, {'color': 'B', 'rank': 3}, {'color': 'B', 'rank': 0}]
 
-    card_knowledge = [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
+    card_knowledge =  [[{'color': 'R', 'rank': None}, {'color': 'G', 'rank': None}, {'color': 'B', 'rank': None}, {'color': None, 'rank': None}, {'color': 'R', 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
 
     observation = {
         'current_player': current_player,
@@ -256,13 +289,18 @@ if __name__=="__main__":
     # 1. Vector was wrong by 0 elements
     # print("Wrong indices Init State mock obs: {}".format(wrong_indices1))
     # print("Length of wrong indices: {}\n".format(wrong_indices1[0].shape))
-    
+    print("Wrong Indices: {}".format(wrong_indices2))
     print("Wrong indices Mid State mock obs: {}".format(wrong_indices2))
     print("Length of wrong indices: {}\n".format(wrong_indices2[0].shape))
+    print(vectorized_obs_vectorizer2[433])
+    print(vectorized_obs_vectorizer2[434])
+    print(vectorized_obs_vectorizer2[435])
+    print(vectorized_obs_vectorizer2[436])
+    print(vectorized_obs_vectorizer2[437])
 
-    for idx in wrong_indices2[0]:
-        print("Wrongly Encoded Value at index: {} : {}".format(idx,vectorized_obs_vectorizer2[idx]))
-        print("Right Value at index: {} should have been: {}\n".format(idx,vectorized_obs_mock2[idx]))
+    # for idx in wrong_indices2[0]:
+    #     print("Wrongly Encoded Value at index: {} : {}".format(idx,vectorized_obs_vectorizer2[idx]))
+    #     print("Right Value at index: {} should have been: {}\n".format(idx,vectorized_obs_mock2[idx]))
         # print("Right value should be: {}".format(vectorized_obs_mock2[int(idx)]))
 
     # print(mock_observation)
