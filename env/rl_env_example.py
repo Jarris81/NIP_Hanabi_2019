@@ -20,6 +20,7 @@ import getopt
 import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
+from agents.agent_classes import vectorizer
 
 AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent}
 
@@ -43,14 +44,14 @@ class Runner(object):
                 for _ in range(self.flags['players'])]
       done = False
       episode_reward = 0
+
       while not done:
         for agent_id, agent in enumerate(agents):
           observation = observations['player_observations'][agent_id]
-
           action = agent.act(observation)
 
           if observation['current_player'] == agent_id:
-
+            print("Last moves: {}\n".format(observation["last_moves"]))
             print("\CURRENT PLAYER Agent Observation\n")
             print(observation)
             print("\nEnd CURRENT PLAYER Observation\n")
@@ -60,6 +61,7 @@ class Runner(object):
             print("Current Agent Player Action: {}".format(current_player_action))
           else:
             assert action is None
+
         # Make an environment step.
         print('Agent: {} action: {}'.format(observation['current_player'],
                                             current_player_action))
@@ -75,7 +77,7 @@ class Runner(object):
     return rewards
 
 if __name__ == "__main__":
-  flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'SimpleAgent'}
+  flags = {'players': 4, 'num_episodes': 1, 'agent_class': 'SimpleAgent'}
   options, arguments = getopt.getopt(sys.argv[1:], '',
                                      ['players=',
                                       'num_episodes=',
