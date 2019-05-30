@@ -10,31 +10,22 @@ def color_plausible(color, player_card_knowledge, card_id, card_color_revealed, 
     if last_hand:
         if last_player_action == "PLAY" or last_player_action == "DISCARD":
             player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-            # print(player_card_knowledge)
-            # print("Extended Player Card Knowledge: {}\n".format(player_card_knowledge))
             if card_id == (len(last_player_card_knowledge)-1):
                 return plausible
 
     color = utils.color_idx_to_char(color)
-    # print(color)
     if card_color_revealed == True :
         if color == player_card_knowledge[card_id]["color"]:
             return plausible
         else:
             plausible = False
             return plausible
-    # print("Hand Knowledge: {}".format(player_card_knowledge))
 
     for i,card in enumerate(player_card_knowledge):
 
-        # print("Check our Card: {}, ID:{} against looped(plausible) Card: {}, ID:{}".format(player_card_knowledge[card_id],card_id,card,i))
-        # print("Color that we are checking if plausible: {}\n".format(color))
-        # print(card)
         tmp_color = card["color"]
         if (tmp_color == color):
             plausible = False
-
-    # print("Color is plausible ? -> {}\n".format(plausible))
 
     return plausible
 
@@ -44,7 +35,6 @@ def rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_reveal
     if last_hand:
         if last_player_action == "PLAY" or last_player_action == "DISCARD":
             player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-            # print("Extended Player Card Knowledge: {}\n".format(player_card_knowledge))
             if card_id == (len(player_card_knowledge)-1):
                 return plausible
 
@@ -58,51 +48,6 @@ def rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_reveal
         tmp_rank = card["rank"]
         if (card["rank"] == rank):
             plausible = False
-    # print("RANK IS PLAUSIBLE: {}\n".format(plausible))
-
-    #TODO: POSSIBLE IMPROVEMENTS
-    # 1. Need to encode COMMON card knowledge: What do I know, what the other player knows ?
-    # 2. Infere from opponents hand if card plausible - Isn't actually used ... but can be infered from board (code below)
-    # 3. Infere from Firework if card plausible - Isn't actually used ... but can be infered from board (code below)
-
-
-
-    # OPONENTS HANDS
-    # counts contains full number of cards of each color. If after iterating through fireworks, discard_pile and ops hands stil cards left -> rank plausible
-    # count = num_cards(color,rank)
-    #
-    # color_char = utils.color_idx_to_char(color)
-    #
-    # print("Color we are looking at: {}".format(color_char))
-    # print("Rank we are looking at: {}".format(rank))
-
-    # # iterate over each opponents hand
-    # for hand in hands:
-    #     for card in hand:
-    #         tmp_card = card
-    #         if tmp_card["color"] == color_char:
-    #             tmp_color = utils.color_char_to_idx(tmp_card["color"])
-    #             tmp_rank = tmp_card["rank"]
-    #             if tmp_rank == rank:
-    #                 print("card {}".format(tmp_card))
-    #                 count -= 1
-    #                 if count <= 0:
-    #                     plausible = False
-
-    # print("Rank plausible ? -> {}\n".format(plausible))
-    #
-    # # Iterate over discard pile
-    # for card in discard_pile_knowledge:
-    #     tmp_card = card
-    #     if tmp_card["color"] == color_char:
-    #         tmp_color = utils.color_char_to_idx(tmp_card["color"])
-    #         tmp_rank = tmp_card["rank"]
-    #         if tmp_rank == rank:
-    #             print("card {}".format(tmp_card))
-    #             count -= 1
-    #             if count <= 0:
-    #                 plausible = False
-    # print("Rank plausible ? -> {}\n".format(plausible))
 
     return plausible
 
@@ -168,26 +113,17 @@ class ObservationVectorizer(object):
             self.env = env
 
             self.num_players = self.env.game.num_players()
-            # print("num players: {}".format(num_players))
             self.num_colors = self.env.game.num_colors()
-            # print("num colors: {}".format(num_colors))
             self.num_ranks = self.env.game.num_ranks()
-            # print("num ranks: {}".format(self.num_ranks))
             self.hand_size = self.env.game.hand_size()
-            # print("hand_size: {}".format(hand_size))
             self.max_info_tokens = self.env.game.max_information_tokens()
-            # print("max info: {}".format(max_info_tokens))
             self.max_life_tokens = self.env.game.max_life_tokens()
-            # print("max life: {}".format(max_life_tokens))
             self.max_moves = self.env.game.max_moves()
-            # print("max moves: {}".format(max_moves))
             self.bits_per_card = self.num_colors * self.num_ranks
-            # print("bits per card {}".format(bits_per_card))
             self.max_deck_size = 0
             for color in range(self.num_colors):
                 for rank in range(self.num_ranks):
                     self.max_deck_size += self.env.game.num_cards(color,rank)
-            # print("max deck size: {}".format(max_deck_size))
 
             # Compute total state length
             self.hands_bit_length = (self.num_players - 1) * self.hand_size * \
@@ -242,7 +178,6 @@ class ObservationVectorizer(object):
                 for card in player_hand:
                     rank = card["rank"]
                     color = utils.color_char_to_idx(card["color"])
-                    # print("Converted color {} to {}".format(card['color'],color))
                     card_index = color * self.num_ranks + rank
                     self.obs_vec[self.offset + card_index] = 1
                     num_cards += 1
@@ -312,9 +247,9 @@ class ObservationVectorizer(object):
         if self.last_player_action == None:
             self.offset += self.last_action_bit_length
         else:
-            last_move_type = self.last_player_action["MOVE_TYPE"]
+            last_move_type = self.last_player_action["action_type"]
             #print("Last Move Type: {}".format(last_move_type))
-            self.obs_vec[self.offset + self.last_player_action["PLAYER"]] = 1
+            self.obs_vec[self.offset + self.last_player_action["player"]] = 1
             self.offset += self.num_players
 
             if last_move_type == "PLAY":
@@ -332,50 +267,50 @@ class ObservationVectorizer(object):
 
             # NEED TO COMPUTE RELATIVE OFFSET FROM CURRENT PLAYER
             if last_move_type == "REVEAL_COLOR" or last_move_type == "REVEAL_RANK":
-                observer_relative_target = (self.last_player_action["PLAYER"] + self.last_player_action["TARGET_OFFSET"]) % self.num_players
+                observer_relative_target = (self.last_player_action["player"] + self.last_player_action["target_offset"]) % self.num_players
                 self.obs_vec[self.offset + observer_relative_target] = 1
 
             self.offset += self.num_players
 
             if last_move_type == "REVEAL_COLOR":
-                last_move_color = self.last_player_action["COLOR"]
+                last_move_color = self.last_player_action["color"]
                 self.obs_vec[self.offset + utils.color_char_to_idx(last_move_color)] = 1
 
             self.offset += self.num_colors
 
             if last_move_type == "REVEAL_RANK":
-                last_move_rank = self.last_player_action["RANK"]
+                last_move_rank = self.last_player_action["rank"]
                 self.obs_vec[self.offset + last_move_rank] = 1
 
             self.offset += self.num_ranks
 
             # If multiple positions where selected
             if last_move_type == "REVEAL_COLOR" or last_move_type == "REVEAL_RANK":
-                positions = self.last_player_action["POSITIONS"]
+                positions = self.last_player_action["positions"]
                 for pos in positions:
                     self.obs_vec[self.offset + pos] = 1
 
             self.offset += self.hand_size
 
             if last_move_type == "PLAY" or last_move_type == "DISCARD":
-                card_index = self.last_player_action["CARD_ID"]
+                card_index = self.last_player_action["hand_card_id"]
                 self.obs_vec[self.offset + card_index] = 1
 
             self.offset += self.hand_size
 
             if last_move_type == "PLAY" or last_move_type == "DISCARD":
-                card_index_hgame = utils.color_char_to_idx(self.last_player_action["COLOR"]) * self.num_ranks + self.last_player_action["RANK"]
+                card_index_hgame = utils.color_char_to_idx(self.last_player_action["color"]) * self.num_ranks + self.last_player_action["rank"]
                 print(self.offset + card_index_hgame)
                 self.obs_vec[self.offset + card_index_hgame] = 1
 
             self.offset += self.bits_per_card
 
             if last_move_type == "PLAY":
-                if self.last_player_action["SCORED"]:
+                if self.last_player_action["scored"]:
                     self.obs_vec[self.offset] = 1
 
                 ### IF INFO TOKEN WAS ADDED
-                if self.last_player_action["INFO_ADD"]:
+                if self.last_player_action["info_add"]:
                     self.obs_vec[self.offset + 1] = 1
 
             self.offset += 2
@@ -420,13 +355,11 @@ class ObservationVectorizer(object):
 
                 for color in range(self.num_colors):
 
-                    if color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, self.last_player_action["MOVE_TYPE"], self.last_player_card_knowledge):
-                    #if color_plausible(color, player_hand, hands, discard_pile_knowledge, fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+                    if color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, self.last_player_action["action_type"], self.last_player_card_knowledge):
 
                         for rank in range(self.num_ranks):
 
-                            if rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, self.last_player_action["MOVE_TYPE"], self.last_player_card_knowledge):
-                            #if rank_plausible(rank, color, hand_knowledge, hands,discard_pile_knowledge, fireworks_knowledge,self.num_colors,self.num_ranks,self.env.game.num_cards):
+                            if rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, self.last_player_action["action_type"], self.last_player_card_knowledge):
 
                                 card_index = color * self.num_ranks + rank
 
@@ -437,35 +370,21 @@ class ObservationVectorizer(object):
                                 self.obs_vec[self.offset + card_index] = 1
 
                 self.offset += self.bits_per_card
-                # print("Self Offset after increasing: {}".format(self.offset))
 
                 # Encode explicitly revealed colors and ranks
                 if card["color"] != None:
                     color = utils.color_char_to_idx(card["color"])
-                    # print("Color: {} at card: {}, from player {} was hinted\n".format(card["color"],card_id,ih))
-                    # if ((self.offset + color) in error_list):
-                        # print("\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-                        # print("Color: {} at card: {}, with obs_vec_index:{} from player {} was wrongly set as hinted\n".format(card["color"],card,self.offset + color,ih))
 
                     self.obs_vec[self.offset + color] = 1
 
-                # print("Offset BEFORE color add: {}".format(self.offset))
                 self.offset += self.num_colors
-                # print("Offset AFTER color add: {}".format(self.offset))
 
                 if card["rank"] != None:
                     rank = card["rank"]
-                    # if ((self.offset + rank) in error_list):
-                    #     print("\n !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-                    #     print("Rank: {} at card: {}, with obs_vec_index:{} from player 1{} was wrongly set as hinted\n".format(rank,card,self.offset + color,ih))
-                    # print("Rank: {} at card: {}, from player {} was hinted".format(rank,card_id,ih))
                     self.obs_vec[self.offset + rank] = 1
 
-                # print("Offset BEFORE rank add: {}".format(self.offset))
                 self.offset += self.num_ranks
-                # print("Offset AFTER rank add: {}".format(self.offset))
                 num_cards += 1
-                # print("Num cards: {}".format(num_cards))
 
             if num_cards < self.hand_size:
                 self.offset += (self.hand_size - num_cards) * (self.bits_per_card + self.num_colors + self.num_ranks)

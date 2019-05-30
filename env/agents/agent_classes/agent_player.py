@@ -35,7 +35,7 @@ class RLPlayer(object):
         self.num_actions = self.env.num_moves()
         self.observation_size = observation_size
         self.history_size = history_size
-
+        self.legalMovesVectorizer = vectorizer.LegalMovesVectorizer(self.env)
 
         if agent=="DQN":
             graph_template = dqn.dqn_template
@@ -74,7 +74,18 @@ class RLPlayer(object):
                                          'tf_ckpt-{}'.format(iteration_number)))
         return True
 
-    def act(self, observation, legal_actions_as_int):
+    # TODO return dict
+    '''
+    args:
+        observation: expects an already vectorized observation from vectorizer.ObservationVectorizer
+    returns:
+        an integer, representing the appropriate action to take
+    '''
+
+    def act(self, observation):
+
+        # Encode Legal Moves
+        legal_actions = self.legalMovesVectorizer.legal_moves_to_int(observation["legal_moves"])
 
         # Convert observation into a batch-based format.
         self.state[0, :, 0] = observation
@@ -86,25 +97,3 @@ class RLPlayer(object):
 
         assert legal_actions[action] == 0.0, 'Expected legal action.'
         return action
-
-# if __name__=="__main__":
-#
-#     ### Set up the environment
-#     game_type = "Hanabi-Full"
-#     num_players = 2
-#
-#     env = xp.create_environment(game_type=game_type, num_players=num_players)
-#
-#     # Setup Obs Stacker that keeps track of Observation for all agents ! Already includes logic for distinguishing the view between different agents
-#     history_size = 1
-#     obs_stacker = xp.create_obs_stacker(env,history_size=history_size)
-#     observation_size = obs_stacker.observation_size()
-#     obs_vectorizer = vectorizer.ObservationVectorizer(env)
-#
-#
-#     ### Set up the RL-Player, reload weights from trained model
-#     agent = "DQN"
-#
-#     ### Specify model weights to be loaded
-#     # path = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/playable_models"
-#     # iteration_no = 1950

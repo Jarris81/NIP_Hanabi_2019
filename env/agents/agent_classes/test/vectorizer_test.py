@@ -1,5 +1,8 @@
+import os
+import sys
+
 import numpy as np
-import run_experiment as xp
+import agent.agent_classes.run_experiment as xp
 import vectorizer
 import agent_player as ap
 
@@ -447,7 +450,7 @@ if __name__=="__main__":
     # LAST ACTION: [<(Deal G4)>, <(Play 1) by player 3 G2>, <(Reveal player +1 color G) by player 2 reveal 1,3>]
     mock_observation = get_mock_4pl_3rd_state()
     obs_vectorizer.last_player_card_knowledge = [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]
-    obs_vectorizer.last_player_action = {"MOVE_TYPE":"PLAY", "PLAYER":3, "CARD_ID": 1, "COLOR":"G", "RANK":1 ,"TARGET_OFFSET": 0, "SCORED": False, "INFO_ADD": None, "POSITIONS": None}
+    obs_vectorizer.last_player_action = {"action_type":"PLAY", "player":3, "hand_card_id": 1, "color":"G", "rank":1 ,"target_offset": 0, "scored": False, "info_add": None, "positions": None}
 
     vectorized_obs_vectorizer = obs_vectorizer.vectorize_observation(mock_observation)
     vectorized_obs_mock = mock_observation["vectorized"]
@@ -456,7 +459,6 @@ if __name__=="__main__":
 
     print("Wrong Indices: {}".format(wrong_indices))
     print("Length of wrong indices: {}\n".format(wrong_indices[0].shape))
-
 
     # DONE
     # TEST LEGAL_ACTIONS_TO_INT FUNCTION AND LOADING PRETRAINED TF MODEL
