@@ -1,20 +1,11 @@
-# Copyright 2018 Google LLC
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
 #
-#    https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """First attempt on building the rule based agent"""
 
 from rl_env import Agent
+from pyhanabi import HanabiCardKnowledge
 
+D = False # set to True if you want to print out useful info
 
 class RuleBasedAgent(Agent):
     """Agent that applies a simple heuristic."""
@@ -22,44 +13,262 @@ class RuleBasedAgent(Agent):
     def __init__(self, config, *args, **kwargs):
         """Initialize the agent."""
         self.config = config
+        # set number of players
+        self.players = config['players']
+
+        if self.players < 4:
+            self.rank_hinted_but_no_play = [False] * 5
+        else:
+            self.rank_hinted_but_no_play = [False] * 4
+
         # Extract max info tokens or set default to 8.
         self.max_information_tokens = config.get('information_tokens', 8)
 
     @staticmethod
     def playable_card(card, fireworks):
         """A card is playable if it can be placed on the fireworks pile."""
-        return card['rank'] == fireworks[card['color']]
+        if card['rank'] is None:
+            return False
+        else:
+            return card['rank'] == fireworks[card['color']]
+
+    def check_if_not_playable_hint(self, observation):
+
+        # check if rank hint was hinted for discard or not,
+        last_moves = observation['pyhanabi'].last_moves()
+
+        own_cards_knowledge = observation['pyhanabi'].card_knowledge()[0]
+
+        for index, own_card_knowledge in enumerate(own_cards_knowledge):
+            for last_move in last_moves:
+                player = last_move.player()
+                if player is self.players - 1:
+                    if D:
+                        print("Card: ", own_card_knowledge, "at index: ", index)
+                    move = last_move.move()
+                    target_offset = move.target_offset()
+                    # check if hint was from player
+                    # print("revealed in last move", last_move.card_info_revealed())
+                    # print("was 0 card index in move?:", 0 in last_move.card_info_revealed())
+                    # print("offset: ", move.target_offset())
+                    # print("Is rank same as card checking?: ", move.rank() == own_card_knowledge.rank())
+                    if player is self.players - 1 and move.target_offset() == 1 and \
+                            move.rank() == own_card_knowledge.rank() and 0 in last_move.card_info_revealed() and \
+                            move.rank() is not None:
+                        # hint is from left partner, not useful hint though (just hint to free tokens)')
+                        self.rank_hinted_but_no_play[index] = True
+                        break
+                    #else:
+                        # Unchanged
+        if D:
+            print("Current state of", self.rank_hinted_but_no_play)
+
+    def maybe_play_lowest_playable_card(self, observation):
+        """
+        The Bot checks if previously a card has been hinted to him,
+        :param observation:
+        :return:
+        """
+
+        own_card_knowledge = observation['pyhanabi'].card_knowledge()[0]
+
+        if D:
+            print('Own card knowledge', observation['pyhanabi'].card_knowledge()[0])
+            print()
+        for index, own_card_know in enumerate(own_card_knowledge):
+            if own_card_know.color() is not None:
+                if D:
+                    print("Will play from color hint card: ", own_card_know, "at index: ", index)
+                self.rank_hinted_but_no_play.pop(index)
+                self.rank_hinted_but_no_play.append(False)
+                return {
+                    'action_type': 'PLAY',
+                    'card_index': index
+                }
+            elif own_card_know.rank() is not None and \
+                    not self.rank_hinted_but_no_play[index]:
+                self.rank_hinted_but_no_play.pop(index)
+                self.rank_hinted_but_no_play.append(False)
+                if D:
+                    print("Will play from value hint card: ", own_card_know, "at index: ", index)
+                return {
+                    'action_type': 'PLAY',
+                    'card_index': index
+                }
+            else:
+                if D:
+                    print("Not enough info for Card ", own_card_know, " to play at index: ", index)
+
+    def maybe_give_helpful_hint(self, observation):
+
+        if observation['information_tokens'] is 0:
+            return None
+
+        fireworks = observation['fireworks']
+
+        best_so_far = 0
+        player_to_hint = -1
+        color_to_hint = -1
+        value_to_hint = -1
+
+        # for player_offset in range(1, observation['num_players']):
+        #    print('Cards from partner {}'.format(player_offset))
+        #    print(observation['observed_hands'][player_offset])
+        for player_offset in range(1, observation['num_players']):
+            player_hand = observation['observed_hands'][player_offset]
+            # player_hints = observation['card_knowledge'][player_offset]
+            player_knowledge = observation['pyhanabi'].card_knowledge()[player_offset]
+
+            if D:
+                print()
+                print("Cards from partner are: ")
+                print(player_hand)
+                print()
+                print("Knowledge partner know over his card: ")
+                print(player_knowledge)
+                print()
+
+            # Check if the card in the hand of the opponent is playable.
+
+            card_is_really_playable = [False, False, False, False, False]
+            playable_colors = []
+            playable_ranks = []
+            for index, (card, hint) in enumerate(zip(player_hand, player_knowledge)):
+                if self.playable_card(card, fireworks):
+                    if D:
+                        print("Card ", card, 'at index:', index, "is playable")
+                    card_is_really_playable[index] = True
+                    if card['color'] not in playable_colors:
+                        playable_colors.append(card['color'])
+                    if card['rank'] not in playable_ranks:
+                        playable_ranks.append(card['rank'])
+
+            '''Can we construct a color hint 
+            that gives our partner information
+            about unknown - playable cards, 
+            without also including any unplayable cards?'''
+
+            # go through playable colors
+            for color in playable_colors:
+                if D:
+                    print('playable color is: ', color)
+                information_content = 0
+                missinformative = False
+                for index, (card, knowledge) in enumerate(zip(player_hand, player_knowledge)):
+                    if card['color'] is not color:
+                        continue
+                    if self.playable_card(card, fireworks) and \
+                            knowledge.color() is None and \
+                            knowledge.rank() is None:
+                        if D:
+                            print('Hint for color {} is informative'.format(color))
+                        information_content += 1
+                    elif not self.playable_card(card, fireworks):
+                        missinformative = True
+                        break
+                if missinformative:
+                    continue
+                if information_content > best_so_far:
+                    best_so_far = information_content
+                    color_to_hint = color
+                    value_to_hint = -1
+                    player_to_hint = player_offset
+                    if D:
+                        print()
+                        print("Best hint at the moment: color{} to player{}".format(color_to_hint, player_to_hint))
+                        print()
+
+            # go through playable ranks
+            for rank in playable_ranks:
+                information_content = 0
+                missinformative = False
+                for index, (card, knowledge) in enumerate(zip(player_hand, player_knowledge)):
+                    if card['rank'] is not rank:
+                        continue
+                    if self.playable_card(card, fireworks) and \
+                            knowledge.color() is None and \
+                            knowledge.rank() is None:
+                        information_content += 1
+                    elif not self.playable_card(card, fireworks):
+                        missinformative = True
+                        break
+                if missinformative:
+                    continue
+                if information_content > best_so_far:
+                    best_so_far = information_content
+                    color_to_hint = None
+                    value_to_hint = rank
+                    player_to_hint = player_offset
+
+        # went through all players, now check
+        if best_so_far is 0:
+            return None
+        #
+        elif color_to_hint is not None:
+            return {
+                'action_type': 'REVEAL_COLOR',
+                'color': color_to_hint,
+                'target_offset': player_to_hint
+            }
+        elif value_to_hint is not -1:
+            return {
+                'action_type': 'REVEAL_RANK',
+                'rank': value_to_hint,
+                'target_offset': player_to_hint
+            }
+        else:
+            return None
 
     def act(self, observation):
-        """Act based on an observation."""
+        """
+        Act by making a move, depending on the observations.
+        :param observation: Dictionary containing all information over the hanabi game, from the view
+        of the players
+        :return: Returns a dictionary, describing the action
+        """
+
+        # check if in previous round, the left partner (index = num_players-1) has given us a VALUE-HINT,
+        # in which our latest card (index = 0) was hinted. These cards are not necessarily playable, therefore they need
+        # to be marked
+        self.check_if_not_playable_hint(observation)
+
+        # check if it is our turn, only give action then
         if observation['current_player_offset'] != 0:
             return None
 
-        # Check if there are any pending hints and play the card corresponding to
-        # the hint.
-        for card_index, hint in enumerate(observation['card_knowledge'][0]):
-            if hint['color'] is not None or hint['rank'] is not None:
-                return {'action_type': 'PLAY', 'card_index': card_index}
+        # If I have a playable card, play it.
+        action = self.maybe_play_lowest_playable_card(observation)
+        if action is not None:
+            return action
 
-        # Check if it's possible to hint a card to your colleagues.
-        fireworks = observation['fireworks']
-        if observation['information_tokens'] > 0:
-            # Check if there are any playable cards in the hands of the opponents.
-            for player_offset in range(1, observation['num_players']):
-                player_hand = observation['observed_hands'][player_offset]
-                player_hints = observation['card_knowledge'][player_offset]
-                # Check if the card in the hand of the opponent is playable.
-                for card, hint in zip(player_hand, player_hints):
-                    if RuleBasedAgent.playable_card(card,
-                                                    fireworks) and hint['color'] is None:
-                        return {
-                            'action_type': 'REVEAL_COLOR',
-                            'color': card['color'],
-                            'target_offset': player_offset
-                        }
+        # Otherwise, if someone else has an unknown-playable card, hint it.
+        action = self.maybe_give_helpful_hint(observation)
+        if action is not None:
+            return action
 
-        # If no card is hintable then discard or play.
-        if observation['information_tokens'] < self.max_information_tokens:
-            return {'action_type': 'DISCARD', 'card_index': 0}
+        # We couldn't find a good hint to give, or we are out of hint-stones.
+        # We wil discard a card, if possible.
+        # Otherwise just hint the next play
+        isDiscardingAllowed = False
+        for legal_moves in observation['legal_moves']:
+            if legal_moves['action_type'] is 'DISCARD':
+                isDiscardingAllowed = True
+                break
+        if not isDiscardingAllowed:
+            # assume next player in turn in player on right
+            hand_on_right = observation['observed_hands'][1]
+
+            # Only hinting because no better option,
+            return {
+                'action_type': 'REVEAL_RANK',
+                'rank': hand_on_right[0]['rank'],
+                'target_offset': 1
+            }
         else:
-            return {'action_type': 'PLAY', 'card_index': 0}
+            # Discard our oldest card
+            self.rank_hinted_but_no_play.pop(0)
+            self.rank_hinted_but_no_play.append(False)
+            return {
+                'action_type': 'DISCARD',
+                'card_index': 0
+            }
