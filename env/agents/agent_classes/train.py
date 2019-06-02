@@ -89,9 +89,10 @@ def launch_experiment():
   experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
 
   environment = run_experiment.create_environment(game_type='Hanabi-Full', num_players=4)
-  print(environment.num_moves())
   obs_stacker = run_experiment.create_obs_stacker(environment)
   agent = run_experiment.create_agent(environment, obs_stacker, agent_type=FLAGS.agent, mode=FLAGS.mode)
+
+  print(agent)
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
   start_iteration, experiment_checkpointer = (

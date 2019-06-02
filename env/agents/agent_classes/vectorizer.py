@@ -73,10 +73,24 @@ class LegalMovesVectorizer(object):
         self.num_colors = self.env.game.num_colors()
         self.hand_size = self.env.game.hand_size()
         self.max_reveal_color_moves = (self.num_players - 1) * self.num_colors
+        self.num_moves = self.env.num_moves()
 
-    def legal_moves_to_int(self, legal_moves):
+    def get_legal_moves_as_int(self, legal_moves):
+        legal_moves_as_int = [-np.Inf for _ in range(self.num_moves)]
+        tmp_legal_moves_as_int = [self.get_move_uid(move) for move in legal_moves]
+
+        for move in tmp_legal_moves_as_int:
+            legal_moves_as_int[move] = 0.0
+
         return [self.get_move_uid(move) for move in legal_moves]
 
+    def get_legal_moves_as_int_formated(self,legal_moves_as_int):
+
+        new_legal_moves = np.full(self.num_moves, -float('inf'))
+
+        if legal_moves_as_int:
+            new_legal_moves[legal_moves_as_int] = 0
+        return new_legal_moves
 
     def get_move_uid(self, move):
         if move["action_type"] == "DISCARD":
@@ -128,23 +142,23 @@ class ObservationVectorizer(object):
             # Compute total state length
             self.hands_bit_length = (self.num_players - 1) * self.hand_size * \
                             self.bits_per_card + self.num_players
-            print("hand encoding section in range: {}-{}".format(0,self.hands_bit_length))
+            # print("hand encoding section in range: {}-{}".format(0,self.hands_bit_length))
 
             self.board_bit_length = self.max_deck_size - self.num_players * \
                             self.hand_size + self.num_colors * self.num_ranks \
                                 + self.max_info_tokens + self.max_life_tokens
-            print("board encoding section in range: {}-{}".format(self.hands_bit_length,self.hands_bit_length+self.board_bit_length))
+            # print("board encoding section in range: {}-{}".format(self.hands_bit_length,self.hands_bit_length+self.board_bit_length))
 
             self.discard_pile_bit_length = self.max_deck_size
-            print("discard pile encoding in range: {}-{}".format(self.hands_bit_length+self.board_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length))
+            # print("discard pile encoding in range: {}-{}".format(self.hands_bit_length+self.board_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length))
 
             self.last_action_bit_length = self.num_players + 4 + self.num_players + \
                             self.num_colors + self.num_ranks \
                                 + self.hand_size + self.hand_size + self.bits_per_card + 2
-            print("last action encoding in range {}-{}".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length))
+            # print("last action encoding in range {}-{}".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length))
             self.card_knowledge_bit_length = self.num_players * self.hand_size *\
                             (self.bits_per_card + self.num_colors + self.num_ranks)
-            print("card knowledge encoding in range: {}-{}\n".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length+self.card_knowledge_bit_length))
+            # print("card knowledge encoding in range: {}-{}\n".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length+self.card_knowledge_bit_length))
             self.total_state_length = self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length \
                                     + self.last_action_bit_length + self.card_knowledge_bit_length
             self.obs_vec = np.zeros(self.total_state_length)

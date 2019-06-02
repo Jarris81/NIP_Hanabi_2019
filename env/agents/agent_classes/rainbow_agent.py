@@ -41,7 +41,7 @@ def rainbow_template(state,
                      num_actions,
                      num_atoms=51,
                      layer_size=512,
-                     num_layers=1):
+                     num_layers=2):
   r"""Builds a Rainbow Network mapping states to value distributions.
 
   Args:
@@ -117,6 +117,7 @@ class RainbowAgent(dqn_agent.DQNAgent):
     # We need this because some tools convert round floats into ints.
     vmax = float(vmax)
     self.num_atoms = num_atoms
+
     # Using -vmax as the minimum return is is wasteful, because all rewards are
     # positive -- but does not unduly affect performance.
     self.support = tf.linspace(-vmax, vmax, num_atoms)

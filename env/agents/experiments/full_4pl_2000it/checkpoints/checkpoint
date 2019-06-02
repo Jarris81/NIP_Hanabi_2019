@@ -1,4 +1,0 @@
-model_checkpoint_path: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints/tf_ckpt-1950"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints/tf_ckpt-1850"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints/tf_ckpt-1900"
-all_model_checkpoint_paths: "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints/tf_ckpt-1950"

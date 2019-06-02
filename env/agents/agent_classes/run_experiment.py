@@ -143,7 +143,6 @@ def create_obs_stacker(environment, history_size=1):
                             environment.vectorized_observation_shape()[0],
                             environment.players)
 
-
 @gin.configurable
 def create_agent(environment, obs_stacker, agent_type, mode):
   """Creates the Hanabi agent.
@@ -220,8 +219,6 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
     if agent.unbundle(
         checkpoint_dir, latest_checkpoint_version, dqn_dictionary):
 
-      #print("\n\n\nerror 225\n\n\n")
-
       assert 'logs' in dqn_dictionary
       assert 'current_iteration' in dqn_dictionary
       experiment_logger.data = dqn_dictionary['logs']
@@ -252,7 +249,6 @@ def format_legal_moves(legal_moves, action_dim):
   if legal_moves:
     new_legal_moves[legal_moves] = 0
   return new_legal_moves
-
 
 def parse_observations(observations, num_actions, obs_stacker):
   """Deconstructs the rich observation data into relevant components.

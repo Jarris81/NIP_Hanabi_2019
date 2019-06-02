@@ -183,6 +183,7 @@ class DQNAgent(object):
       # the same weights.
       online_convnet = tf.make_template('Online', graph_template)
       target_convnet = tf.make_template('Target', graph_template)
+      print(online_convnet)
       # The state of the agent. The last axis is the number of past observations
       # that make up the state.
       states_shape = (1, observation_size, stack_size)
@@ -205,7 +206,7 @@ class DQNAgent(object):
     # Set up a session and initialize variables.
     self._sess = tf.Session(
         '', config=tf.ConfigProto(allow_soft_placement=True))
-    writer = tf.summary.FileWriter("/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/dqn_sp_4pl_1000_it/graphs", self._sess.graph)
+    writer = tf.summary.FileWriter("/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_4pl_test/graphs", self._sess.graph)
     self._init_op = tf.global_variables_initializer()
     self._sess.run(self._init_op)
 
@@ -547,6 +548,7 @@ class DQNAgent(object):
         return False
       else:
         tf.logging.warning("Unable to reload the agent's parameters!")
+
       # Restore the agent's TensorFlow graph.
       self._saver.restore(self._sess,
                           os.path.join(checkpoint_dir,

@@ -14,6 +14,9 @@ from absl import flags
 import dqn_agent as dqn
 import run_experiment as xp
 import vectorizer
+import rainbow_agent as rainbow
+import functools
+from third_party.dopamine import logger
 
 class RLPlayer(object):
 
@@ -32,35 +35,35 @@ class RLPlayer(object):
             return
         # We use the environment as a library to transform observations and actions(e.g. vectorize)
         self.env = env
+
+        self.obs_stacker = xp.create_obs_stacker(self.env)
+
         self.num_actions = self.env.num_moves()
+
         self.observation_size = observation_size
+
         self.history_size = history_size
-        self.legalMovesVectorizer = vectorizer.LegalMovesVectorizer(self.env)
+
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_4pl_test"
+
+        self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
         if agent=="DQN":
-            graph_template = dqn.dqn_template
-            # Build DQN Network
-            with tf.device(tf_device):
-                # The state of the agent. The last axis is the number of past observations
-                # that make up the state.
-                self.states_shape = (1, self.observation_size, self.history_size)
-                self.state = np.zeros(self.states_shape)
-                self.state_ph = tf.placeholder(tf.uint8, self.states_shape, name='state_ph')
+            path_dqn = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints"
+            self.agent = xp.create_agent(self.env,self.obs_stacker,"DQN","self_play")
+            start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_dqn,"ckpt")
+            self.agent.eval_mode = True
 
-                # Keeps track of legal agents performable by the player
-                self.legal_actions_ph = tf.placeholder(tf.float32,[self.num_actions],name='legal_actions_ph')
+        elif agent == "Rainbow":
 
-                # Build the Graph that maps State-Action Pairs to Q-Values
-                net = tf.make_template('Online', graph_template)
-                self._q = net(state=self.state_ph, num_actions=self.num_actions)
+            path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_4pl_test/checkpoints"
+            self.agent = xp.create_agent(self.env,self.obs_stacker,"Rainbow","self_play")
+            self.agent.eval_mode = True
 
-                # This will be used to extract the next action of the agent
-                self._q_argmax = tf.argmax(self._q + self.legal_actions_ph, axis=1)[0]
-
-            # Set up a session and initialize variables.
-            self._sess = tf.Session('', config=tf.ConfigProto(allow_soft_placement=True))
-            self._init_op = tf.global_variables_initializer()
-            self._sess.run(self._init_op)
+            start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
+            print("\n---------------------------------------------------")
+            print("Creating agent from trained model at iteration: {}".format(start_iteration))
+            print("---------------------------------------------------\n")
 
         else:
             print("Specify Agent")
@@ -84,16 +87,10 @@ class RLPlayer(object):
 
     def act(self, observation):
 
-        # Encode Legal Moves
-        legal_actions = self.legalMovesVectorizer.legal_moves_to_int(observation["legal_moves"])
+        # Returns Integer Action
+        action = self.agent._select_action(observation["vectorized"], observation["legal_moves_as_int_formated"])
 
-        # Convert observation into a batch-based format.
-        self.state[0, :, 0] = observation
+        # Decode it back to dictionary object
+        move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]
 
-        # Choose the action maximizing the q function for the current state.
-        action = self._sess.run(self._q_argmax,
-                                {self.state_ph: self.state,
-                                 self.legal_actions_ph: legal_actions})
-
-        assert legal_actions[action] == 0.0, 'Expected legal action.'
-        return action
+        return move_dict
