@@ -1,5 +1,10 @@
-*.pyc
-*.idea/
-env/CMakeFiles/
-env/hanabi_lib/CMakeFiles
+*.o
 env/CMakeCache.txt
+*.cmake
+env/CMakeFiles/
+env/Makefile
+env/hanabi_lib/
+env/game_example
+__pycache__/
+.idea/
+*.so
