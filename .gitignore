@@ -3,6 +3,8 @@
 env/agents/.ipynb_checkpoints/
 *.idea/
 env/CMakeFiles/
+env/CMakeList.txt
 env/hanabi_lib/CMakeFiles
 env/CMakeCache.txt
 env/agents/experiments/
+env/hanabi_lib/
