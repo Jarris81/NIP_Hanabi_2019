@@ -1,4 +1,5 @@
 *.pyc
+*.cc
 env/agents/.ipynb_checkpoints/
 *.idea/
 env/CMakeFiles/
