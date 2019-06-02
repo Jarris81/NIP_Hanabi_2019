@@ -2,8 +2,10 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
 import os
+import sys
+
+sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/agent_classes')
 
 import tensorflow as tf
 import numpy as np

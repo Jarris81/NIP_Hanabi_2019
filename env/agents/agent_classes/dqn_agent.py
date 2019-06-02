@@ -30,7 +30,7 @@ import random
 import sys
 
 ### Needed when Script gets imported from home directory ###
-sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/rainbow')
+sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/agent_classes')
 
 import gin.tf
 import numpy as np
@@ -548,6 +548,7 @@ class DQNAgent(object):
         return False
       else:
         tf.logging.warning("Unable to reload the agent's parameters!")
+
 
       # Restore the agent's TensorFlow graph.
       self._saver.restore(self._sess,

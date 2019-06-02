@@ -32,9 +32,7 @@ import numpy as np
 import prioritized_replay_memory
 import tensorflow as tf
 
-
 slim = tf.contrib.slim
-
 
 @gin.configurable
 def rainbow_template(state,
@@ -69,7 +67,6 @@ def rainbow_template(state,
                              weights_initializer=weights_initializer)
   net = tf.reshape(net, [-1, num_actions, num_atoms])
   return net
-
 
 @gin.configurable
 class RainbowAgent(dqn_agent.DQNAgent):
