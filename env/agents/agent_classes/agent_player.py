@@ -46,11 +46,12 @@ class RLPlayer(object):
 
         self.history_size = history_size
 
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_4pl_test"
-
-        self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
-
         if agent=="DQN":
+
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/"
+
+            self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
+
             path_dqn = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints"
             self.agent = xp.create_agent(self.env,self.obs_stacker,"DQN","self_play")
             start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_dqn,"ckpt")
@@ -58,7 +59,11 @@ class RLPlayer(object):
 
         elif agent == "Rainbow":
 
-            path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_4pl_test/checkpoints"
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit/"
+
+            self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
+
+            path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit/checkpoints"
             self.agent = xp.create_agent(self.env,self.obs_stacker,"Rainbow","self_play")
             self.agent.eval_mode = True
 
