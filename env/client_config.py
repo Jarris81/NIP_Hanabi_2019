@@ -1,6 +1,7 @@
 from pathlib import Path
 
 path_simple_agent = Path(__file__ + 'agents' + 'simple_agent')
+path_rule_based_agent = Path(__file__ + 'agents' + 'rule_based_agent')
 path_rainbow_agent = Path(__file__ + 'agents' + 'rainbow_agent')
 
 """ agent_classes provides the possible args for the clients agent instantiation. 
@@ -14,6 +15,7 @@ The keys of agent_classes provide the possible values for what you can call the 
 agent_classes = {
     'simple': {'filepath': path_simple_agent, 'class': 'SimpleAgent'},
     'rainbow': {'filepath': path_rainbow_agent, 'class': 'RainbowAgent'},
+    'rule_based': {'filepath': path_rule_based_agent, 'class': 'RainbowAgent'},
     # You can add your own agents here, simply follow this structure:
     # 'sys argument': {'filepath': path_sexy_agent, 'class': 'MySexyAgent'},
     # just make sure they match the imports in client.py and if not, simply add a corresponding import statement there
