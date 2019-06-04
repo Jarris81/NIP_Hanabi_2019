@@ -65,12 +65,12 @@ class RLPlayer(object):
 
         elif agent == "Rainbow":
 
-            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_5kit"
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
 
             self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
-            #path_rainbow = os.path.join(self.base_dir,'checkpoints')
-            path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_5kit/checkpoints"
+            path_rainbow = os.path.join(self.base_dir,'checkpoints')
+            # path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit/checkpoints"
             self.agent = xp.create_agent(self.env,self.obs_stacker,"Rainbow")
             self.agent.eval_mode = True
 
@@ -91,7 +91,6 @@ class RLPlayer(object):
                                          'tf_ckpt-{}'.format(iteration_number)))
         return True
 
-    # TODO return dict
     '''
     args:
         observation: expects an already vectorized observation from vectorizer.ObservationVectorizer

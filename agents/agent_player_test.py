@@ -31,7 +31,7 @@ legalMovesVectorizer = vectorizer.LegalMovesVectorizer(env)
 # Get Mock Observation - This all needs o happen on Server Side
 mock_observation = vectorizer_test.get_mock_4pl_2nd_state()
 obs_vectorizer.last_player_card_knowledge = [[{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}], [{'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}, {'color': None, 'rank': None}]]
-obs_vectorizer.last_player_action = {"action_type":"REVEAL_COLOR", "player":3, "hand_card_id":None, "color":"G", "RANK":None ,"target_offset": 1 , "scored":False, "info_add":False, "positions":[1,3]}
+mock_observation["last_moves"] = [{"type":"REVEAL_COLOR", "player":3, "hand_card_id":None, "color":"G", "RANK":None ,"target_offset": 1 , "scored":False, "information_token":False, "card_info_revealed":[1,3]}]
 vectorized_obs_vectorizer = obs_vectorizer.vectorize_observation(mock_observation)
 mock_observation["vectorized"] = vectorized_obs_vectorizer
 

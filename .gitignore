@@ -31,4 +31,5 @@ agents/__init__.py
 agents/priotized_replay_memory
 client_config.py
 clean_all.sh
+agents/trained_models
 
