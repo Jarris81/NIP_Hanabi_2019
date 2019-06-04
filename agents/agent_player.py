@@ -22,7 +22,7 @@ from third_party.dopamine import logger
 
 class RLPlayer(object):
 
-    def __init__(self,agent,env,observation_size,history_size,tf_device='/cpu:*'):
+    def __init__(self,agent_config):
 
         """Initializes the agent and constructs its graph.
         Vars:
@@ -36,52 +36,29 @@ class RLPlayer(object):
             print("Specify environment")
             return
         # We use the environment as a library to transform observations and actions(e.g. vectorize)
-        self.env = env
 
-        self.obs_stacker = xp.create_obs_stacker(self.env,history_size)
+        self.observation_size = agent_config["observation_size"]
+        self.players = agent_config["players"]
+        self.history_size = agent_config["history_size"]
+        self.vectorized_observation_shape = agent_config["vectorized_observation_shape"]
 
-        self.num_actions = self.env.num_moves()
+        self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape)
+        self.num_actions = agent_config["num_moves"]
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
 
-        self.observation_size = observation_size
+        self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
-        self.history_size = history_size
+        path_rainbow = os.path.join(self.base_dir,'checkpoints')
+        # path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit/checkpoints"
 
-        if agent=="DQN":
+        num_players = agent_config["players"]
+        self.agent = xp.create_agent(self.observation_size, self.num_actions, self.num_players,"Rainbow")
+        self.agent.eval_mode = True
 
-            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/"
-
-            self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
-
-            path_dqn = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/experiments/full_4pl_2000it/checkpoints"
-            self.agent = xp.create_agent(self.env,self.obs_stacker,"DQN")
-
-            start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_dqn,"ckpt")
-
-            print("\n---------------------------------------------------")
-            print("Creating agent from trained model at iteration: {}".format(start_iteration))
-            print("---------------------------------------------------\n")
-
-            self.agent.eval_mode = True
-
-        elif agent == "Rainbow":
-
-            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
-
-            self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
-
-            path_rainbow = os.path.join(self.base_dir,'checkpoints')
-            # path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit/checkpoints"
-            self.agent = xp.create_agent(self.env,self.obs_stacker,"Rainbow")
-            self.agent.eval_mode = True
-
-            start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
-            print("\n---------------------------------------------------")
-            print("Creating agent from trained model at iteration: {}".format(start_iteration))
-            print("---------------------------------------------------\n")
-
-        else:
-            print("Specify Agent")
-            return
+        start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
+        print("\n---------------------------------------------------")
+        print("Creating agent from trained model at iteration: {}".format(start_iteration))
+        print("---------------------------------------------------\n")
 
     def load_model_weights(self,path,iteration_number):
 

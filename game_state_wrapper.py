@@ -2,7 +2,7 @@ import ast
 import enum
 from typing import Optional, List, Set, Dict
 import copy
-
+import vectorizer
 
 class GameStateWrapper:
 
@@ -56,17 +56,36 @@ class GameStateWrapper:
         # rl_env.HanabiEnvobservation._extract_from_dict method, but we need a history so we add this here.
         # Similarly, it can be added by appending obs_dict['last_moves'] = observation.last_moves() in said method.
         self.last_moves = list()
+        self.variant = game_config['variant']
+        self.num_colors = game_config['colors']
+        self.num_ranks = game_config['ranks']
+        self.hand_size = game_config['hand_size']
+        self.max_moves = game_config['max_moves']
 
         """
         # ################################################ #
         # -------------- USE PYHANABI MOCKS -------------- #
         # ################################################ #
         """
-        """ 
-        If the following flag is set, the calling agent DOES NOT IMPLEMENT the rl_env.Agent Interface. 
-        Instead, it uses the low level pyhanabi objects and its callables, so we have to create mock objects here. 
+        """
+        If the following flag is set, the calling agent DOES NOT IMPLEMENT the rl_env.Agent Interface.
+        Instead, it uses the low level pyhanabi objects and its callables, so we have to create mock objects here.
         """
         self.use_pyhanabi_mocks = False
+
+        self.env = self.create_env_mock(
+            num_players=self.num_players,
+            num_colors=self.num_colors,
+            num_ranks=self.num_ranks,
+            hand_size=self.hand_size,
+            max_info_tokens=self.max_info_tokens,
+            max_life_tokens=self.max_life_tokens,
+            max_moves=self.max_moves,
+            variant=self.variant
+        )
+
+        self.vectorizer = vectorizer.ObservationVectorizer(self.env)
+        self.legal_moves_vectorizer = vectorizer.LegalMovesVectorizer(self.env)
 
     def init_players(self, notify_msg: str):
         """ Sets self.players to a list of the players currently ingame and creates empty hands """
@@ -153,6 +172,8 @@ class GameStateWrapper:
             'true', 'True'))
 
         tmp_deepcopy = copy.deepcopy(self.card_numbers)  # safe these for pyhanabi mock objects (i.e. last_moves)
+        scored = False
+        information_token = False
 
         # DISCARD
         if d['type'] == 'discard':
@@ -160,6 +181,8 @@ class GameStateWrapper:
             # only recover info token when not discarding through failed play
             if 'failed' in d and d['failed'] is False:
                 self.information_tokens += 1
+                # will be used in HanabiHistoryItemMock
+                information_token = True
 
         # DRAW - if player with pid draws a card, it is prepended to hand_list[pid]
         if d['type'] == 'draw':
@@ -172,7 +195,7 @@ class GameStateWrapper:
 
             # update fireworks and life tokens eventually
             c = self.card(d['which']['suit'], d['which']['rank'])
-            self.play(c)
+            scored, information_token = self.play(c)[0]
 
         # CLUE - change players card_knowledge and remove an info-token
         if d['type'] == 'clue':
@@ -190,7 +213,7 @@ class GameStateWrapper:
         if d['type'] in ['play', 'draw', 'clue', 'discard']:
             # print(d['type'])
             # print(notify_msg)
-            self.append_to_last_moves(d, tmp_deepcopy)
+            self.append_to_last_moves(d, tmp_deepcopy, scored, information_token)
 
         # On end of game, do something later if necessary (resetting happens on init so no need here)
         if d['type'] == 'turn' and d['who'] == -1:
@@ -212,18 +235,23 @@ class GameStateWrapper:
         return
 
     def play(self, card):
+        scored = False
+        information_token = False
         # on success, update fireworks
         if self.fireworks[card['color']] == card['rank']:
             self.fireworks[card['color']] += 1
             # completing a firework restores one info token
             if card['rank'] == 4:
                 self.information_tokens += 1
+                information_token = True
+            # will be used in HanabiHistoryItemMock
+            scored = True
         # on fail, remove a life token
         else:
             self.life_tokens -= 1
-        return
+        return scored, information_token
 
-    def append_to_last_moves(self, dict_action, deepcopy_card_nums):
+    def append_to_last_moves(self, dict_action, deepcopy_card_nums, scored, information_token):
         """
         Mocks HanabiHistoryItems as gotten from pyhanabi. As these objects provide callables, we have to create these
         here.
@@ -242,9 +270,9 @@ class GameStateWrapper:
         # but these are necessary to compute the information below.
 
         move = self.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums)
-        player = None
-        scored = None
-        information_token = None
+        player = self.player_position  # absolute player position
+        scored = scored  # boolean, True if firework increased
+        information_token = information_token  # boolean, True if info_token gained on discard or play
         color = None
         rank = None
         card_info_revealed = None
@@ -271,7 +299,38 @@ class GameStateWrapper:
         hand_list = copy.deepcopy(self.hand_list)
         hand_list.insert(0, hand_list.pop(hand_list.index(hand_list[self.player_position])))
 
-        return [list(reversed(hand)) for hand in hand_list]  # server PREpends drawn cards, agent APpends drawn cards, hence reverse each hand
+        return [hand for hand in hand_list]
+
+    @staticmethod
+    def create_env_mock(num_players, num_colors, num_ranks, hand_size, max_info_tokens, max_life_tokens, max_moves, variant):
+        num_players = num_players
+        num_colors = num_colors
+        num_ranks = num_ranks
+        hand_size = hand_size
+        max_info_tokens = max_info_tokens
+        max_life_tokens = max_life_tokens
+        max_moves = max_moves
+        variant = variant
+
+        return envMock(
+            num_players=num_players,
+            num_colors=num_colors,
+            num_ranks=num_ranks,
+            hand_size=hand_size,
+            max_info_tokens=max_info_tokens,
+            max_life_tokens=max_life_tokens,
+            max_moves=max_moves,
+            variant=variant
+        )
+
+    def get_vectorized(self, observation):
+        """ calls vectorizer.ObservationVectorizer with envMock to get the vectorized observation """
+        return self.vectorizer.vectorize_observation(observation)
+
+    def get_legal_moves_as_int(self, legal_moves):
+        """ Parses legal moves, such that it is an input vector for our neural nets """
+        legal_moves_as_int = self.legal_moves_vectorizer.get_legal_moves_as_int(legal_moves)
+        return self.legal_moves_vectorizer.get_legal_moves_as_int_formated(legal_moves_as_int)
 
     def get_agent_observation(self):
         """ Returns state as perceived by the calling agent """
@@ -288,11 +347,12 @@ class GameStateWrapper:
             'observed_hands': self.get_sorted_hand_list(),  # moves own hand to front
             'discard_pile': self.discard_pile,
             'card_knowledge': self.get_card_knowledge(),
-            'vectorized': None,  # Currently not needed, we can implement it later on demand
             'last_moves': self.last_moves  # actually not contained in the returned dict of the
             # rl_env.HanabiEnvobservation._extract_from_dict method, but we need a history so we add this here.
             # Similarly, it can be added by appending obs_dict['last_moves'] = observation.last_moves() in said method.
         }
+        observation['vectorized'] = self.get_vectorized(observation)
+        observation['legal_moves_as_int'] = self.get_legal_moves_as_int(observation['legal_moves'])
 
         return observation
 
@@ -364,7 +424,6 @@ class GameStateWrapper:
             for c in hand:
                 # h.append(self.card(c['color'], c['rank']))
                 h.append(c)
-            h = list(reversed(h))  # server PREpends drawn cards, agent APpends drawn cards, hence reverse each hand
             card_knowledge.append(h)
         # return [self.card(c['color'], c['rank']) for hand in self.clues for c in hand]
         # sort, s.t. agents cards are at index 0
@@ -510,10 +569,10 @@ class GameStateWrapper:
         self.agents_turn = False
         return
 
-    """ 
+    """
     # ------------------------------------------------- # ''
     # ------------------ MOCK METHODS ----------------  # ''
-    # ------------------------------------------------- # ''    
+    # ------------------------------------------------- # ''
     """
     @staticmethod
     def get_target_offset(giver, target):
@@ -699,10 +758,10 @@ class GameStateWrapper:
 
 
 
-""" 
+"""
     # ------------------------------------------------- # ''
     # ------------------ MOCK Classes ----------------  # ''
-    # ------------------------------------------------- # ''    
+    # ------------------------------------------------- # ''
 """
 
 """ These are used to wrap the low level interface implemented in pyhanabi.py """
@@ -737,15 +796,15 @@ class HanabiHistoryItemMock:
         return self._move
 
     def player(self):
-        raise NotImplementedError
+        return self._player
 
     def scored(self):
         """Play move succeeded in placing card on fireworks."""
-        raise NotImplementedError
+        return self._scored
 
     def information_token(self):
         """Play/Discard move increased the number of information tokens."""
-        raise NotImplementedError
+        return self._information_token
 
     def color(self):
         """Color index of card that was Played/Discarded."""
@@ -762,7 +821,8 @@ class HanabiHistoryItemMock:
         for Reveal player 1 color red when player 1 has R1 W1 R2 R4 __ the
         result would be [0, 2, 3].
         """
-        raise NotImplementedError
+        # raise NotImplementedError
+        return None
 
     def card_info_newly_revealed(self):
         """Returns information about whether color/rank was newly revealed.
@@ -860,3 +920,27 @@ class HanabiMoveType(enum.IntEnum):
     REVEAL_COLOR = 3
     REVEAL_RANK = 4
     DEAL = 5
+
+
+class envMock:
+    def __init__(self, num_players, num_colors, num_ranks, hand_size, max_info_tokens, max_life_tokens, max_moves, variant):
+        self.num_players = num_players
+        self.num_colors = num_colors
+        self.num_ranks = num_ranks
+        self.hand_size = hand_size
+        self.max_information_tokens = max_info_tokens
+        self.max_life_tokens = max_life_tokens
+        self.max_moves = max_moves
+        self.variant = variant
+
+    def num_cards(self, color, rank, variant):
+        """ Input: Color string in "RYGWB" and rank in [0,4]
+        Output: How often deck contains card with given color and rank, i.e. 1-cards will be return 3"""
+        if rank == 0:
+            return 3
+        elif rank < 4:
+            return 2
+        elif rank == 4:
+            return 1
+        else:
+            return 0

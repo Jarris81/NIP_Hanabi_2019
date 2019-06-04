@@ -1,4 +1,0 @@
-model_checkpoint_path: "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit_4pl//checkpoints/tf_ckpt-5000"
-all_model_checkpoint_paths: "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit_4pl//checkpoints/tf_ckpt-4900"
-all_model_checkpoint_paths: "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit_4pl//checkpoints/tf_ckpt-4950"
-all_model_checkpoint_paths: "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/env/agents/experiments/rainbow_5kit_4pl//checkpoints/tf_ckpt-5000"

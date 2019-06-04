@@ -18,6 +18,14 @@ obs_stacker = xp.create_obs_stacker(env,history_size=history_size)
 observation_size = obs_stacker.observation_size()
 obs_vectorizer = vectorizer.ObservationVectorizer(env)
 
+
+agent_config = {
+    "num_moves": 38,
+    "vectorized_observation_shape": 1041,
+    "players": 4,
+}
+
+
 # ### Set up the RL-Player, reload weights from most current trained model
 # agent = "DQN"
 agent = "Rainbow"
