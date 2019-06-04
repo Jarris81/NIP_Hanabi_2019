@@ -82,7 +82,7 @@ class Client:
         self._num_players_in_lobby = -1
 
         # the agents will play num_episodes and then idle
-        """ Note that you can watch all the replays from the server menu 'watch specific replay'.
+        """ Note that you can watch all the replays from the server menu 'watch specific replay'. 
         The ID is logged in chat"""
         self.num_episodes = self.config['num_episodes']
         self.episodes_played = 0
@@ -453,7 +453,7 @@ def init_args(argparser):
              'humans). For example -r 192.168.178.26 when you want to connect your friends machines in a private '
              'subnet to the machine running the server at 192.168.178.26 or -r hanabi.live when you want to play on '
              'the official server. Unfortunately, it currently does not work with eduroam.',
-        default='localhost'
+        default='192.168.178.26'
     )
     argparser.add_argument(
         '-w',
@@ -536,3 +536,4 @@ if __name__ == "__main__":
     # todo send gameJoin(gameID, password) when self.config['table_pw] is not '' for when -r is specified
     # todo make formatting for --verbose mode and write wiki entry for client
     # self.config['table_pw'] shall not be '' if -r is specified
+
