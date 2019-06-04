@@ -25,10 +25,10 @@ rl_env_example.py
 env/Documents/
 env/agents/random_agent.py
 env/agents/simple_agent.py
-env/agents/agent_classes/third_party
-env/agents/agent_classes/dqn_agent.py
-env/agents/agent_classes/rainbow_agent.py
-env/agents/agent_classes/replay_memory.py
-env/agents/agent_classes/run_experiment.py
-env/agents/agent_classes/train.py
-env/agents/agent_classes/configs
+env/agents/rainbow/third_party
+env/agents/rainbow/dqn_agent.py
+env/agents/rainbow/rainbow_agent.py
+env/agents/rainbow/replay_memory.py
+env/agents/rainbow/run_experiment.py
+env/agents/rainbow/train.py
+env/agents/rainbow/configs
