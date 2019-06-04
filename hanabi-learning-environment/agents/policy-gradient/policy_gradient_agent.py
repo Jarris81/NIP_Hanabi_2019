@@ -2,7 +2,7 @@ from rl_env import Agent
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import scipy as sc
+from scipy.special import softmax
 import time
 from functools import reduce
 
@@ -38,7 +38,7 @@ class PolicyGradientAgent(Agent):
         # only consider the legal actions
         policy_legal = np.full(policy.shape, -np.inf)
         policy_legal[legal_moves] = policy[legal_moves]
-        policy_legal = sc.special.softmax(policy_legal)
+        policy_legal = softmax(policy_legal)
         
         action = np.random.choice(policy_legal.shape[0], p=policy_legal)
         logprob = np.log(policy_legal[action])

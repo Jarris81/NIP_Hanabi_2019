@@ -7,7 +7,7 @@ from functools import reduce
 import rl_env
 
 
-NUM_ITERATIONS = 3
+NUM_ITERATIONS = 100
 NUM_EPISODES = 25
 
 NUM_PLAYERS = 2
