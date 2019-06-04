@@ -82,7 +82,7 @@ class Client:
         self._num_players_in_lobby = -1
 
         # the agents will play num_episodes and then idle
-        """ Note that you can watch all the replays from the server menu 'watch specific replay'. 
+        """ Note that you can watch all the replays from the server menu 'watch specific replay'.
         The ID is logged in chat"""
         self.num_episodes = self.config['num_episodes']
         self.episodes_played = 0
@@ -320,7 +320,7 @@ def get_addrs(args):
 
 
 def get_agent_name_from_cls(agent_class: str, id: int):
-    """ Input: agentclass as specified in the client_config.py """
+    """ Input: agentclass as specified in the conf.AGENT_CLASSES """
     assert agent_class in conf.AGENT_CLASSES
     assert 'class' in conf.AGENT_CLASSES[agent_class]
 
@@ -359,11 +359,13 @@ def get_game_config_from_args(cmd_args) -> Dict:
 
 
 def get_client_config_from_args(cmd_args, game_config, agent: int) -> Dict:
+    players = cmd_args.num_humans + len(cmd_args.agent_classes)
+    deck_size = (game_config['colors'] * 2 + 1) if game_config['ranks'] < 5 else (game_config['colors'] * 10)
     client_config = {
         'agent_class': cmd_args.agent_classes[agent],
         'username': get_agent_name_from_cls(cmd_args.agent_classes[agent], agent),
         'num_human_players': cmd_args.num_humans,
-        'num_total_players': cmd_args.num_humans + len(cmd_args.agent_classes),
+        'num_total_players': players,
         'empty_clues': False,
         'table_name': cmd_args.table_name,
         'table_pw': cmd_args.table_pw,
@@ -371,7 +373,7 @@ def get_client_config_from_args(cmd_args, game_config, agent: int) -> Dict:
         'num_episodes': cmd_args.num_episodes,
         'life_tokens': game_config['max_life_tokens'],
         'info_tokens': game_config['max_information_tokens'],
-        'deck_size': 50,  # todo get from game variant
+        'deck_size': deck_size,
         'wait_move': cmd_args.wait_move
     }
     return client_config
@@ -447,7 +449,7 @@ def init_args(argparser):
              'humans). For example -r 192.168.178.26 when you want to connect your friends machines in a private '
              'subnet to the machine running the server at 192.168.178.26 or -r hanabi.live when you want to play on '
              'the official server. Unfortunately, it currently does not work with eduroam.',
-        default='192.168.178.26'
+        default='localhost'
     )
     argparser.add_argument(
         '-w',
@@ -530,4 +532,3 @@ if __name__ == "__main__":
     # todo send gameJoin(gameID, password) when self.config['table_pw] is not '' for when -r is specified
     # todo make formatting for --verbose mode and write wiki entry for client
     # self.config['table_pw'] shall not be '' if -r is specified
-
