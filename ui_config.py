@@ -2,8 +2,6 @@ from pathlib import Path
 
 path_simple_agent = Path(__file__ + 'agents' + 'simple_agent')
 path_rainbow_agent = Path(__file__ + 'agents' + 'agent_player')
-print(path_rainbow_agent)
-print(path_simple_agent)
 
 """ agent_classes provides the possible args for the clients agent instantiation.
 The keys of agent_classes provide the possible values for what you can call the client.py with. For instance
