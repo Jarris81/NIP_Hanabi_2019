@@ -5,7 +5,9 @@ from __future__ import print_function
 import os
 import sys
 
-sys.path.insert(0, '/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/env/agents/agent_classes')
+rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow/')
+sys.path.append(rel_path)
+print(sys.path)
 
 import tensorflow as tf
 import numpy as np
@@ -32,18 +34,18 @@ class RLPlayer(object):
           tf_device: str, Tensorflow device on which to run computations.
         """
 
-        if env==None:
-            print("Specify environment")
-            return
+        # if env==None:
+        #     print("Specify environment")
+        #     return
         # We use the environment as a library to transform observations and actions(e.g. vectorize)
 
         self.observation_size = agent_config["observation_size"]
         self.players = agent_config["players"]
         self.history_size = agent_config["history_size"]
-        self.vectorized_observation_shape = agent_config["vectorized_observation_shape"]
+        self.vectorized_observation_shape = agent_config["observation_size"]
 
-        self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape)
-        self.num_actions = agent_config["num_moves"]
+        self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape, self.players)
+        self.num_actions = agent_config["max_moves"]
         self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
 
         self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
@@ -52,7 +54,7 @@ class RLPlayer(object):
         # path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit/checkpoints"
 
         num_players = agent_config["players"]
-        self.agent = xp.create_agent(self.observation_size, self.num_actions, self.num_players,"Rainbow")
+        self.agent = xp.create_agent(self.observation_size, self.num_actions, self.players,"Rainbow")
         self.agent.eval_mode = True
 
         start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")

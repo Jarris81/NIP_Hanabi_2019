@@ -163,7 +163,7 @@ class GameStateWrapper:
         """
         Updates Game State after server sends an action-notification.
         Notify message can contain 'turn', 'draw', 'play', 'clue', 'discard' as "type"-values
-        Computes last_moves
+        Computes last_moves including recursive
         """
 
         'Create dictionary from server message that contains actions'
@@ -174,6 +174,8 @@ class GameStateWrapper:
         tmp_deepcopy = copy.deepcopy(self.card_numbers)  # safe these for pyhanabi mock objects (i.e. last_moves)
         scored = False
         information_token = False
+        deal_to_player = -1
+        card_info_revealed = list()
 
         # DISCARD
         if d['type'] == 'discard':
@@ -187,7 +189,7 @@ class GameStateWrapper:
         # DRAW - if player with pid draws a card, it is prepended to hand_list[pid]
         if d['type'] == 'draw':
             self.draw_card(d)
-
+            deal_to_player = d['pid']
         # PLAY - remove played card from players hand and update fireworks/life tokens
         if d['type'] == 'play':
             # remove card
@@ -199,7 +201,7 @@ class GameStateWrapper:
 
         # CLUE - change players card_knowledge and remove an info-token
         if d['type'] == 'clue':
-            self.update_clues(d)
+            card_info_revealed = self.update_clues(d)
             self.information_tokens -= 1  # validity has previously been checked by the server so were good with that
 
         # Set current player flag
@@ -213,7 +215,7 @@ class GameStateWrapper:
         if d['type'] in ['play', 'draw', 'clue', 'discard']:
             # print(d['type'])
             # print(notify_msg)
-            self.append_to_last_moves(d, tmp_deepcopy, scored, information_token)
+            self.append_to_last_moves(d, tmp_deepcopy, scored, information_token, deal_to_player, card_info_revealed)
 
         # On end of game, do something later if necessary (resetting happens on init so no need here)
         if d['type'] == 'turn' and d['who'] == -1:
@@ -222,17 +224,19 @@ class GameStateWrapper:
         return
 
     def update_clues(self, dict_clue):
+        card_info_revealed = list()
         clue = dict_clue['clue']
         target = dict_clue['target']
         touched_cards = dict_clue['List']
         for c in touched_cards:
             idx_c = self.card_numbers[target].index(c)
+            card_info_revealed.append(idx_c)
             if clue['type'] == 0:
                 # self.clues[target][idx_c]['rank'] = clue['value']
                 self.clues[target][idx_c] = self.card(self.clues[target][idx_c]['color'], clue['value'])
             else:
                 self.clues[target][idx_c] = self.card(clue['value'], self.clues[target][idx_c]['rank'])
-        return
+        return card_info_revealed
 
     def play(self, card):
         scored = False
@@ -251,7 +255,7 @@ class GameStateWrapper:
             self.life_tokens -= 1
         return scored, information_token
 
-    def append_to_last_moves(self, dict_action, deepcopy_card_nums, scored, information_token):
+    def append_to_last_moves(self, dict_action, deepcopy_card_nums, scored, information_token, deal_to_player, card_info_revealed):
         """
         Mocks HanabiHistoryItems as gotten from pyhanabi. As these objects provide callables, we have to create these
         here.
@@ -275,9 +279,10 @@ class GameStateWrapper:
         information_token = information_token  # boolean, True if info_token gained on discard or play
         color = None
         rank = None
-        card_info_revealed = None
+        card_info_revealed = card_info_revealed
+        print(f"CARD INFO REVEALED {card_info_revealed}")
         card_info_newly_revealed = None
-        deal_to_player = None
+        deal_to_player = deal_to_player
 
         history_item_mock = HanabiHistoryItemMock(
             move=move,
@@ -622,7 +627,6 @@ class GameStateWrapper:
     @staticmethod
     def get_move_type(move):
         """{'type': 'play', 'which': {'index': 1, 'suit': 1, 'rank': 1, 'order': 9}}
-
             Return Move types, consistent with hanabi_lib/hanabi_move.h.
             INVALID = 0
             PLAY = 1
@@ -774,12 +778,10 @@ class HanabiHistoryItemMock:
     def __init__(self, move, player, scored, information_token, color, rank, card_info_revealed,
                  card_info_newly_revealed, deal_to_player):
         """A move that has been made within a game, along with the side-effects.
-
           For example, a play move simply selects a card index between 0-5, but after
           making the move, there is an associated color and rank for the selected card,
           a possibility that the card was successfully added to the fireworks, and an
           information token added if the firework stack was completed.
-
           Python wrapper of C++ HanabiHistoryItem class.
         """
         self._move = move
@@ -816,17 +818,14 @@ class HanabiHistoryItemMock:
 
     def card_info_revealed(self):
         """Returns information about whether color/rank was revealed.
-
         Indices where card i color/rank matches the reveal move. E.g.,
         for Reveal player 1 color red when player 1 has R1 W1 R2 R4 __ the
         result would be [0, 2, 3].
         """
-        # raise NotImplementedError
-        return None
+        return self._card_info_revealed
 
     def card_info_newly_revealed(self):
         """Returns information about whether color/rank was newly revealed.
-
         Indices where card i color/rank was not previously known. E.g.,
         for Reveal player 1 color red when player 1 has R1 W1 R2 R4 __ the
         result might be [2, 3].  Cards 2 and 3 were revealed to be red,
@@ -840,7 +839,7 @@ class HanabiHistoryItemMock:
         raise NotImplementedError
 
     def __str__(self):
-        return str(self._move.to_dict())
+        return str(self._move.to_dict()) + f"card_info_revealed{self._card_info_revealed}"
 
     def __repr__(self):
         return self.__str__()
@@ -852,7 +851,6 @@ class HanabiMoveMock:
     def __init__(self, move_type, card_index, target_offset, color, rank, discard_move, play_move, reveal_color_move,
                  reveal_rank_move, move_dict):
         """Description of an agent move or chance event.
-
           Python wrapper of C++ HanabiMove class.
         """
         self._type = move_type

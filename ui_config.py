@@ -1,7 +1,9 @@
 from pathlib import Path
 
 path_simple_agent = Path(__file__ + 'agents' + 'simple_agent')
-path_rainbow_agent = Path(__file__ + 'agents' + 'rainbow_agent')
+path_rainbow_agent = Path(__file__ + 'agents' + 'agent_player')
+print(path_rainbow_agent)
+print(path_simple_agent)
 
 """ agent_classes provides the possible args for the clients agent instantiation.
 The keys of agent_classes provide the possible values for what you can call the client.py with. For instance
@@ -11,9 +13,9 @@ The keys of agent_classes provide the possible values for what you can call the 
  will start a hanabigame with 0 human players and 3 AI agents,
  2 of them are simple agents and one is a rainbow agent"""
 
-agent_classes = {
+AGENT_CLASSES = {
     'simple': {'filepath': path_simple_agent, 'class': 'SimpleAgent'},
-    'rainbow': {'filepath': path_rainbow_agent, 'class': 'RainbowAgent'},
+    'rainbow': {'filepath': path_rainbow_agent, 'class': 'RLPlayer'},
     # You can add your own agents here, simply follow this structure:
     # 'sys argument': {'filepath': path_sexy_agent, 'class': 'MySexyAgent'},
     # just make sure they match the imports in client.py and if not, simply add a corresponding import statement there

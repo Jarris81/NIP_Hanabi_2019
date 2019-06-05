@@ -36,7 +36,10 @@ create_environment.game_type = 'Hanabi-Full-CardKnowledge'
 create_environment.num_players = 4
 
 create_agent.agent_type = 'Rainbow'
+
 create_obs_stacker.history_size = 1
+create_obs_stacker.vectorized_observation_shape = 1041
+create_obs_stacker.players = 4
 
 rainbow_template.layer_size=512
 rainbow_template.num_layers=1
