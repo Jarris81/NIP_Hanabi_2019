@@ -37,7 +37,9 @@ class Client:
         """ Client wrapped around the agents, so they can play on Zamiels server
          https://github.com/Zamiell/hanabi-live. They compute actions offline
          and send back the corresponding json-encoded action on their turn."""
-
+        # Hanabi playing agent
+        self.agent = eval(conf.AGENT_CLASSES[client_config['agent_class']]['class'])(agent_config)
+        time.sleep(1) 
         # Opens a websocket on url:80
         self.ws = websocket.WebSocketApp(url=url,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),
@@ -55,9 +57,6 @@ class Client:
 
         # increment class instance counter
         self.id = next(self._ids)
-
-        # Hanabi playing agent
-        self.agent = eval(conf.AGENT_CLASSES[client_config['agent_class']]['class'])(agent_config)
 
         # throttle to avoid race conditions
         self.throttle = 0.05  # 50 ms

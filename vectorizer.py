@@ -58,7 +58,12 @@ def rank_plausible(rank,
                     return plausible
 
     if card_rank_revealed:
-        if rank == player_card_knowledge[card_id][rank]:
+        print("=======================")
+        print(rank)
+        print(card_id)
+        print(player_card_knowledge)
+        print("=======================")
+        if rank == player_card_knowledge[card_id]["rank"]:
             return True
         else:
             return False
@@ -445,22 +450,23 @@ class LegalMovesVectorizer(object):
         return new_legal_moves
 
     def get_move_uid(self, move):
-        if move["action_type"] == DISCARD:
+        if move["action_type"] == "DISCARD":
             card_index = move["card_index"]
             return card_index
 
-        elif move["action_type"] == PLAY:
+        elif move["action_type"] == "PLAY":
             card_index = move["card_index"]
             return self.hand_size + card_index
 
-        elif move["action_type"] == REVEAL_COLOR:
+        elif move["action_type"] == "REVEAL_COLOR":
             target_offset = move["target_offset"]
             color = utils.color_char_to_idx(move["color"])
             return self.hand_size + self.hand_size + (target_offset-1) * self.num_colors + color
 
-        elif move["action_type"] == REVEAL_RANK:
+        elif move["action_type"] == "REVEAL_RANK":
             rank = move["rank"]
             target_offset = move["target_offset"]
             return self.hand_size + self.hand_size + self.max_reveal_color_moves + (target_offset-1) * self.num_ranks + rank
         else:
-            return -1
+            print(move)
+            return -2

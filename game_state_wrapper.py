@@ -335,7 +335,7 @@ class GameStateWrapper:
     def get_legal_moves_as_int(self, legal_moves):
         """ Parses legal moves, such that it is an input vector for our neural nets """
         legal_moves_as_int = self.legal_moves_vectorizer.get_legal_moves_as_int(legal_moves)
-        return self.legal_moves_vectorizer.get_legal_moves_as_int_formated(legal_moves_as_int)
+        return legal_moves_as_int, self.legal_moves_vectorizer.get_legal_moves_as_int_formated(legal_moves_as_int)
 
     def get_agent_observation(self):
         """ Returns state as perceived by the calling agent """
@@ -357,7 +357,12 @@ class GameStateWrapper:
             # Similarly, it can be added by appending obs_dict['last_moves'] = observation.last_moves() in said method.
         }
         observation['vectorized'] = self.get_vectorized(observation)
-        observation['legal_moves_as_int'] = self.get_legal_moves_as_int(observation['legal_moves'])
+        legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
+        observation["legal_moves_as_int"] = legal_moves_as_int
+        observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
+
+        print(f"Legal moves as int {legal_moves_as_int}")
+        print(f"Legal moves as int formatted {legal_moves_as_int_formated}")
 
         return observation
 
@@ -470,7 +475,7 @@ class GameStateWrapper:
                 for card in hand_list[i]:
                     ranks.add(card['rank'])
                 for r in ranks:
-                    legal_moves.append({'action_type': 'REVEAL_Rank', 'target_offset': i, 'rank': r})
+                    legal_moves.append({'action_type': 'REVEAL_RANK', 'target_offset': i, 'rank': r})
 
         return legal_moves
 
@@ -514,8 +519,8 @@ class GameStateWrapper:
         # print('PLAYER TO ACT IS ACCORDING TO GAME:')
         # print('---------')
         # print(self.players.index(self.agent_name))
-        # print('---------')
-        # print(action)
+        print('---------')
+        print(action)
         # return value
         a = ''
 
@@ -534,9 +539,9 @@ class GameStateWrapper:
             type = '0'  # 0 for type 'CLUE'
             target_offset = action['target_offset']
             # compute absolute player position from target_offset
-            target = self.next_player(offset=target_offset)
+            target = str(self.next_player(offset=target_offset))
             cluetype = '0'  # 0 for RANK clue
-            cluevalue = self.parse_rank(action['rank'])
+            cluevalue = str(self.parse_rank(action['rank']))
 
             a = 'action {"type":' + type + ',"target":' + target + ',"clue":{"type":' + cluetype + ',"value":' + cluevalue + '}}'
 
