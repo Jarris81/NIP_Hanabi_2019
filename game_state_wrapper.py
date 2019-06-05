@@ -926,14 +926,14 @@ class HanabiMoveType(enum.IntEnum):
 
 
 class envMock:
-    def __init__(self, num_players, num_colors, num_ranks, hand_size, max_info_tokens, max_life_tokens, max_moves, variant, num_moves):
+    def __init__(self, num_players, num_colors, num_ranks, hand_size, max_info_tokens, max_life_tokens, max_moves, variant):
         self.num_players = num_players
         self.num_colors = num_colors
         self.num_ranks = num_ranks
         self.hand_size = hand_size
         self.max_information_tokens = max_info_tokens
         self.max_life_tokens = max_life_tokens
-        self.max_moves = max_moves
+        self.num_moves = max_moves
         self.variant = variant
 
     def num_cards(self, color, rank, variant):
