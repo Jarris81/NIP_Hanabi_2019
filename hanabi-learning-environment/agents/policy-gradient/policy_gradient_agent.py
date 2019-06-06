@@ -22,6 +22,7 @@ class PolicyGradientAgent(Agent):
 
         # init tf session
         init = tf.global_variables_initializer()
+        self.saver = tf.train.Saver()
         self.sess = tf.Session()
         self.sess.run(init)
 
@@ -67,20 +68,20 @@ class PolicyGradientAgent(Agent):
         x = tf.placeholder(tf.float32, shape=[None,state_shape], name='x')
         actions = tf.placeholder(tf.float32, shape=[None,num_actions], name='actions')
         
-        h1 = tf.layers.dense(x, units=num_units, activation=tf.nn.relu)
-        h2 = tf.layers.dense(h1, units=num_units, activation=tf.nn.relu)
-        logits = tf.layers.dense(h2, units=num_actions, activation=None)
-        y = tf.nn.softmax(logits)
+        h1 = tf.layers.dense(x, units=num_units, activation=tf.nn.relu, name='h1')
+        h2 = tf.layers.dense(h1, units=num_units, activation=tf.nn.relu, name='h2')
+        logits = tf.layers.dense(h2, units=num_actions, activation=None, name='logits')
+        y = tf.nn.softmax(logits, name='y')
         
-        negative_log_prob = tf.nn.softmax_cross_entropy_with_logits_v2(labels=actions, logits=logits)
+        negative_log_prob = tf.nn.softmax_cross_entropy_with_logits_v2(labels=actions, logits=logits, name='neg_log_prob')
         #negative_log_prob = tf.losses.softmax_cross_entropy(onehot_labels=actions, logits=logits)
         #negative_log_prob = -tf.log(y)
         
         advantage = tf.placeholder(tf.float32, shape=[None,], name='advantage')
         
-        loss = tf.reduce_mean(negative_log_prob*advantage)#tf.reduce_mean(tf.multiply(negative_log_prob, advantage))
+        loss = tf.reduce_mean(negative_log_prob*advantage, name='loss')#tf.reduce_mean(tf.multiply(negative_log_prob, advantage))
         optimizer = tf.train.AdamOptimizer(eps)
-        train = optimizer.minimize(loss)
+        train = optimizer.minimize(loss, name='train')
         
         return y, x, train, loss, advantage, actions
 
@@ -91,3 +92,18 @@ class PolicyGradientAgent(Agent):
     def train_critic(self, x_train, rewards):
         loss, _ = self.critic.train_on_batch(x_train, rewards)
         return loss
+
+    def save_actor_model(self, name='actor_model'):
+        self.saver.save(self.sess, name)
+
+    def load_actor_model(self, name='actor_model'):
+        self.saver = tf.train.import_meta_graph(name+'.meta')
+        saver.restore(self.sess, tf.train.latest_checkpoint('./'))
+        graph = tf.get_default_graph()
+        
+        self.x = graph.get_tensor_by_name('x:0')
+        self.actions = graph.get_tensor_by_name('actions:0')
+        self.action_probs = graph.get_tensor_by_name('y:0')
+        self.advantage = graph.get_tensor_by_name('advantage:0')
+        self.loss = graph.get_tensor_by_name('loss:0')
+        self.train = graph.get_tensor_by_name('train:0')

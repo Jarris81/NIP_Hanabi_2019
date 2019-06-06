@@ -3,12 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from functools import reduce
+from datetime import datetime
 
 import rl_env
 
 
 NUM_ITERATIONS = 100
-NUM_EPISODES = 25
+NUM_EPISODES = 20
 
 NUM_PLAYERS = 2
 
@@ -69,8 +70,9 @@ def main():
     
 
     t1 = time.time()
-    print('total time', t1-t0)
-
+    print('ran', NUM_ITERATIONS, 'iterations with', NUM_EPISODES, 'episodes each in', t1-t0, 'seconds')
+    agent.save_actor_model('tmp/actor_model_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+    evaluate(agent, env, 1000)
     plot_losses(losses)
 
 
@@ -150,6 +152,32 @@ def calculate_discounted_rewards(rewards, gamma=0.95):
             Rt *= gamma
         
     return Rts
+
+def evaluate(agent, env, num_episodes):
+    t0 = time.time()
+    rewards = np.zeros(num_episodes)
+
+    # collect episodes
+    for ep in range(num_episodes):
+        # reset environment
+        observations = env.reset()
+        reward = 0
+        is_done = False
+
+        # collect one trajectory
+        while(not is_done):
+            # extract player's observation from observations
+            cur_player = observations['current_player']
+            observation = observations['player_observations'][cur_player]
+
+            # get next action and do next step
+            action = agent.act(observation, train=False)
+            observations, reward, is_done, _ = env.step(action)
+
+        # store reward if episode finished
+        rewards[ep] = -reward
+    t1 = time.time()
+    print('evaluated', num_episodes, 'steps in', t1-t0, 'seconds, average reward:', rewards.mean())
 
 def plot_losses(losses):
     # invert losses to make positive=better
