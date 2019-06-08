@@ -3,7 +3,8 @@
 import commandsWebSocket as cmd
 from game_state_wrapper import GameStateWrapper
 from agents.simple_agent import SimpleAgent
-import config as conf
+from agents.agent_player import RLPlayer
+import ui_config as conf
 import utils
 
 """ PYTHON IMPORTS """
@@ -36,7 +37,9 @@ class Client:
         """ Client wrapped around the agents, so they can play on Zamiels server
          https://github.com/Zamiell/hanabi-live. They compute actions offline
          and send back the corresponding json-encoded action on their turn."""
-
+        # Hanabi playing agent
+        self.agent = eval(conf.AGENT_CLASSES[client_config['agent_class']]['class'])(agent_config)
+        time.sleep(1) 
         # Opens a websocket on url:80
         self.ws = websocket.WebSocketApp(url=url,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),
@@ -54,9 +57,6 @@ class Client:
 
         # increment class instance counter
         self.id = next(self._ids)
-
-        # Hanabi playing agent
-        self.agent = eval(conf.AGENT_CLASSES[client_config['agent_class']]['class'])(agent_config)
 
         # throttle to avoid race conditions
         self.throttle = 0.05  # 50 ms
@@ -330,8 +330,9 @@ def get_agent_name_from_cls(agent_class: str, id: int):
 def parse_variant(game_variant: str, players: int) -> Dict:
     """ Takes game variant string as required by UI server and returns game_config Dict as required by pyhanabi"""
     if game_variant == 'No Variant':
+        """ Game config as required by pyhanabi.HanabiGame. """
         game_config = {
-            """ Game config as required by pyhanabi.HanabiGame. """
+
             'colors': 5,  # Number of colors in [1,5]
             'ranks': 5,  # Number of ranks in [1,5]
             'players': players,  # Number of total players in [2,5]
@@ -366,6 +367,7 @@ def get_client_config_from_args(cmd_args, game_config, agent: int) -> Dict:
         'username': get_agent_name_from_cls(cmd_args.agent_classes[agent], agent),
         'num_human_players': cmd_args.num_humans,
         'num_total_players': players,
+        "players": players,
         'empty_clues': False,
         'table_name': cmd_args.table_name,
         'table_pw': cmd_args.table_pw,
@@ -400,7 +402,7 @@ def get_configs_from_args(cmd_args) -> Dict:
         client_config = get_client_config_from_args(cmd_args, game_config, i)
 
         # Config for agent instance, e.g. num_actions for rainbow agent
-        conf = utils.get_agent_config(game_config, cmd_args.agent_classes[i])
+        conf = utils.get_agent_config(client_config, cmd_args.agent_classes[i])
 
         # concatenate with game_config
         agent_config = dict(conf, **game_config)
