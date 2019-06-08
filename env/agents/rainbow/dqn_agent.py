@@ -418,6 +418,7 @@ class DQNAgent(object):
                               {self.state_ph: self.state,
                                self.legal_actions_ph: legal_actions})
       assert legal_actions[action] == 0.0, 'Expected legal action.'
+
       return action
 
   def _train_step(self):
@@ -527,3 +528,7 @@ class DQNAgent(object):
         self.__dict__[key] = bundle_dictionary[key]
     self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
     return True
+
+  @staticmethod
+  def is_rl_agent():
+      return True

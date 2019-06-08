@@ -1,6 +1,6 @@
 import dqn_agent
 import rainbow_agent
-import run_experiment
+import agents.rule_based_agent
 import run_adhoc_experiment
 
 # This configures the DQN Agent.
@@ -27,18 +27,21 @@ RainbowAgent.epsilon_decay_period = 1000 # agent steps
 RainbowAgent.tf_device = '/cpu:*'  # '/cpu:*' use for non-GPU version
 WrappedReplayMemory.replay_capacity = 50000
 
-# Configures selfplay
+#This configures the SimpleAgent (rule based)
+AGENT_CLASS_3 = @RuleBasedAgent
 
-run_experiment.training_steps = 500
-run_experiment.num_iterations = 500
-run_experiment.checkpoint_every_n = 50
-run_one_iteration.evaluate_every_n = 10
+# Configures adhoc
+
+run_experiment.training_steps = 50
+run_experiment.num_iterations = 50
+run_experiment.checkpoint_every_n = 5
+run_one_iteration.evaluate_every_n = 2
 
 # Small Hanabi.
 create_environment.game_type = 'Hanabi-Full-CardKnowledge'
 create_environment.num_players = 2
 
-create_agent.agent_type = 'Rainbow'
+# create_agent.agent_type = 'Rainbow'
 create_obs_stacker.history_size = 1
 
 rainbow_template.layer_size=512

@@ -3,18 +3,21 @@
 """First attempt on building the rule based agent"""
 
 from rl_env import Agent
+import gin.tf
+import operator
+import numpy as np
 from pyhanabi import HanabiCardKnowledge
 
 D = False # set to True if you want to print out useful info
 
+@gin.configurable
 class RuleBasedAgent(Agent):
     """Agent that applies a simple heuristic."""
 
-    def __init__(self, config, *args, **kwargs):
+    def __init__(self, players, *args, **kwargs):
         """Initialize the agent."""
-        self.config = config
         # set number of players
-        self.players = config['players']
+        self.players = players
 
         if self.players < 4:
             self.rank_hinted_but_no_play = [False] * 5
@@ -22,7 +25,7 @@ class RuleBasedAgent(Agent):
             self.rank_hinted_but_no_play = [False] * 4
 
         # Extract max info tokens or set default to 8.
-        self.max_information_tokens = config.get('information_tokens', 8)
+        self.max_information_tokens = 8 #config.get('information_tokens', 8)
 
     @staticmethod
     def playable_card(card, fireworks):
@@ -272,3 +275,26 @@ class RuleBasedAgent(Agent):
                 'action_type': 'DISCARD',
                 'card_index': 0
             }
+
+    def act_train(self, observation):
+
+        action = self.act(observation)
+
+        #get the corresponding action in from legal moves
+        legal_move_idx = -1
+
+        for idx, legal_action in enumerate(observation['legal_moves']):
+
+            if operator.eq(action, legal_action):
+                legal_move_idx = idx
+                break
+        return np.int_(observation['legal_moves_as_int'][legal_move_idx])
+
+
+
+
+
+
+    @staticmethod
+    def is_rl_agent():
+        return False
