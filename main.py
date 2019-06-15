@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+# project imports
 import rl_env
 from pyhanabi_env_wrapper import PyhanabiEnvWrapper
 from tf_agents.networks.q_network import QNetwork
@@ -7,10 +12,26 @@ import test
 from policy_wrapper import LegalMovesSampler
 import utils
 
+tf.compat.v1.enable_v2_behavior()
+
+
+
 """ TRAIN HYPERPARAMS """
+env_name = 'CartPole-v0'  # @param
+num_iterations = 20000  # @param
+
+initial_collect_steps = 1000  # @param
+collect_steps_per_iteration = 1  # @param
+replay_buffer_capacity = 100000  # @param
+
 fc_layer_params = (100,)
-learning_rate = 1e-3
-num_eval_episodes = 10
+
+batch_size = 64  # @param
+learning_rate = 1e-3  # @param
+log_interval = 200  # @param
+
+num_eval_episodes = 10  # @param
+eval_interval = 1000  # @param
 
 """ ENVIRONMENT """
 # game config
@@ -20,15 +41,15 @@ num_players = 5
 # load and wrap environment, to use it with TF-Agent library
 pyhanabi_env = rl_env.make(environment_name=variant, num_players=num_players)
 env = PyhanabiEnvWrapper(pyhanabi_env)
-test.validate_py_environment(env)
+# test.validate_py_environment(env)
 
 """ DQN AGENT """
 # init feedforward net
 q_net = QNetwork(
     env.observation_spec(),
     env.action_spec(),
-    fc_layer_params
-)
+    fc_layer_params=fc_layer_params)
+
 # init optimizer
 optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
 train_step_counter = tf.compat.v2.Variable(0)
