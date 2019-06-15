@@ -60,12 +60,8 @@ def validate_py_environment(environment, episodes=5):
           (time_step, time_step_spec))
 
     action = random_policy.action(time_step).action
-    obss = environment._make_observation_all_players()
-    legal_moves_as_int = obss['player_observations'][obss['current_player']]['legal_moves_as_int']
+    time_step = environment.step(action)
 
-    if action in legal_moves_as_int:
-      time_step = environment.step(action)
-
-      if time_step.is_last():
-        episode_count += 1
-        time_step = environment.reset()
+    if time_step.is_last():
+      episode_count += 1
+      time_step = environment.reset()

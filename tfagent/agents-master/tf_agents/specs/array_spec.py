@@ -109,21 +109,16 @@ def check_arrays_nest(arrays, spec):
   try:
     tf.nest.assert_same_structure(arrays, spec)
   except (TypeError, ValueError):
-    print("THIS THROWS EXCEPTION:")
-    print(spec, ArraySpec)
     return False
 
   def check_array(spec, array):
     if not isinstance(spec, ArraySpec):
-      print("THIS FAILS:")
-      print(spec, ArraySpec)
       return False
     return spec.check_array(array)
 
   # Check all the elements in arrays match to their spec
   checks = tf.nest.map_structure(check_array, spec, arrays)
   # Only return True if all the checks pass.
-  print("TETS")
   return all(tf.nest.flatten(checks))
 
 
