@@ -362,9 +362,13 @@ class HanabiEnv(Environment):
         done = self.state.is_terminal()
         # Reward is score differential. May be large and negative at game end.
         reward = self.state.score() - last_score
+        # reward = self._custom_reward()
         info = {}
 
         return (observation, reward, done, info)
+
+    def _custom_reward(self):
+        pass
 
     def _make_observation_all_players(self):
         """Make observation for all players.
