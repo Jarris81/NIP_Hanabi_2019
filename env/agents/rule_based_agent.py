@@ -20,9 +20,14 @@ class RuleBasedAgent(Agent):
         self.players = players
 
         if self.players < 4:
-            self.rank_hinted_but_no_play = [False] * 5
+            num_cards = 5
         else:
-            self.rank_hinted_but_no_play = [False] * 4
+            num_cards = 4
+
+        self.rank_hinted_but_no_play = [0] * players
+
+        for i in range(len(self.rank_hinted_but_no_play)):
+            self.rank_hinted_but_no_play[i] = [False] * num_cards
 
         # Extract max info tokens or set default to 8.
         self.max_information_tokens = 8 #config.get('information_tokens', 8)
@@ -59,12 +64,12 @@ class RuleBasedAgent(Agent):
                             move.rank() == own_card_knowledge.rank() and 0 in last_move.card_info_revealed() and \
                             move.rank() is not None:
                         # hint is from left partner, not useful hint though (just hint to free tokens)')
-                        self.rank_hinted_but_no_play[index] = True
+                        self.rank_hinted_but_no_play[0][index] = True
                         break
                     #else:
                         # Unchanged
         if D:
-            print("Current state of", self.rank_hinted_but_no_play)
+            print("Current state of", self.rank_hinted_but_no_play[0])
 
     def maybe_play_lowest_playable_card(self, observation):
         """
@@ -82,16 +87,16 @@ class RuleBasedAgent(Agent):
             if own_card_know.color() is not None:
                 if D:
                     print("Will play from color hint card: ", own_card_know, "at index: ", index)
-                self.rank_hinted_but_no_play.pop(index)
-                self.rank_hinted_but_no_play.append(False)
+                self.rank_hinted_but_no_play[0].pop(index)
+                self.rank_hinted_but_no_play[0].append(False)
                 return {
                     'action_type': 'PLAY',
                     'card_index': index
                 }
             elif own_card_know.rank() is not None and \
-                    not self.rank_hinted_but_no_play[index]:
-                self.rank_hinted_but_no_play.pop(index)
-                self.rank_hinted_but_no_play.append(False)
+                    not self.rank_hinted_but_no_play[0][index]:
+                self.rank_hinted_but_no_play[0].pop(index)
+                self.rank_hinted_but_no_play[0].append(False)
                 if D:
                     print("Will play from value hint card: ", own_card_know, "at index: ", index)
                 return {
@@ -269,8 +274,8 @@ class RuleBasedAgent(Agent):
             }
         else:
             # Discard our oldest card
-            self.rank_hinted_but_no_play.pop(0)
-            self.rank_hinted_but_no_play.append(False)
+            self.rank_hinted_but_no_play[0].pop(0)
+            self.rank_hinted_but_no_play[0].append(False)
             return {
                 'action_type': 'DISCARD',
                 'card_index': 0
@@ -289,9 +294,6 @@ class RuleBasedAgent(Agent):
                 legal_move_idx = idx
                 break
         return np.int_(observation['legal_moves_as_int'][legal_move_idx])
-
-
-
 
 
 

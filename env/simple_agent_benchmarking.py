@@ -43,7 +43,7 @@ class Runner(object):
         scores = []
         for episode in range(flags['num_episodes']):
             observations = self.environment.reset()
-            agents = [self.agent_class(self.agent_config)
+            agents = [self.agent_class(self.agent_config['players'])
                       for _ in range(self.flags['players'])]
             done = False
             while not done:
@@ -80,7 +80,7 @@ class Runner(object):
 
 
 if __name__ == "__main__":
-    flags = {'players': 2, 'num_episodes': 100, 'agent_class': 'RuleBaseAgent'}
+    flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'RuleBaseAgent'}
     options, arguments = getopt.getopt(sys.argv[1:], '',
                                        ['players=',
                                         'num_episodes=',

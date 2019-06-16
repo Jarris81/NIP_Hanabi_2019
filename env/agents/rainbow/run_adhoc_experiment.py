@@ -176,6 +176,85 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
     else:
         raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
 
+
+def create_adhoc_team(environment, obs_stacker, team, rl_shared_model=True):
+    """
+
+    :param environment:
+    :param obs_stacker:
+    :param team:
+    :return:
+    """
+
+    agent_repo = ['DQN', 'SimpleAgent', 'Rainbow']
+
+    # empty list for agents
+    # check first if each position is only listed once
+    set_pos = set()
+
+    if not all(agent in agent_repo for agent in team.keys()):
+        print("Agent doesnt exist!")
+        return None
+
+    # quick check if team is defined correctly
+    for positions in team.values():
+        for pos in positions:
+            # check if team is correctly defined, therefore if
+            if pos in set_pos or pos not in range(5):
+                print("TEAM NOT CORRECTLY DEFINED! CHECK positions")
+                return None
+            else:
+                set_pos.add(pos)
+
+    list_pos = list(set_pos)
+    list_pos.sort()
+    # check if list is sequential
+    if not all(a == b for a, b in enumerate(list_pos)):
+        print('Index positions are not sequential')
+        return None
+
+    # create a dictionary for team, which will be returned. for each position
+    agent_list = [0] * len(list_pos)
+    for agent_type in team:
+
+        agent = None
+        for pos in team[agent_type]:
+            if agent_type == 'DQN':
+                if dqn_agent.DQNAgent.is_rl_agent() and rl_shared_model \
+                        and agent is not None:
+                    agent_list[pos] = agent
+                else:
+                    agent = dqn_agent.DQNAgent(
+                        observation_size=obs_stacker.observation_size(),
+                        num_actions=environment.num_moves(),
+                        num_players=environment.players)
+                    agent_list[pos] = agent
+
+            elif agent_type == 'Rainbow':
+                if dqn_agent.DQNAgent.is_rl_agent() and rl_shared_model \
+                        and agent is not None:
+                    agent_list[pos] = agent
+                else:
+                    agent = rainbow_agent.RainbowAgent(
+                        observation_size=obs_stacker.observation_size(),
+                        num_actions=environment.num_moves(),
+                        num_players=environment.players)
+                    agent_list[pos] = agent
+
+            elif agent_type == "SimpleAgent":
+                if dqn_agent.DQNAgent.is_rl_agent() and rl_shared_model \
+                        and agent is not None:
+                    agent_list[pos] = agent
+                else:
+                    agent = rule_based_agent.RuleBasedAgent(
+                        players=environment.players)
+                    agent_list[pos] = agent
+            else:
+                raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
+
+    return agent_list
+
+
 def create_adhoc_training_team(environment, obs_stacker):
     """
     Creates a team of agents used for adhoc-mode training
@@ -321,8 +400,15 @@ def run_one_episode(agents_list, environment, obs_stacker):
     current_player, legal_moves, observation_vector = (
         parse_observations(observations, environment.num_moves(), obs_stacker))
 
-    #print("----Agent: {} is making an action.".format(agents_list[current_player]))
-    action = agents_list[current_player].begin_episode(current_player, legal_moves, observation_vector)
+    if agents_list[current_player].is_rl_agent():
+        action = agents_list[current_player].begin_episode(current_player, legal_moves,
+                                                           observation_vector)
+    else:
+        # print("Observations: ", observations)
+        player_observation = parse_player_observation(observations)
+        action = agents_list[current_player].act_train(player_observation)
+        # print(action)
+
     #print("First action is: ", type(action))
 
     is_done = False
@@ -373,7 +459,6 @@ def run_one_episode(agents_list, environment, obs_stacker):
 
         # Reset this player's reward accumulator.
         reward_since_last_action[current_player] = 0
-    print("---------------Episode finished! Wuhu-----------")
     for agent in agents_list:
         if agent.is_rl_agent():
             agent.end_episode(reward_since_last_action)
