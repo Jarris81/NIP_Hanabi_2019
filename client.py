@@ -415,6 +415,8 @@ def get_configs_from_args(cmd_args) -> Dict:
 def commands_valid(args):
     """ This function returns True, iff the user specified input does not break the rules of the game"""
     # assert legal number of total players
+    print(type(args.num_humans))
+    print(args.agent_classes)
     assert 1 < args.num_humans + len(args.agent_classes) < 6
     # ... whatever else will come to my mind
     return True
@@ -429,6 +431,7 @@ def init_args(argparser):
              'instance by calling "client.py -n 0 -e 1 -a simple simple", 2 simple agents will create a lobby and '
              'play for 1 round and then idle. You can watch the replay by using the "watch specific replay" option '
              'from the server with the ID of the game (that is being sent to lobby chat after game is finished).',
+        type=int,
         default=1
     )
     argparser.add_argument(
@@ -436,6 +439,7 @@ def init_args(argparser):
         '--num_episodes',
         help='Number of games that will be played until agents idle. Default is e=1. -e flag will only be parsed when '
              '-n flag is set to 0, i.e. in AGENTS_ONLY mode',
+        type=int,
         default=1
     )
     argparser.add_argument(
@@ -473,7 +477,7 @@ def init_args(argparser):
         '--table_name',
         help='When running the client in AGENTS_ONLY mode, i.e. when setting -n to 0, you can pass a table name with '
              'this flag. Default is "AI_room". Usually there is no need to do this though.',
-        default='AI_room')
+        default='AIroom')
     argparser.add_argument(
         '-p',
         '--table_pw',

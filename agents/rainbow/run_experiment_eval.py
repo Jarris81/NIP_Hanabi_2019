@@ -27,6 +27,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+import sys
+rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
+sys.path.append(rel_path)
+
 import time
 
 from third_party.dopamine import checkpointer
@@ -211,13 +216,9 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
   # that we have finished iteration 0 (so we will start from iteration 1).
   latest_checkpoint_version = checkpointer.get_latest_checkpoint_number(
       checkpoint_dir)
-  print("========================")
-  print(f"LATEST CHECKPOINT DEBUG IN RUN XP {latest_checkpoint_version}")
-  print("========================")
   if latest_checkpoint_version >= 0:
     dqn_dictionary = experiment_checkpointer.load_checkpoint(
         latest_checkpoint_version)
-    print(dqn_dictionary)
     if agent.unbundle(
         checkpoint_dir, latest_checkpoint_version, dqn_dictionary):
       assert 'logs' in dqn_dictionary
@@ -375,11 +376,8 @@ def run_one_phase(agent, environment, obs_stacker, min_steps, statistics,
 
   return step_count, sum_returns, num_episodes
 
-
 @gin.configurable
-def run_one_iteration(agent, environment, obs_stacker,
-                      iteration, training_steps,
-                      evaluate_every_n=100,
+def run_one_simulation_iteration(agent, environment, obs_stacker,
                       num_evaluation_games=100):
   """Runs one iteration of agent/environment interaction.
 
@@ -402,21 +400,8 @@ def run_one_iteration(agent, environment, obs_stacker,
 
   statistics = iteration_statistics.IterationStatistics()
 
-  # First perform the training phase, during which the agent learns.
-  agent.eval_mode = False
-  number_steps, sum_returns, num_episodes = (
-      run_one_phase(agent, environment, obs_stacker, training_steps, statistics,
-                    'train'))
-  time_delta = time.time() - start_time
-  tf.logging.info('Average training steps per second: %.2f',
-                  number_steps / time_delta)
-
-  average_return = sum_returns / num_episodes
-  tf.logging.info('Average per episode return: %.2f', average_return)
-  statistics.append({'average_return': average_return})
-
   # Also run an evaluation phase if desired.
-  if evaluate_every_n is not None and iteration % evaluate_every_n == 0:
+  if num_evaluation_games is not None:
     episode_data = []
     agent.eval_mode = True
     # Collect episode data for all games.

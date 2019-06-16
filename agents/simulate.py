@@ -24,9 +24,9 @@ from __future__ import print_function
 from absl import app
 from absl import flags
 
-from third_party.dopamine import logger
+from rainbow.third_party.dopamine import logger
 
-import run_experiment
+import rainbow.run_experiment_eval as xp
 
 FLAGS = flags.FLAGS
 
@@ -54,13 +54,6 @@ flags.DEFINE_string('logging_dir', '',
 flags.DEFINE_string('logging_file_prefix', 'log',
                     'Prefix to use for the log files.')
 
-flags.DEFINE_string('mode', None,
-                    'Base directory to host all required sub-directories.')
-
-flags.DEFINE_string('agent', None,
-                    'Base directory to host all required sub-directories.')
-
-
 def launch_experiment():
   """Launches the experiment.
 
@@ -77,34 +70,28 @@ def launch_experiment():
   if FLAGS.base_dir == None:
     raise ValueError('--base_dir is None: please provide a path for '
                      'logs and checkpoints.')
-
-  if FLAGS.mode == None:
-      raise ValueError('--mode is None. Please provide a train/simulate mode(e.g. "self_play")')
-
-  if FLAGS.agent == None:
-      raise ValueError('--agent is None: please provide an agent type(e.g. "DQN")')
-
-  run_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
+                     
+  xp.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
 
   experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
 
-  environment = run_experiment.create_environment()
+  environment = xp.create_environment()
 
-  obs_stacker = run_experiment.create_obs_stacker(environment)
+  obs_stacker = xp.create_obs_stacker(environment)
 
-  agent = run_experiment.create_agent(environment, obs_stacker, agent_type=FLAGS.agent, mode=FLAGS.mode)
+  agent = xp.create_agent(environment, obs_stacker)
+
+  agent.eval_mode=True
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
 
   start_iteration, experiment_checkpointer = (
-      run_experiment.initialize_checkpointing(agent,
+      xp.initialize_checkpointing(agent,
                                               experiment_logger,
                                               checkpoint_dir,
                                               FLAGS.checkpoint_file_prefix))
 
-  run_experiment.run_experiment(agent, environment, start_iteration,obs_stacker,experiment_logger, experiment_checkpointer,checkpoint_dir,
-                                logging_file_prefix=FLAGS.logging_file_prefix,train=False)
-
+  xp.run_one_simulation_iteration(agent, environment, obs_stacker)
 
 def main(unused_argv):
 
