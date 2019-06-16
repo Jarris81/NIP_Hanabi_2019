@@ -122,7 +122,7 @@ def load_statistics(log_path, iteration_number=None, verbose=True):
     # pylint: enable=superfluous-parens
 
   with tf.gfile.Open(log_file, 'rb') as f:
-    return pickle.load(f), iteration_number
+    return pickle.load(f, encoding='latin1'), iteration_number
 
 
 def get_latest_file(path):

@@ -7,7 +7,6 @@ import sys
 
 rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow/')
 sys.path.append(rel_path)
-print(sys.path)
 
 import tensorflow as tf
 import numpy as np
@@ -16,7 +15,7 @@ from absl import app
 from absl import flags
 
 import dqn_agent as dqn
-import run_experiment as xp
+import run_experiment_ui as xp
 import vectorizer
 import rainbow_agent as rainbow
 import functools
@@ -26,18 +25,9 @@ class RLPlayer(object):
 
     def __init__(self,agent_config):
 
-        """Initializes the agent and constructs its graph.
-        Vars:
-          observation_size: int, size of observation vector on one time step.
-          history_size: int, number of time steps to stack.
-          graph_template: function for building the neural network graph.
-          tf_device: str, Tensorflow device on which to run computations.
         """
-
-        # if env==None:
-        #     print("Specify environment")
-        #     return
-        # We use the environment as a library to transform observations and actions(e.g. vectorize)
+        Main Interface that allows a trained agent to interact with other Hanabi-Environments
+        """
 
         self.observation_size = agent_config["observation_size"]
         self.players = agent_config["players"]
@@ -46,24 +36,30 @@ class RLPlayer(object):
 
         self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape, self.players)
         self.num_actions = agent_config["max_moves"]
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
+        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
 
         self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
         path_rainbow = os.path.join(self.base_dir,'checkpoints')
-        # path_rainbow = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit/checkpoints"
+        #print(path_rainbow)
 
-        num_players = agent_config["players"]
-        self.agent = xp.create_agent(self.observation_size, self.num_actions, self.players,"Rainbow")
+        self.agent = xp.create_agent(self.observation_size, self.num_actions, self.players, "Rainbow")
+        print("====================")
+        print("Created Agent successfully")
+        print("====================")
         self.agent.eval_mode = True
+        self.agent.partial_reload = True
+        print(self.agent.partial_reload)
 
         start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
         print("\n---------------------------------------------------")
-        print("Creating agent from trained model at iteration: {}".format(start_iteration))
+        print("Initialized Model weights at start iteration: {}".format(start_iteration))
         print("---------------------------------------------------\n")
 
     def load_model_weights(self,path,iteration_number):
 
+        # loads weights from most recent trained model weights
         self.saver = tf.train.Saver()
         self.saver.restore(self._sess,
                             os.path.join(path,
@@ -74,7 +70,7 @@ class RLPlayer(object):
     args:
         observation: expects an already vectorized observation from vectorizer.ObservationVectorizer
     returns:
-        an integer, representing the appropriate action to take
+        action dict object
     '''
 
     def act(self, observation):

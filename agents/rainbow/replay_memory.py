@@ -414,12 +414,12 @@ class OutOfGraphReplayMemory(object):
       if attr.startswith('_'):
         continue
       filename = self._generate_filename(checkpoint_dir, attr, suffix)
-      with tf.gfile.Open(filename) as f:
+      with tf.gfile.Open(filename,'rb') as f:
         with gzip.GzipFile(fileobj=f) as infile:
           if isinstance(self.__dict__[attr], np.ndarray):
-            self.__dict__[attr] = np.load(infile, allow_pickle=False)
+            self.__dict__[attr] = np.load(infile, allow_pickle=True)
           else:
-            self.__dict__[attr] = pickle.load(infile)
+            self.__dict__[attr] = pickle.load(infile,encoding="latin-1")
 
 
 @gin.configurable(blacklist=['observation_size', 'stack_size'])

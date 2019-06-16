@@ -31,7 +31,6 @@ lib = None
 cdef_loaded_flag = False
 lib_loaded_flag = False
 
-
 if sys.version_info < (3,):
   def encode_ffi_string(x):
     return ffi.string(x)
@@ -115,7 +114,9 @@ def lib_loaded():
 
 
 def color_idx_to_char(color_idx):
-  """Helper function for converting color index to a character.
+  """
+
+  Helper function for converting color index to a character.
 
   Args:
     color_idx: int, index into color char vector.
@@ -125,6 +126,7 @@ def color_idx_to_char(color_idx):
 
   Raises:
     AssertionError: If index is not in range.
+
   """
   assert isinstance(color_idx, int)
   if color_idx == -1:

@@ -39,7 +39,7 @@ class Client:
          and send back the corresponding json-encoded action on their turn."""
         # Hanabi playing agent
         self.agent = eval(conf.AGENT_CLASSES[client_config['agent_class']]['class'])(agent_config)
-        time.sleep(1) 
+        time.sleep(1)
         # Opens a websocket on url:80
         self.ws = websocket.WebSocketApp(url=url,
                                          on_message=lambda ws, msg: self.on_message(ws, msg),
