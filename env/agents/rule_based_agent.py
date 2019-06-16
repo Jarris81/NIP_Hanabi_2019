@@ -6,7 +6,7 @@ from rl_env import Agent
 import gin.tf
 import operator
 import numpy as np
-from pyhanabi import HanabiCardKnowledge
+from pyhanabi import HanabiMoveType as move_type
 
 D = False # set to True if you want to print out useful info
 
@@ -47,27 +47,26 @@ class RuleBasedAgent(Agent):
 
         own_cards_knowledge = observation['pyhanabi'].card_knowledge()[0]
 
-        for index, own_card_knowledge in enumerate(own_cards_knowledge):
-            for last_move in last_moves:
-                player = last_move.player()
-                if player is self.players - 1:
-                    if D:
-                        print("Card: ", own_card_knowledge, "at index: ", index)
-                    move = last_move.move()
-                    target_offset = move.target_offset()
-                    # check if hint was from player
-                    # print("revealed in last move", last_move.card_info_revealed())
-                    # print("was 0 card index in move?:", 0 in last_move.card_info_revealed())
-                    # print("offset: ", move.target_offset())
-                    # print("Is rank same as card checking?: ", move.rank() == own_card_knowledge.rank())
-                    if player is self.players - 1 and move.target_offset() == 1 and \
-                            move.rank() == own_card_knowledge.rank() and 0 in last_move.card_info_revealed() and \
-                            move.rank() is not None:
-                        # hint is from left partner, not useful hint though (just hint to free tokens)')
-                        self.rank_hinted_but_no_play[0][index] = True
-                        break
-                    #else:
-                        # Unchanged
+        for last_move in last_moves:
+            player = last_move.player()
+            move = last_move.move()
+            target_offset = move.target_offset()
+            # check if hint was from player
+            # print("revealed in last move", last_move.card_info_revealed())
+            # print("was 0 card index in move?:", 0 in last_move.card_info_revealed())
+            # print("offset: ", move.target_offset())
+            # print("Is rank same as card checking?: ", move.rank() == own_card_knowledge.rank())
+            if move.type() == move_type.REVEAL_RANK and move.target_offset() == 1 \
+                    and 0 in last_move.card_info_revealed() and \
+                    move.rank() is not None:
+                player_target_idx = (player + 1) % (self.players - 1)
+                # hint is from left partner, not useful hint though (just hint to free tokens)')
+                for card_idx in last_move.card_info_revealed():
+
+                    self.rank_hinted_but_no_play[player_target_idx][card_idx] = True
+                break
+            #else:
+                # Unchanged
         if D:
             print("Current state of", self.rank_hinted_but_no_play[0])
 
