@@ -233,6 +233,7 @@ int LastActionSectionLength(const HanabiGame& game) {
 //  - Position played/discarded (<hand_size> bits; one-hot)
 //  - Card played/discarded (<num_colors> * <num_ranks> bits; one-hot)
 // Returns the number of entries written to the encoding.
+
 int EncodeLastAction(const HanabiGame& game, const HanabiObservation& obs,
                      int start_offset, std::vector<int>* encoding) {
   int num_colors = game.NumColors();

@@ -27,6 +27,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os, sys
+rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow/')
+sys.path.append(rel_path)
+
 import time
 
 from third_party.dopamine import checkpointer

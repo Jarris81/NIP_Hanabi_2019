@@ -430,6 +430,7 @@ class HanabiEnv(Environment):
         hint_d["rank"] = hint.rank()
         player_hints_as_dicts.append(hint_d)
       obs_dict["card_knowledge"].append(player_hints_as_dicts)
+    obs_dict["last_moves"] = observation.last_moves()
 
     # ipdb.set_trace()
     obs_dict["vectorized"] = self.observation_encoder.encode(observation)

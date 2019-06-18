@@ -54,7 +54,7 @@ def rank_plausible(rank,
         if last_player_action is not None:
             if last_player_action.move().type() == PLAY or last_player_action.move().type() == DISCARD:
                 player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-                if card_id == (len(player_card_knowledge) - 1):
+                if card_id == (len(last_player_card_knowledge) - 1):
                     return plausible
 
     if card_rank_revealed:
@@ -144,6 +144,7 @@ class ObservationVectorizer(object):
         return self.total_state_length
 
     def vectorize_observation(self, obs):
+        self.obs_vec = np.zeros(self.total_state_length)
         self.obs = obs
 
         print("LASTMOVES", obs["last_moves"])
