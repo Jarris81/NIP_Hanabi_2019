@@ -5,82 +5,159 @@ import copy
 
 COLOR_CHAR = ["R", "Y", "G", "W", "B"]
 
-def color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, last_player_action, last_player_card_knowledge):
+class HandKnowledge(object):
+    def __init__(self, hand_size, num_ranks, num_colors):
+        self.num_ranks = num_ranks
+        self.num_colors = num_colors
+        self.hand = [CardKnowledge(num_ranks, num_colors) for _ in range(hand_size)]
 
-    plausible = True
-    print("LAST HAND")
-    print(last_hand)
-    if last_hand:
+    def sync_colors(self, card_ids, color):
 
-        if last_player_action != None:
+        for cid in range(len(self.hand)):
+            if cid in card_ids:
+                for c in range(len(self.hand[cid].colors)):
+                    if c != color:
+                        self.hand[cid].colors[c] = None
+            else:
+                self.hand[cid].colors[color] = None
 
-            # print("LAST HAND AND LAST PLAYER ACTION != NONE")
-            # print(last_player_action)
+        print("\n==========================")
+        print("SYNCING COLOR FUNCTION FINISHED")
+        print(f"COLOR TO SYNC: {color}, POSITIONS: {card_ids}")
+        print(f"SYNCED HAND COLORS: {self.hand[0].colors}, {self.hand[1].colors}, {self.hand[2].colors}, {self.hand[3].colors}")
+        print("==========================\n")
 
-            if last_player_action["action_type"] == "PLAY" or last_player_action["action_type"] == "DISCARD":
+    def sync_ranks(self, card_ids, rank):
 
-                player_card_knowledge = player_card_knowledge + last_player_card_knowledge
+        for cid in range(len(self.hand)):
+            if cid in card_ids:
+                for r in range(len(self.hand[cid].ranks)):
+                    if r != rank:
+                        self.hand[cid].ranks[r] = None
+            else:
+                self.hand[cid].ranks[rank] = None
 
-                # print("LAST HAND CARD ID")
-                # print(card_id)
-                #
-                # print("LAST PLAYER CARD KNOWLEDGE LENGTH")
-                # print(len(last_player_card_knowledge))
+        print("\n==========================")
+        print("SYNCING RANK FUNCTION FINISHED")
+        print(f"RANK TO SYNC: {rank}, POSITIONS: {card_ids}")
+        print(f"SYNCED HAND RANKS: {self.hand[0].ranks}, {self.hand[1].ranks}, {self.hand[2].ranks}, {self.hand[3].ranks}")
+        print("==========================\n")
 
-                if card_id == (len(last_player_card_knowledge)-1):
+    def remove_card(self, card_id, deck_empty = False):
+        new_hand = []
+        for c_id,card in enumerate(self.hand):
+            if c_id != card_id:
+                new_hand.append(card)
 
-                    return plausible
+        # NOTE: STOP REFILLING IF DECK IS EMPTY
+        if not deck_empty:
+            while len(new_hand) < len(self.hand):
+                new_hand.append(CardKnowledge(self.num_ranks, self.num_colors))
 
-    color = utils.color_idx_to_char(color)
-    if card_color_revealed == True :
-        if color == player_card_knowledge[card_id]["color"]:
-            return plausible
-        else:
-            plausible = False
-            return plausible
+        self.hand = new_hand
 
-    for i,card in enumerate(player_card_knowledge):
+class CardKnowledge(object):
+    def __init__(self, num_ranks, num_colors):
+        self.colors = [c for c in range(num_colors)]
+        self.ranks = [r for r in range(num_ranks)]
 
-        tmp_color = card["color"]
-        if (tmp_color == color):
-            plausible = False
+    def color_plausible(self, color):
+        # print("\n INSIDE COLOR PLAUSIBLE FUNCTION")
+        # print(self.colors[color])
+        # print("\n")
+        return self.colors[color] != None
 
-    print(f"COMPUTED THAT COLOR: {color} for card {card_id} is plausible=={plausible}")
+    def rank_plausible(self, rank):
+        # print("\n INSIDE RANK PLAUSIBLE FUNCTION")
+        # print(self.ranks[rank])
+        # print("\n")
+        return self.ranks[rank] != None
 
-    return plausible
+    def remove_rank(self, rank):
+        if rank in self.ranks:
+            self.ranks[rank] = None
 
-def rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, last_player_action, last_player_card_knowledge):
+    def remove_color(self, color):
+        if color in self.colors:
+            self.colors[color] = None
 
-    plausible = True
-    if last_hand:
-        if last_player_action != None:
-            if last_player_action["action_type"] == "PLAY" or last_player_action["action_type"] == "DISCARD":
 
-                player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-
-                if card_id == (len(last_player_card_knowledge)-1):
-
-                    return plausible
-    # print(f"rank: {rank}")
-    # print(f"color: {color}")
-    # print(f"player_card_knowledge: {player_card_knowledge}")
-
-    if card_rank_revealed == True:
-        print(rank)
-        print(player_card_knowledge[card_id]["rank"])
-        if rank == player_card_knowledge[card_id]["rank"]:
-            return True
-        else:
-            return False
-
-    for i,card in enumerate(player_card_knowledge):
-        tmp_rank = card["rank"]
-        if (card["rank"] == rank):
-            plausible = False
-
-    print(f"COMPUTED THAT RANK: {rank} for card {card_id} is plausible=={plausible}")
-
-    return plausible
+# def color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, last_player_action, last_player_card_knowledge):
+#
+#     plausible = True
+#     print("LAST HAND")
+#     print(last_hand)
+#     if last_hand:
+#
+#         if last_player_action != None:
+#
+#             # print("LAST HAND AND LAST PLAYER ACTION != NONE")
+#             # print(last_player_action)
+#
+#             if last_player_action["action_type"] == "PLAY" or last_player_action["action_type"] == "DISCARD":
+#
+#                 player_card_knowledge = player_card_knowledge + last_player_card_knowledge
+#
+#                 # print("LAST HAND CARD ID")
+#                 # print(card_id)
+#                 #
+#                 # print("LAST PLAYER CARD KNOWLEDGE LENGTH")
+#                 # print(len(last_player_card_knowledge))
+#
+#                 if card_id == (len(last_player_card_knowledge)-1):
+#
+#                     return plausible
+#
+#     color = utils.color_idx_to_char(color)
+#     if card_color_revealed == True :
+#         if color == player_card_knowledge[card_id]["color"]:
+#             return plausible
+#         else:
+#             plausible = False
+#             return plausible
+#
+#     for i,card in enumerate(player_card_knowledge):
+#
+#         tmp_color = card["color"]
+#         if (tmp_color == color):
+#             plausible = False
+#
+#     print(f"COMPUTED THAT COLOR: {color} for card {card_id} is plausible=={plausible}")
+#
+#     return plausible
+#
+# def rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, last_player_action, last_player_card_knowledge):
+#
+#     plausible = True
+#     if last_hand:
+#         if last_player_action != None:
+#             if last_player_action["action_type"] == "PLAY" or last_player_action["action_type"] == "DISCARD":
+#
+#                 player_card_knowledge = player_card_knowledge + last_player_card_knowledge
+#
+#                 if card_id == (len(last_player_card_knowledge)-1):
+#
+#                     return plausible
+#     # print(f"rank: {rank}")
+#     # print(f"color: {color}")
+#     # print(f"player_card_knowledge: {player_card_knowledge}")
+#
+#     if card_rank_revealed == True:
+#         print(rank)
+#         print(player_card_knowledge[card_id]["rank"])
+#         if rank == player_card_knowledge[card_id]["rank"]:
+#             return True
+#         else:
+#             return False
+#
+#     for i,card in enumerate(player_card_knowledge):
+#         tmp_rank = card["rank"]
+#         if (card["rank"] == rank):
+#             plausible = False
+#
+#     print(f"COMPUTED THAT RANK: {rank} for card {card_id} is plausible=={plausible}")
+#
+#     return plausible
 
 '''
 Used to vectorize/encode player-dependent state-dicts and action dicts that are used
@@ -196,25 +273,23 @@ class ObservationVectorizer(object):
 
             self.last_player_card_knowledge = []
 
-            self.last_player_action = None
+            self.player_knowledge = [HandKnowledge(self.hand_size, self.num_ranks, self.num_colors) for _ in range(self.num_players)]
+
+            self.player_id = 0
+
+            self.last_player_action = []
 
     def get_vector_length(self):
         return self.total_state_length
 
     # NOTE FOR NOW JUST PARSING VERY LAST 2 MOVES
     def parse_last_moves(self,last_moves):
-        print("PASE LAST MOVE FUNCTION")
-        print("LAST MOVES")
+
         last_moves_dict = last_moves.move().to_dict()
-        print(last_moves_dict)
 
         if last_moves_dict["action_type"] == "REVEAL_COLOR" or last_moves_dict["action_type"] == "REVEAL_RANK":
             color = utils.color_idx_to_char(last_moves.move().color())
             rank = last_moves.move().rank()
-
-            print("COLOR AND RANK")
-            print(color)
-            print(rank)
 
             last_moves_dict.update([
                 ("color",color),
@@ -224,10 +299,6 @@ class ObservationVectorizer(object):
         elif last_moves_dict["action_type"] == "PLAY" or last_moves_dict["action_type"] == "DISCARD":
             color = utils.color_idx_to_char(last_moves.color())
             rank = last_moves.rank()
-
-            print("COLOR AND RANK")
-            print(color)
-            print(rank)
 
             last_moves_dict.update([
                 ("color",color),
@@ -241,25 +312,13 @@ class ObservationVectorizer(object):
             ("card_info_revealed", last_moves.card_info_revealed())
         ])
 
-        print("LAST MOVES DICT")
-        print(last_moves_dict)
-        # print(last_moves)
-        # last_moves["player"] = str(last_moves.player())
-        # last_moves["scored"] = last_moves.scored()
-        # last_moves["information_token"] = last_moves.information_token()
-        # last_moves["color"] = last_moves.color()
-        # last_moves["rank"] = last_moves.rank()
-        # last_moves["card_info_revealed"] = last_moves.card_info_revealed()
         last_moves_dict = [last_moves_dict]
         return last_moves_dict
 
     # NOTE: change back to what it was before
     def vectorize_observation(self,obs):
-        print("================================")
-        print("LAST MOVES IN OBSERVATION VECTORIZER AFTER CALLLING VECTORIZED FUNCTION")
         if len(obs["last_moves"]) > 2:
             print(obs["last_moves"][1])
-        print("================================")
         self.obs_vec = np.zeros(self.total_state_length)
         self.obs = obs
         if obs["last_moves"] != []:
@@ -267,32 +326,14 @@ class ObservationVectorizer(object):
             o = copy.copy(obs)
 
             obs["last_moves"] = self.parse_last_moves(obs["last_moves"][0])
-            print(obs["last_moves"])
-
-            print("LAST MOVES LENGTH")
-            print(len(o["last_moves"]))
 
             if obs["last_moves"][0]["action_type"] != "DEAL":
-                print("ENTERED != DEAL")
                 self.last_player_action = obs["last_moves"][0]
 
             elif len(o["last_moves"]) >= 2:
-                print("ENTERED LEN > 2")
                 obs["last_moves"] = self.parse_last_moves(o["last_moves"][1])
-
-                print("=====================")
-                print("LINE 220")
-                print(f"obs['last_moves']")
-                print("=====================")
-
-                print("\nSETTING LAST PLAYER ACTION\n")
                 self.last_player_action = obs["last_moves"][0]
-                print("=====================")
-                print("LINE 220")
-                print(self.last_player_action)
-                print("=====================")
             else:
-                print("ENTERED ELSE")
                 self.last_player_action = []
 
         self.encode_hands(obs)
@@ -391,23 +432,15 @@ class ObservationVectorizer(object):
 
     # NOTE: CHANGE ACTION TYPE BACK
     def encode_last_action(self,obs):
+        print("==============")
+        print(self.last_player_action)
+        print("==============")
         if self.last_player_action == []:
-            print(f"Last Player Action: {self.last_player_action}")
-            print(f"Setting Offset to: {self.offset+self.last_action_bit_length}")
             self.offset += self.last_action_bit_length
         else:
-            print("=========================")
-            print("LINE 336")
-            print(f"Last Player Action: {self.last_player_action}")
-            print("=========================")
-            print("LAST ACTION IN OBSERVATION OBJECT")
-            print(obs["last_moves"])
-            print("=========================")
             last_move_type = self.last_player_action["action_type"]
             self.obs_vec[self.offset + self.last_player_action["player"]] = 1
             self.offset += self.num_players
-
-            print(f"SELF OFFSET IN LINE 349: {self.offset}")
 
             if last_move_type == "PLAY":
                 self.obs_vec[self.offset] = 1
@@ -475,66 +508,127 @@ class ObservationVectorizer(object):
         assert self.offset - (self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length + self.last_action_bit_length) == 0
         return True
 
+    # TODO: NEED TO SYNC WITH player_card_knowledge
+
     def encode_card_knowledge(self,obs):
 
         hands = obs["observed_hands"]
         card_knowledge_list = obs["card_knowledge"]
         discard_pile_knowledge = obs["discard_pile"]
         fireworks_knowledge = obs["fireworks"]
+        current_player_id = obs["current_player"]
+
+        ### SYNC CARD KNOWLEDGE AFTER HINT GIVEN ###
+        if self.last_player_action != []:
+            if self.last_player_action["action_type"] == "REVEAL_COLOR":
+                player_hand_to_sync = (self.last_player_action["player"] + self.last_player_action["target_offset"] + current_player_id) % self.num_players
+                card_pos_to_sync = self.last_player_action["card_info_revealed"]
+                color_to_sync = utils.color_char_to_idx(self.last_player_action['color'])
+                print("\n==============================")
+                print(f"SYNCING CARD KNOWLEDGE OF PLAYER: {player_hand_to_sync}")
+                print("================================\n")
+                self.player_knowledge[player_hand_to_sync].sync_colors(card_pos_to_sync, color_to_sync)
+
+
+        if self.last_player_action != []:
+            if self.last_player_action["action_type"] == "REVEAL_RANK":
+                player_hand_to_sync = (self.last_player_action["player"] + self.last_player_action["target_offset"] + current_player_id) % self.num_players
+                card_pos_to_sync = self.last_player_action["card_info_revealed"]
+                rank_to_sync = self.last_player_action['rank']
+                print("\n==============================")
+                print(f"SYNCING CARD KNOWLEDGE OF PLAYER: {player_hand_to_sync}")
+                print("================================\n")
+                self.player_knowledge[player_hand_to_sync].sync_ranks(card_pos_to_sync, rank_to_sync)
+
+        if self.last_player_action != []:
+            if self.last_player_action["action_type"] == "PLAY" or self.last_player_action["action_type"] == "DISCARD":
+                player_id = (self.last_player_action["player"] + current_player_id) % self.num_players
+                card_id = self.last_player_action["card_index"]
+
+                self.player_knowledge[player_id].remove_card(card_id)
+
+
+
+        print("========================")
+        print(f"LAST ACTION: {self.last_player_action}")
+        print("========================")
+
+        print("##########################################")
+        print(f"############### CURRENT PLAYER {current_player_id} ################")
+        print("##########################################\n")
 
         for ih, player_card_knowledge in enumerate(card_knowledge_list):
             num_cards = 0
 
             print("##########################################")
-            print("############### PLAYER {} ################".format(ih+1))
+            print("############### TMP PLAYER CARD KNOWLEDGE ID {} ################".format(ih))
+            print(player_card_knowledge)
             print("##########################################\n")
 
-            ### TREAT LAST HAND EDGE CASES
-            if ih == self.num_players-1:
-                last_hand = True
-            else:
-                last_hand = False
+            rel_player_pos = (current_player_id + ih) % self.num_players
 
-            if ih == 3:
-                print("CURRENT CARD KNOWLEDGE")
-                print(player_card_knowledge)
-                print("LAST PLAYER CARD KNOWLEDGE")
-                print(self.last_player_card_knowledge)
 
             for card_id, card in enumerate(player_card_knowledge):
 
-                print("##########################################")
-                print("tmp-card id: {}".format(card_id))
-                print("##########################################")
-
+                print("\n###########################")
+                print("CARD")
                 print(card)
-
-                if card["color"] != None:
-                    card_color_revealed = True
-                else:
-                    card_color_revealed = False
-                if card["rank"] != None:
-                    card_rank_revealed = True
-                else:
-                    card_rank_revealed = False
+                print("###########################\n")
 
                 for color in range(self.num_colors):
 
-                    if color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, self.last_player_action, self.last_player_card_knowledge):
+                    if self.player_knowledge[rel_player_pos].hand[card_id].color_plausible(color):
 
                         for rank in range(self.num_ranks):
 
-                            if rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, self.last_player_action, self.last_player_card_knowledge):
+                            if self.player_knowledge[rel_player_pos].hand[card_id].rank_plausible(rank):
 
-                                card_index = color * self.num_ranks + rank
+                                card_index = card_index = color * self.num_ranks + rank
+                                print("\n===============================")
+                                print(f"CURRENT PLAYER REAL: {current_player_id}, CURRENT PLAYER HAND: {ih}, CURRENT PLAYER RELATIVE {rel_player_pos}")
+                                print(f"OFFSET TO BE SET IN 555: {self.offset + card_index}")
+                                print(f"ASSIGNING PLAUSIBLE=TRUE TO CARD_ID: {card_id}, FOR COLOR: {color} AND RANK: {rank}")
+                                print("SET CARD KNOWLEDGE FOR THIS HAND")
+                                print("COLORS")
+                                print(self.player_knowledge[rel_player_pos].hand[0].colors,self.player_knowledge[rel_player_pos].hand[1].colors,self.player_knowledge[rel_player_pos].hand[2].colors,self.player_knowledge[rel_player_pos].hand[3].colors)
+                                print("RANKS")
+                                print(self.player_knowledge[rel_player_pos].hand[0].ranks,self.player_knowledge[rel_player_pos].hand[1].ranks,self.player_knowledge[rel_player_pos].hand[2].ranks,self.player_knowledge[rel_player_pos].hand[3].ranks)
+                                print("===============================\n")
 
-                                # if ((self.offset+card_index) in error_list):
-                                #     print(self.offset+card_index)
-                                #     print("\nFailed encoded card: {}, with index: {}, at hand_index: {}".format(card, card_id, ih))
-                                #     print("Wrongly assigned 'plausible' to color: {}, rank: {}\n".format(utils.color_idx_to_char(color),rank))
-                                print("OFFSET TO BE SET IN 533")
-                                print(self.offset + card_index)
                                 self.obs_vec[self.offset + card_index] = 1
+
+                # print("##########################################")
+                # print("tmp-card id: {}".format(card_id))
+                # print("##########################################")
+                #
+                # print(card)
+                #
+                # if card["color"] != None:
+                #     card_color_revealed = True
+                # else:
+                #     card_color_revealed = False
+                # if card["rank"] != None:
+                #     card_rank_revealed = True
+                # else:
+                #     card_rank_revealed = False
+                #
+                # for color in range(self.num_colors):
+                #
+                #     if color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, self.last_player_action, self.last_player_card_knowledge):
+                #
+                #         for rank in range(self.num_ranks):
+                #
+                #             if rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, self.last_player_action, self.last_player_card_knowledge):
+                #
+                #                 card_index = color * self.num_ranks + rank
+                #
+                #                 # if ((self.offset+card_index) in error_list):
+                #                 #     print(self.offset+card_index)
+                #                 #     print("\nFailed encoded card: {}, with index: {}, at hand_index: {}".format(card, card_id, ih))
+                #                 #     print("Wrongly assigned 'plausible' to color: {}, rank: {}\n".format(utils.color_idx_to_char(color),rank))
+                #                 print("OFFSET TO BE SET IN 533")
+                #                 print(self.offset + card_index)
+                #                 self.obs_vec[self.offset + card_index] = 1
 
                 self.offset += self.bits_per_card
 

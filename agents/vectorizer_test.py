@@ -20,18 +20,30 @@ if __name__=="__main__":
     obs_stacker = xp.create_obs_stacker(env, history_size)
     agent = xp.create_agent(env, obs_stacker)
 
+    actions_taken = 0
+
     # Setup vectorizer
     obs_vectorizer = vectorizer.ObservationVectorizer(env)
 
     observations = env.reset()
+
     # print(observations)
 
     current_player, legal_moves, observation_vector  = xp.parse_observations(observations, env.num_moves(), obs_stacker)
 
     vec_obs = observations["player_observations"][current_player]
-    # print(vec_obs)
-    #own_vec = obs_vectorizer.vectorize_observation(vec_obs)
-    #print(np.equal(observation_vector,own_vec))
+    own_vec = obs_vectorizer.vectorize_observation(vec_obs)
+
+    wrong_indices = np.where(np.equal(observation_vector,own_vec)*1 == 0)
+    print(f"Wrong indices size: {wrong_indices[0].size}")
+
+    if wrong_indices[0].size > 0:
+       print(f"Wrong Indices: {wrong_indices[0]}")
+       for index in wrong_indices[0]:
+           print(f"Index {index} was set to {own_vec[index]}")
+           print(f"Should be: {observation_vector[index]}")
+           print("================")
+           sys.exit(0)
 
     action = agent.begin_episode(current_player, legal_moves, observation_vector)
 
@@ -50,11 +62,11 @@ if __name__=="__main__":
 
     # simulate whole game
     while not is_done:
-        print("====================")
-        print("REAL MOVE TO BE TAKEN")
-        print(env.game.get_move(action))
-        print("====================")
+        print("\n====================")
+        print(f"REAL MOVE TO BE TAKEN: {env.game.get_move(action)}")
+        print("====================\n")
         observations, reward, is_done, _ = env.step(action.item())
+        actions_taken+=1
 
         modified_reward = max(reward, 0) if LENIENT_SCORE else reward
         total_reward += modified_reward
@@ -71,11 +83,6 @@ if __name__=="__main__":
 
         current_player_observation = observations["player_observations"][observations["current_player"]]
 
-        print("==========================")
-        print("CURRENT PLAYER OBSERVATION")
-        print(current_player_observation["last_moves"])
-        print("==========================")
-
         observation_vector = current_player_observation["vectorized"]
 
         #print(np.equal(observation_vector, observation_vector_d))
@@ -86,14 +93,14 @@ if __name__=="__main__":
         print(f"Wrong indices size: {wrong_indices[0].size}")
 
         if wrong_indices[0].size > 0:
-            print(f"LAST MOVES - SOMETHING WRONG HERE: {observations['player_observations'][observations['current_player']]['last_moves']}")
             print(f"Wrong Indices: {wrong_indices[0]}")
             for index in wrong_indices[0]:
                 print(f"Index {index} was set to {own_vec[index]}")
                 print(f"Should be: {observation_vector[index]}")
                 print("================")
             print(current_player_observation["last_moves"])
-            #break
+            print(f"ACTIONS TAKEN = {actions_taken}")
+            break
 
         #if len(wrong_indices[0]) > 0:
         #    break
@@ -103,15 +110,11 @@ if __name__=="__main__":
 
           action = agent.step(reward_since_last_action[current_player],
                               current_player, legal_moves, observation_vector)
-          print(f"\n ACTION TAKEN: {action} LINE 503 \n")
-
         else:
           # Each player begins the episode on their first turn (which may not be
           # the first move of the game).
           action = agent.begin_episode(current_player, legal_moves,
                                        observation_vector)
-
-          print(f"\n ACTION TAKEN: {action} LINE 511 \n")
 
           has_played.add(current_player)
 
