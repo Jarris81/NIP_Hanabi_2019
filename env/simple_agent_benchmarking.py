@@ -77,7 +77,7 @@ class Runner(object):
 
 
 if __name__ == "__main__":
-    flags = {'players': 2, 'num_episodes': 100, 'agent_class': 'RuleBaseAgent'}
+    flags = {'players': 2, 'num_episodes': 10, 'agent_class': 'RuleBaseAgent'}
     options, arguments = getopt.getopt(sys.argv[1:], '',
                                        ['players=',
                                         'num_episodes=',
@@ -102,10 +102,18 @@ if __name__ == "__main__":
 
     # create bar chart showing avg. scores
     x_labels = range(2, 6)
-    plt.bar(x_labels, all_scores.mean(axis=0))
+    rects = plt.bar(x_labels, all_scores.mean(axis=0))
     plt.xticks(x_labels, x_labels)
+
     plt.xlabel("Number of Players")
     plt.ylabel("Avg. Score")
     plt.title('Benchmarking of Simple Agent with N={}'.format(flags['num_episodes']))
     plt.ylim(0, 25)
+
+    for rect in rects:
+
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                 str(height), ha='center', va='bottom')
+
     plt.show()
