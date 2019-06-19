@@ -66,10 +66,7 @@ class Runner(object):
             score = 0
             for color, rank in observation['fireworks'].items():
                 score = score + rank
-            score = 0
-            for color, rank in observation['fireworks'].items():
-                score = score + rank
-
+            print("Score of game: {}".format(score))
             scores.append(score)
 
         print("Played {} games with {} players".format(flags['num_episodes'], flags['players']))
@@ -80,7 +77,7 @@ class Runner(object):
 
 
 if __name__ == "__main__":
-    flags = {'players': 2, 'num_episodes': 1, 'agent_class': 'RuleBaseAgent'}
+    flags = {'players': 2, 'num_episodes': 100, 'agent_class': 'RuleBaseAgent'}
     options, arguments = getopt.getopt(sys.argv[1:], '',
                                        ['players=',
                                         'num_episodes=',

@@ -48,7 +48,7 @@ class RuleBasedAgent(Agent):
         own_cards_knowledge = observation['pyhanabi'].card_knowledge()[0]
 
         for last_move in last_moves:
-            player = last_move.player()
+            player_idx = last_move.player()
             move = last_move.move()
             target_offset = move.target_offset()
             # check if hint was from player
@@ -59,14 +59,15 @@ class RuleBasedAgent(Agent):
             if move.type() == move_type.REVEAL_RANK and move.target_offset() == 1 \
                     and 0 in last_move.card_info_revealed() and \
                     move.rank() is not None:
-                player_target_idx = (player + 1) % (self.players - 1)
+                player_target_idx = (player_idx + 1) % (self.players - 1)
                 # hint is from left partner, not useful hint though (just hint to free tokens)')
                 for card_idx in last_move.card_info_revealed():
 
                     self.rank_hinted_but_no_play[player_target_idx][card_idx] = True
                 break
-            #else:
-                # Unchanged
+            elif move.type() == move_type.DISCARD or move.type() == move_type.PLAY:
+                self.rank_hinted_but_no_play[player_idx].pop(move.card_index())
+                self.rank_hinted_but_no_play[player_idx].append(False)
         if D:
             print("Current state of", self.rank_hinted_but_no_play[0])
 
@@ -92,7 +93,8 @@ class RuleBasedAgent(Agent):
                     'action_type': 'PLAY',
                     'card_index': index
                 }
-            elif own_card_know.rank() is not None and \
+        for index, own_card_know in enumerate(own_card_knowledge):
+            if own_card_know.rank() is not None and \
                     not self.rank_hinted_but_no_play[0][index]:
                 self.rank_hinted_but_no_play[0].pop(index)
                 self.rank_hinted_but_no_play[0].append(False)
