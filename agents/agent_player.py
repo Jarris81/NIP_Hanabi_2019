@@ -37,8 +37,8 @@ class RLPlayer(object):
         self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape, self.players)
         self.num_actions = agent_config["max_moves"]
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
-
+        # self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        self.base_dir = "/home/grinwald/Projects/TUB"
         self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
         path_rainbow = os.path.join(self.base_dir,'checkpoints')
@@ -50,21 +50,12 @@ class RLPlayer(object):
         print("====================")
         self.agent.eval_mode = True
         self.agent.partial_reload = True
-        print(self.agent.partial_reload)
+        # print(self.agent.partial_reload)
 
-        start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
-        print("\n---------------------------------------------------")
-        print("Initialized Model weights at start iteration: {}".format(start_iteration))
-        print("---------------------------------------------------\n")
-
-    def load_model_weights(self,path,iteration_number):
-
-        # loads weights from most recent trained model weights
-        self.saver = tf.train.Saver()
-        self.saver.restore(self._sess,
-                            os.path.join(path,
-                                         'tf_ckpt-{}'.format(iteration_number)))
-        return True
+        # start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
+        # print("\n---------------------------------------------------")
+        # print("Initialized Model weights at start iteration: {}".format(start_iteration))
+        # print("---------------------------------------------------\n")
 
     '''
     args:

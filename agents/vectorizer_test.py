@@ -71,7 +71,7 @@ if __name__=="__main__":
 
     action = agent.begin_episode(current_player, legal_moves, observation_vector)
 
-    # print(action)
+    print(f"OUTPUTED ACTION BY AGENT: {vec_obs['legal_moves'][np.where(np.equal(action,vec_obs['legal_moves_as_int']))[0][0]]}")
 
     is_done = False
     total_reward = 0
@@ -148,11 +148,15 @@ if __name__=="__main__":
 
           action = agent.step(reward_since_last_action[current_player],
                               current_player, legal_moves, observation_vector)
+          print(f"OUTPUTED ACTION BY AGENT: {current_player_observation['legal_moves'][np.where(np.equal(action,current_player_observation['legal_moves_as_int']))[0][0]]}")
+
         else:
           # Each player begins the episode on their first turn (which may not be
           # the first move of the game).
           action = agent.begin_episode(current_player, legal_moves,
                                        observation_vector)
+
+          print(f"OUTPUTED ACTION BY AGENT: {current_player_observation['legal_moves'][np.where(np.equal(action,current_player_observation['legal_moves_as_int']))[0][0]]}")
 
           has_played.add(current_player)
 
