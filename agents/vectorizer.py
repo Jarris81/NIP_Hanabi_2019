@@ -486,7 +486,6 @@ class ObservationVectorizer(object):
 
             rel_player_pos = (current_player_id + ih) % self.num_players
 
-
             for card_id, card in enumerate(player_card_knowledge):
 
                 # print("\n###########################")
