@@ -13,32 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Sample Keras actor network that generates distributions."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import gin
 import numpy as np
 import tensorflow as tf
 
-import categorical_projection_network_custom
-# from tf_agents.networks import categorical_projection_network
+from categorical_projection_network_custom import CategoricalProjectionNetworkCustom
 from tf_agents.networks import network
 from tf_agents.networks import normal_projection_network
 from tf_agents.networks import utils
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import nest_utils
 
-import gin.tf
+
+def _categorical_projection_net(action_spec, input_tensor_spec, logits_init_output_factor=0.1):
+  return CategoricalProjectionNetworkCustom(
+      action_spec, input_tensor_spec, logits_init_output_factor=logits_init_output_factor)
 
 
-def _categorical_projection_net(action_spec, environment, logits_init_output_factor=0.1):
-  return categorical_projection_network_custom.CategoricalProjectionNetwork(
-      action_spec, logits_init_output_factor=logits_init_output_factor, environment=environment)
-
-
-def _normal_projection_net(action_spec,
+'''def _normal_projection_net(action_spec,
                            init_action_stddev=0.35,
                            init_means_output_factor=0.1):
   std_bias_initializer_value = np.log(np.exp(init_action_stddev) - 1)
@@ -47,13 +43,12 @@ def _normal_projection_net(action_spec,
       action_spec,
       init_means_output_factor=init_means_output_factor,
       std_bias_initializer_value=std_bias_initializer_value,
-      scale_distribution=False)
+      scale_distribution=False)'''
 
 
 @gin.configurable
-class ActorDistributionNetwork(network.DistributionNetwork):
+class ActorDistributionNetworkCustom(network.DistributionNetwork):
   """Creates an actor producing either Normal or Categorical distribution.
-
   Note: By default, this network uses `NormalProjectionNetwork` for continuous
   projection which by default uses `tanh_squash_to_spec` to normalize its
   output. Due to the nature of the `tanh` function, values near the spec bounds
@@ -68,11 +63,9 @@ class ActorDistributionNetwork(network.DistributionNetwork):
                conv_layer_params=None,
                activation_fn=tf.keras.activations.relu,
                discrete_projection_net=_categorical_projection_net,
-               continuous_projection_net=_normal_projection_net,
-               environment=None,
+               continuous_projection_net=None,
                name='ActorDistributionNetwork'):
     """Creates an instance of `ActorDistributionNetwork`.
-
     Args:
       input_tensor_spec: A nest of `tensor_spec.TensorSpec` representing the
         input.
@@ -99,12 +92,11 @@ class ActorDistributionNetwork(network.DistributionNetwork):
         network to be called with some hidden state and the outer_rank of the
         state.
       name: A string representing name of the network.
-
     Raises:
       ValueError: If `input_tensor_spec` contains more than one observation.
     """
 
-    if len(tf.nest.flatten(input_tensor_spec)) > 1:
+    if len(tf.nest.flatten(input_tensor_spec['state'])) > 1:
       raise ValueError('Only a single observation is supported by this network')
 
     mlp_layers = utils.mlp_layers(
@@ -115,17 +107,17 @@ class ActorDistributionNetwork(network.DistributionNetwork):
         dropout_layer_params=dropout_layer_params,
         name='input_mlp')
 
-    def map_proj(spec, environment):
+    def map_proj(spec):
       if tensor_spec.is_discrete(spec):
-        return discrete_projection_net(spec, environment)
+        return discrete_projection_net(spec, input_tensor_spec)
       else:
         return continuous_projection_net(spec)
-    # pass environment to categorical_projection_network where the logits are changed according to legal_moves
-    projection_networks = tf.nest.map_structure(map_proj, *(output_tensor_spec, environment))
+
+    projection_networks = tf.nest.map_structure(map_proj, output_tensor_spec)
     output_spec = tf.nest.map_structure(lambda proj_net: proj_net.output_spec,
                                         projection_networks)
 
-    super(ActorDistributionNetwork, self).__init__(
+    super(ActorDistributionNetworkCustom, self).__init__(
         input_tensor_spec=input_tensor_spec,
         state_spec=(),
         output_spec=output_spec,
@@ -139,11 +131,20 @@ class ActorDistributionNetwork(network.DistributionNetwork):
   def output_tensor_spec(self):
     return self._output_tensor_spec
 
+
   def call(self, observations, step_type, network_state):
+    print('ACTOR_NETWORK_CALL')
     del step_type  # unused.
-    outer_rank = nest_utils.get_outer_rank(observations, self.input_tensor_spec)
-    observations = tf.nest.flatten(observations)
-    states = tf.cast(observations[0], tf.float32)
+    print('OBSS:', observations)
+    #print('SPEC:', self.input_tensor_spec)
+    # extract state and legal moves mask from observation
+    state = observations['state']
+    legal_moves_mask = observations['mask']
+
+    ### FROM SUPER CLASS ###
+    outer_rank = nest_utils.get_outer_rank(state, self.input_tensor_spec['state'])
+    state = tf.nest.flatten(state)
+    states = tf.cast(state[0], tf.float32)
 
     # Reshape to only a single batch dimension for neural network functions.
     batch_squash = utils.BatchSquash(outer_rank)
@@ -154,7 +155,10 @@ class ActorDistributionNetwork(network.DistributionNetwork):
 
     # TODO(oars): Can we avoid unflattening to flatten again
     states = batch_squash.unflatten(states)
+    # repack states and mask and pass to underlying projection network 
+    obs = {'state': states, 'mask': legal_moves_mask}
+    print('OUTER_RANK', outer_rank)
     output_actions = tf.nest.map_structure(
-        lambda proj_net: proj_net(states, outer_rank),
+        lambda proj_net: proj_net(obs, outer_rank),
         self._projection_networks)
     return output_actions, network_state
