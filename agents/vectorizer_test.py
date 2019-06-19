@@ -10,6 +10,7 @@ import vectorizer
 import agent_player as ap
 import rl_env
 import tensorflow as tf
+import agent_player
 
 if __name__=="__main__":
     ### Set up the environment
@@ -18,12 +19,28 @@ if __name__=="__main__":
     history_size = 1
     env = xp.create_environment(game_type=game_type, num_players=num_players)
     obs_stacker = xp.create_obs_stacker(env, history_size)
-    agent = xp.create_agent(env, obs_stacker)
+
+    agent_config = {
+        "observation_size": 1041,
+        "players": 4,
+        "history_size": 1,
+        "max_moves": env.num_moves()
+    }
+
+    agent = agent_player.RLPlayer(agent_config)
+
+    #sys.exit(0)
+
+    # Exchange with agent player
+    #agent = xp.create_agent(env, obs_stacker)
+    #agent.eval_mode = True
+    # agent = RLPlayer()
 
     actions_taken = 0
 
     # Setup vectorizer
     obs_vectorizer = vectorizer.ObservationVectorizer(env)
+    moves_vectorizer = vectorizer.LegalMovesVectorizer(env)
 
     observations = env.reset()
 
@@ -35,7 +52,14 @@ if __name__=="__main__":
     own_vec = obs_vectorizer.vectorize_observation(vec_obs)
 
     wrong_indices = np.where(np.equal(observation_vector,own_vec)*1 == 0)
-    print(f"Wrong indices size: {wrong_indices[0].size}")
+    # print(f"Wrong indices size: {wrong_indices[0].size}")
+
+    moves_as_int = vec_obs["legal_moves_as_int"]
+    print(moves_as_int)
+
+    own_moves_as_int = moves_vectorizer.get_legal_moves_as_int(vec_obs["legal_moves"])
+    print(own_moves_as_int)
+    print("\n")
 
     if wrong_indices[0].size > 0:
        print(f"Wrong Indices: {wrong_indices[0]}")
@@ -43,7 +67,7 @@ if __name__=="__main__":
            print(f"Index {index} was set to {own_vec[index]}")
            print(f"Should be: {observation_vector[index]}")
            print("================")
-           sys.exit(0)
+       sys.exit(0)
 
     action = agent.begin_episode(current_player, legal_moves, observation_vector)
 
@@ -77,6 +101,7 @@ if __name__=="__main__":
 
         if is_done:
             print("Game is done")
+            print(f"Steps taken {step_number}, Total reward: {total_reward}")
             break
 
         current_player, legal_moves, observation_vector_d  = xp.parse_observations(observations, env.num_moves(), obs_stacker)
@@ -90,7 +115,20 @@ if __name__=="__main__":
         own_vec = obs_vectorizer.vectorize_observation(current_player_observation)
 
         wrong_indices = np.where(np.equal(observation_vector,own_vec)*1 == 0)
-        print(f"Wrong indices size: {wrong_indices[0].size}")
+        # print(f"Wrong indices size: {wrong_indices[0].size}")
+
+        moves_as_int = current_player_observation["legal_moves_as_int"]
+        print("\n=====================")
+        print("TEST LEGAL MOVES AS INT FORMATTER")
+        print("REAL MOVES AS INT")
+        print(moves_as_int)
+        print("OWN MOVES AS INT")
+        own_moves_as_int = moves_vectorizer.get_legal_moves_as_int(current_player_observation["legal_moves"])
+        print(own_moves_as_int)
+
+        print("\n OWN LEGAL MOVES AS INT FORMATTED:")
+        print(moves_vectorizer.get_legal_moves_as_int_formated(own_moves_as_int))
+        # print("\n")
 
         if wrong_indices[0].size > 0:
             print(f"Wrong Indices: {wrong_indices[0]}")
@@ -122,5 +160,3 @@ if __name__=="__main__":
         reward_since_last_action[current_player] = 0
 
     agent.end_episode(reward_since_last_action)
-
-    tf.logging.info('EPISODE: %d %g', step_number, total_reward)

@@ -407,12 +407,22 @@ class DQNAgent(object):
                                 self.min_replay_history, self.epsilon_train)
 
     if random.random() <= epsilon:
+      print("\n===============")
+      print(f"EPSILON PARAMETER: {epsilon}")
+      print("Random Legal Actions in DQN method")
+      print(legal_actions)
+      print("\n")
       # Choose a random action with probability epsilon.
       legal_action_indices = np.where(legal_actions == 0.0)
       return np.random.choice(legal_action_indices[0])
     else:
       # Convert observation into a batch-based format.
       self.state[0, :, 0] = observation
+
+      print("\n===============")
+      print("Legal Actions in DQN method real ones taken")
+      print(legal_actions)
+      print("\n")
 
       # Choose the action maximizing the q function for the current state.
       action = self._sess.run(self._q_argmax,
