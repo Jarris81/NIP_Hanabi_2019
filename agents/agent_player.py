@@ -77,7 +77,7 @@ class RLPlayer(object):
 
         # Returns Integer Action
         action = self.agent._select_action(observation["vectorized"], observation["legal_moves_as_int_formated"])
-        print(action)
+        # print(action)
 
         # Decode it back to dictionary object
         move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]

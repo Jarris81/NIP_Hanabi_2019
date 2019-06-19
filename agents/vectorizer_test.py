@@ -27,14 +27,13 @@ if __name__=="__main__":
         "max_moves": env.num_moves()
     }
 
-    agent = agent_player.RLPlayer(agent_config)
+    #agent = agent_player.RLPlayer(agent_config)
 
     #sys.exit(0)
 
     # Exchange with agent player
-    #agent = xp.create_agent(env, obs_stacker)
-    #agent.eval_mode = True
-    # agent = RLPlayer()
+    agent = xp.create_agent(env, obs_stacker)
+    agent.eval_mode = True
 
     actions_taken = 0
 
@@ -55,10 +54,11 @@ if __name__=="__main__":
     # print(f"Wrong indices size: {wrong_indices[0].size}")
 
     moves_as_int = vec_obs["legal_moves_as_int"]
-    print(moves_as_int)
+    # print(moves_as_int)
 
     own_moves_as_int = moves_vectorizer.get_legal_moves_as_int(vec_obs["legal_moves"])
-    print(own_moves_as_int)
+    print("\n OWN LEGAL MOVES AS INT FORMATTED:")
+    print(moves_vectorizer.get_legal_moves_as_int_formated(own_moves_as_int))
     print("\n")
 
     if wrong_indices[0].size > 0:
@@ -118,17 +118,17 @@ if __name__=="__main__":
         # print(f"Wrong indices size: {wrong_indices[0].size}")
 
         moves_as_int = current_player_observation["legal_moves_as_int"]
-        print("\n=====================")
-        print("TEST LEGAL MOVES AS INT FORMATTER")
-        print("REAL MOVES AS INT")
-        print(moves_as_int)
-        print("OWN MOVES AS INT")
+        # print("\n=====================")
+        # print("TEST LEGAL MOVES AS INT FORMATTER")
+        # print("REAL MOVES AS INT")
+        # print(moves_as_int)
+        # print("OWN MOVES AS INT")
         own_moves_as_int = moves_vectorizer.get_legal_moves_as_int(current_player_observation["legal_moves"])
-        print(own_moves_as_int)
+        # print(own_moves_as_int)
 
         print("\n OWN LEGAL MOVES AS INT FORMATTED:")
         print(moves_vectorizer.get_legal_moves_as_int_formated(own_moves_as_int))
-        # print("\n")
+        print("\n")
 
         if wrong_indices[0].size > 0:
             print(f"Wrong Indices: {wrong_indices[0]}")

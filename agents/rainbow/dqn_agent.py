@@ -420,7 +420,7 @@ class DQNAgent(object):
       self.state[0, :, 0] = observation
 
       print("\n===============")
-      print("Legal Actions in DQN method real ones taken")
+      print("REAL FORMATTED LEGAL MOVES VECTOR FROM DQN")
       print(legal_actions)
       print("\n")
 

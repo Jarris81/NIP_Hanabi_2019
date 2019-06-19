@@ -176,6 +176,12 @@ class ObservationVectorizer(object):
 
         return self.obs_vec
 
+
+    '''Encodes cards in all other player's hands (excluding our unknown hand),
+     and whether the hand is missing a card for all players (when deck is empty.)
+     Each card in a hand is encoded with a one-hot representation using
+     <num_colors> * <num_ranks> bits (25 bits in a standard game) per card.
+     Returns the number of entries written to the encoding.'''
     def encode_hands(self, obs):
         self.offset = 0
         # don't use own hand
@@ -191,14 +197,22 @@ class ObservationVectorizer(object):
                     self.obs_vec[self.offset + card_index] = 1
                     num_cards += 1
                     self.offset += self.bits_per_card
+
+                '''
+                A player's hand can have fewer cards than the initial hand size.
+                Leave the bits for the absent cards empty (adjust the offset to skip
+                bits for the missing cards).
+                '''
                 if num_cards < self.hand_size:
                     self.offset += (self.hand_size - num_cards) * self.bits_per_card
 
         # For each player, set a bit if their hand is missing a card
+        i = 0
         for i, player_hand in enumerate(hands):
             if len(player_hand) < self.hand_size:
                 self.obs_vec[self.offset + i] = 1
-            self.offset += 1
+        self.offset += self.num_players
+
 
         assert self.offset - self.hands_bit_length == 0
         return True
