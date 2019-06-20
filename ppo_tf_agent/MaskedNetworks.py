@@ -24,11 +24,11 @@ class MaskedActorDistributionNetwork(ActorDistributionNetwork):
     def call(self, observations, step_type, network_state):
         states = observations['state']
         masks = observations['mask']
-
-        # # convert mask to -np.infs
-        # negInfs = tf.fill(masks.shape, np.NINF)
-        # zeros = tf.zeros(masks.shape)
-        # masks = tf.dtypes.cast(tf.where(tf.dtypes.cast(masks, bool), zeros, negInfs), tf.float32)
+        
+        # convert mask to -np.infs
+        negInfs = np.full(masks.shape, -np.inf)
+        zeros = np.zeros(masks.shape)
+        masks = tf.dtypes.cast(tf.where(masks, zeros, negInfs), tf.float32)
 
         action_distributions, new_network_states = super().call(
             states, step_type, network_state)

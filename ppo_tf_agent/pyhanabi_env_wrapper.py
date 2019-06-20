@@ -33,8 +33,8 @@ class PyhanabiEnvWrapper(PyEnvironmentBaseWrapper):
         returns a boolean mask indicating whether actions are legal or not """
 
         legal_moves_as_int = observation['legal_moves_as_int']
-        mask = np.full(self._env.num_moves(), -np.inf)
-        mask[legal_moves_as_int] = 0
+        mask = np.full(self._env.num_moves(), False)
+        mask[legal_moves_as_int] = True
 
         return mask
 
@@ -98,7 +98,7 @@ class PyhanabiEnvWrapper(PyEnvironmentBaseWrapper):
         )
         mask_spec = ArraySpec(
             shape=(self._env.num_moves(), ),
-            dtype=float,
+            dtype=bool,
             name='mask'
         )
 

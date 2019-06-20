@@ -163,7 +163,8 @@ def train_eval(
         num_epochs=num_epochs,
         debug_summaries=debug_summaries,
         summarize_grads_and_vars=summarize_grads_and_vars,
-        train_step_counter=global_step)
+        train_step_counter=global_step,
+        normalize_observations=False) # cause the observations also include the 0-1 mask
     tf_agent.initialize()
 
     environment_steps_metric = tf_metrics.EnvironmentSteps()
