@@ -74,17 +74,13 @@ def launch_experiment():
         raise ValueError('--base_dir is None: please provide a path for '
                          'logs and checkpoints.')
 
-
-
     run_adhoc_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
     experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
 
     environment = run_adhoc_experiment.create_environment()
     obs_stacker = run_adhoc_experiment.create_obs_stacker(environment)
 
-    team = {'SimpleAgent': [0, 1, 2], "Rainbow": [3]}
-
-    agents_list = run_adhoc_experiment.create_adhoc_team(environment, obs_stacker, team, False)
+    agents_list = run_adhoc_experiment.create_adhoc_team(environment, obs_stacker, rl_shared_model=True)
 
     checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
     start_iteration, experiment_checkpointer = (

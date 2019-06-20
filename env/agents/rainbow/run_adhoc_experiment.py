@@ -176,8 +176,8 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
     else:
         raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
 
-
-def create_adhoc_team(environment, obs_stacker, team, rl_shared_model=True):
+@gin.configurable
+def create_adhoc_team(environment, obs_stacker, team_no, rl_shared_model=True):
     """
 
     :param environment:
@@ -185,9 +185,17 @@ def create_adhoc_team(environment, obs_stacker, team, rl_shared_model=True):
     :param team:
     :return:
     """
-
     agent_repo = ['DQN', 'SimpleAgent', 'Rainbow']
 
+    if team_no == 1:
+        team = {'SimpleAgent': [0, 1, 2], "Rainbow": [3]}
+    elif team_no == 2:
+        team = {'SimpleAgent': [0, 1], "Rainbow": [2, 3]}
+    elif team_no == 3:
+        team = {'SimpleAgent': [0], "Rainbow": [1, 2, 3]}
+    else:
+        print("No valid team number defined!!")
+        return None
     # empty list for agents
     # check first if each position is only listed once
     set_pos = set()
