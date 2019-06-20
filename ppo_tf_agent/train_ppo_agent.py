@@ -226,7 +226,7 @@ def train_eval(
       train_time += time.time() - start_time
       
       if i % 1 == 0:
-        print("STEP", i, total_loss)
+        print("STEP", i)
       i+=1
 
       for train_metric in train_metrics:
