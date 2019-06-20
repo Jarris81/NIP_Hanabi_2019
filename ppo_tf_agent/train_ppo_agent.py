@@ -51,7 +51,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
 # own imports
-import MaskedNetworks
+import masked_networks
 import rl_env
 import pyhanabi_env_wrapper
 
@@ -137,21 +137,23 @@ def train_eval(
     optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
 
     if use_rnns:
-      actor_net = actor_distribution_rnn_network.ActorDistributionRnnNetwork(
+      actor_net = masked_networks.MaskedActorDistributionRnnNetwork(
           tf_env.observation_spec(),
           tf_env.action_spec(),
           input_fc_layer_params=actor_fc_layers,
           output_fc_layer_params=None)
-      value_net = value_rnn_network.ValueRnnNetwork(
-          tf_env.observation_spec(),
-          input_fc_layer_params=value_fc_layers,
-          output_fc_layer_params=None)
+      # value_net = value_rnn_network.ValueRnnNetwork(
+      #     tf_env.observation_spec(),
+      #     input_fc_layer_params=value_fc_layers,
+      #     output_fc_layer_params=None)
+      value_net = masked_networks.MaskedValueNetwork(
+          tf_env.observation_spec(), fc_layer_params=value_fc_layers)
     else:
-      actor_net = MaskedNetworks.MaskedActorDistributionNetwork(
+      actor_net = masked_networks.MaskedActorDistributionNetwork(
           tf_env.observation_spec(),
           tf_env.action_spec(),
           fc_layer_params=actor_fc_layers)
-      value_net = MaskedNetworks.MaskedValueNetwork(
+      value_net = masked_networks.MaskedValueNetwork(
           tf_env.observation_spec(), fc_layer_params=value_fc_layers)
 
     tf_agent = ppo_agent.PPOAgent(
@@ -201,8 +203,8 @@ def train_eval(
     train_time = 0
     timed_at_step = global_step.numpy()
 
-    i = 0
     while environment_steps_metric.result() < num_environment_steps:
+      print("ENVIRONMENT_STEPS: ", environment_steps_metric.result())
       global_step_val = global_step.numpy()
       if global_step_val % eval_interval == 0:
         metric_utils.eager_compute(
@@ -225,10 +227,6 @@ def train_eval(
       replay_buffer.clear()
       train_time += time.time() - start_time
       
-      if i % 1 == 0:
-        print("STEP", i)
-      i+=1
-
       for train_metric in train_metrics:
         train_metric.tf_summaries(
             train_step=global_step, step_metrics=step_metrics)
@@ -279,7 +277,8 @@ def main(_):
       num_parallel_environments=FLAGS.num_parallel_environments,
       replay_buffer_capacity=FLAGS.replay_buffer_capacity,
       num_epochs=FLAGS.num_epochs,
-      num_eval_episodes=FLAGS.num_eval_episodes)
+      num_eval_episodes=FLAGS.num_eval_episodes,
+      eval_interval=100,)
 
 
 if __name__ == '__main__':
