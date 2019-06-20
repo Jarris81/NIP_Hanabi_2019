@@ -410,7 +410,7 @@ class GameStateWrapper:
         return None
 
     @staticmethod
-    def convert_suit_legal_moves(suit: int) -> Optional[str]:
+    def convert_suit_legal_moves(suit: int, move_type) -> Optional[str]:
 
         """
         Returns format desired by agent
@@ -421,13 +421,23 @@ class GameStateWrapper:
         // 4 is purple
         returns None if suit is None or -1
         """
-        if suit == -1: return suit
-        if suit == 0: return 4  # 'B'
-        if suit == 1: return 2  # 'G'
-        if suit == 2: return 1  # 'Y'
-        if suit == 3: return 0  # 'R'
-        if suit == 4: return 3  # 'W'
-        return None
+        if move_type == "PLAY" or "DISCARD" or "DEAL":
+            if suit == -1: return suit
+            if suit == 0: return 4  # 'B'
+            if suit == 1: return 2  # 'G'
+            if suit == 2: return 1  # 'Y'
+            if suit == 3: return 0  # 'R'
+            if suit == 4: return 3  # 'W'
+            return -1
+        else:
+            if suit == -1: return None
+            if suit == 0: return 'B'
+            if suit == 1: return 'G'
+            if suit == 2: return 'Y'
+            if suit == 3: return 'R'
+            if suit == 4: return 'W'
+
+            return None
 
     @staticmethod
     def convert_color(color: str) -> Optional[int]:
@@ -572,6 +582,7 @@ class GameStateWrapper:
             type = '1'
             card_index = action['card_index']
             # target is referenced by absolute card number, gotta convert from given index
+
             target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
 
             a = 'action {"type":' + type + ',"target":' + target + '}'
@@ -708,21 +719,28 @@ class GameStateWrapper:
         """Returns 0-based color index for REVEAL_COLOR and DEAL moves."""
         """ R,Y,G,W,B map onto 0,1,2,3,4 in pyhanabi"""
         """ 0, 1, 2, 3, 4 map onto B, G, Y, R, W on server """
-        color = None
+        color = -1
         # for REVEAL_COLOR moves
         if move['type'] == 'clue':
             colorclue = bool(move['clue']['type'])  # 0 means rank clue, 1 means color clue
             if colorclue:
                 suit = move['clue']['value']
                 # map number to color
-                color = self.convert_suit_legal_moves(suit)
+                color = self.convert_suit_legal_moves(suit, move_type="REVEAL")
                 # color may be None here, depending on whether we got dealt a card
                 # todo have to check how the item behaves in that case (it represents this case as XX)
         # for DEAL moves
-        if move['type'] == 'draw':
+        elif move['type'] == 'draw':
             color = self.convert_suit_legal_moves(move['suit'])
+        else:
+            card_index = move['card_index']
+            card_num = move['target']
+            suit = self.hand_list[self.players.index(self.agent_name)][card_index]['color']
+            # convert suit to int
 
+           color = self.convert_suit_legal_moves(suit)
         return color
+
 
     def get_move_rank(self, move):
         """Returns 0-based rank index for REVEAL_RANK and DEAL moves. We have to subtract 1 as the server uses
