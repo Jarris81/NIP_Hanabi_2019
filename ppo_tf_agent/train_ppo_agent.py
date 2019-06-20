@@ -82,7 +82,7 @@ FLAGS = flags.FLAGS
 def train_eval(
     root_dir,
     env_name='Hanabi-Full',
-    num_players='2',
+    num_players=4,
     env_load_fn=None,
     random_seed=0,
     # TODO(b/127576522): rename to policy_fc_layers.
@@ -258,7 +258,7 @@ def train_eval(
     )
 
 
-def load_hanabi_env(env_name="Hanabi-Full", num_players=2):
+def load_hanabi_env(env_name="Hanabi-Full", num_players=4):
   pyhanabi_env = rl_env.make(environment_name=env_name, num_players=num_players)
   py_env = pyhanabi_env_wrapper.PyhanabiEnvWrapper(pyhanabi_env)
   return py_env
@@ -269,7 +269,6 @@ def main(_):
   train_eval(
       FLAGS.root_dir,
       env_name=FLAGS.env_name,
-      num_players=2,
       use_rnns=FLAGS.use_rnns,
       env_load_fn=load_hanabi_env,
       num_environment_steps=FLAGS.num_environment_steps,
