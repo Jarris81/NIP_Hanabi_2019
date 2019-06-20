@@ -410,6 +410,26 @@ class GameStateWrapper:
         return None
 
     @staticmethod
+    def convert_suit_legal_moves(suit: int) -> Optional[str]:
+
+        """
+        Returns format desired by agent
+        // 0 is blue
+        // 1 is green
+        // 2 is yellow
+        // 3 is red
+        // 4 is purple
+        returns None if suit is None or -1
+        """
+        if suit == -1: return suit
+        if suit == 0: return 4  # 'B'
+        if suit == 1: return 2  # 'G'
+        if suit == 2: return 1  # 'Y'
+        if suit == 3: return 0  # 'R'
+        if suit == 4: return 3  # 'W'
+        return None
+
+    @staticmethod
     def convert_color(color: str) -> Optional[int]:
         """
         Returns format desired by server
@@ -695,12 +715,12 @@ class GameStateWrapper:
             if colorclue:
                 suit = move['clue']['value']
                 # map number to color
-                color = self.convert_suit(suit)
+                color = self.convert_suit_legal_moves(suit)
                 # color may be None here, depending on whether we got dealt a card
                 # todo have to check how the item behaves in that case (it represents this case as XX)
         # for DEAL moves
         if move['type'] == 'draw':
-            color = self.convert_suit(move['suit'])
+            color = self.convert_suit_legal_moves(move['suit'])
 
         return color
 
