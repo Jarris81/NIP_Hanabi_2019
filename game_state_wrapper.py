@@ -719,7 +719,7 @@ class GameStateWrapper:
         """Returns 0-based color index for REVEAL_COLOR and DEAL moves."""
         """ R,Y,G,W,B map onto 0,1,2,3,4 in pyhanabi"""
         """ 0, 1, 2, 3, 4 map onto B, G, Y, R, W on server """
-        color = -1
+        color = None
         # for REVEAL_COLOR moves
         if move['type'] == 'clue':
             colorclue = bool(move['clue']['type'])  # 0 means rank clue, 1 means color clue
@@ -730,15 +730,15 @@ class GameStateWrapper:
                 # color may be None here, depending on whether we got dealt a card
                 # todo have to check how the item behaves in that case (it represents this case as XX)
         # for DEAL moves
-        elif move['type'] == 'draw':
-            color = self.convert_suit_legal_moves(move['suit'])
+        # elif move['type'] == 'draw':
+        #    color = self.convert_suit_legal_moves(move['suit'])
         else:
             card_index = move['card_index']
             card_num = move['target']
             suit = self.hand_list[self.players.index(self.agent_name)][card_index]['color']
             # convert suit to int
 
-           color = self.convert_suit_legal_moves(suit)
+            color = self.convert_suit_legal_moves(suit)
         return color
 
 
