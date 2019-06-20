@@ -27,14 +27,14 @@ if __name__=="__main__":
         "max_moves": env.num_moves()
     }
 
-    agent_test = agent_player.RLPlayer(agent_config)
+    #agent_test = agent_player.RLPlayer(agent_config)
 
     #sys.exit(0)
 
     # Exchange with agent player
     agent = xp.create_agent(env, obs_stacker)
     agent.eval_mode = True
-    agent_test.eval_mode = True
+    #agent_test.eval_mode = True
     actions_taken = 0
 
     # Setup vectorizer
@@ -73,9 +73,9 @@ if __name__=="__main__":
            print("================")
        sys.exit(0)
 
-    action = agent_test.act(vec_obs)
-    print(action)
-    #action = agent.begin_episode(current_player, legal_moves, observation_vector)
+    #action = agent_test.act(vec_obs)
+    #print(action)
+    action = agent.begin_episode(current_player, legal_moves, observation_vector)
 
     print("\n==============================")
     print(f"OUTPUTED ACTION BY AGENT: {vec_obs['legal_moves'][np.where(np.equal(action,vec_obs['legal_moves_as_int']))[0][0]]}")
@@ -155,8 +155,8 @@ if __name__=="__main__":
 
         if current_player in has_played:
 
-          action = agent_test.act(current_player_observation)
-          #action = agent.step(reward_since_last_action[current_player],urrent_player, legal_moves, observation_vector)
+          #action = agent_test.act(current_player_observation)
+          action = agent.step(reward_since_last_action[current_player],current_player, legal_moves, observation_vector)
 
           print("\n==============================")
           print(f"OUTPUTED ACTION BY AGENT: {current_player_observation['legal_moves'][np.where(np.equal(action,current_player_observation['legal_moves_as_int']))[0][0]]}")
@@ -165,8 +165,8 @@ if __name__=="__main__":
         else:
           # Each player begins the episode on their first turn (which may not be
           # the first move of the game).
-          action = agent_test.act(current_player_observation)
-          #action = agent.begin_episode(current_player, legal_moves,observation_vector)
+          #action = agent_test.act(current_player_observation)
+          action = agent.begin_episode(current_player, legal_moves,observation_vector)
 
           print("\n==============================")
           print(f"OUTPUTED ACTION BY AGENT: {current_player_observation['legal_moves'][np.where(np.equal(action,current_player_observation['legal_moves_as_int']))[0][0]]}")

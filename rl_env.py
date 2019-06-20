@@ -18,6 +18,7 @@ from __future__ import division
 
 import pyhanabi
 from pyhanabi import color_char_to_idx
+# import reward_funcions
 
 MOVE_TYPES = [_.name for _ in pyhanabi.HanabiMoveType]
 
@@ -359,11 +360,26 @@ class HanabiEnv(Environment):
 
     observation = self._make_observation_all_players()
     done = self.state.is_terminal()
+
     # Reward is score differential. May be large and negative at game end.
+
+    ### CUSTOM REWARDS
+    # reward = getattr(rewards["reward_function"])
+
+    # original reward
     reward = self.state.score() - last_score
+
     info = {}
 
     return (observation, reward, done, info)
+
+  # FIRST REWARD:
+  # ENCOURAGE PLAYING ALL 1's AT THE BEGINNING
+  # def custom_reward(self):
+  #
+  #     hanabi =
+  #
+  #     return reward
 
   def _make_observation_all_players(self):
     """Make observation for all players.

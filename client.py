@@ -6,6 +6,7 @@ from agents.simple_agent import SimpleAgent
 from agents.agent_player import RLPlayer
 import ui_config as conf
 import utils
+import time
 
 """ PYTHON IMPORTS """
 from typing import Dict
@@ -213,6 +214,7 @@ class Client:
                             a = self.agent.act(obs)
                             # Send to server
                             self.ws.send(self.game.parse_action_to_msg(a))
+                        #time.sleep()
 
                         # leave replay lobby when game has ended
                         if self.game_ended:

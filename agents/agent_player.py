@@ -37,17 +37,23 @@ class RLPlayer(object):
         self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape, self.players)
         self.num_actions = agent_config["max_moves"]
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
-        # self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
-        self.base_dir = "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+
+        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/"
+
+
+
+        #self.base_dir = "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
         self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
 
         path_rainbow = os.path.join(self.base_dir,'checkpoints')
         #print(path_rainbow)
 
         self.agent = xp.create_agent(self.observation_size, self.num_actions, self.players, "Rainbow")
-        print("====================")
-        print("Created Agent successfully")
-        print("====================")
+        # print("====================")
+        # print("Created Agent successfully")
+        # print("====================")
         self.agent.eval_mode = True
         self.agent.partial_reload = True
         # print(self.agent.partial_reload)
@@ -73,4 +79,4 @@ class RLPlayer(object):
         # Decode it back to dictionary object
         move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]
 
-        return action
+        return move_dict
