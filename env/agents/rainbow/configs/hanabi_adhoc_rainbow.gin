@@ -34,8 +34,8 @@ AGENT_CLASS_3 = @RuleBasedAgent
 
 run_experiment.training_steps = 10001
 run_experiment.num_iterations = 10000
-run_experiment.checkpoint_every_n = 5
-run_one_iteration.evaluate_every_n = 2
+run_experiment.checkpoint_every_n = 100
+run_one_iteration.evaluate_every_n = 50
 
 # Small Hanabi.
 create_environment.game_type = 'Hanabi-Full-CardKnowledge'
