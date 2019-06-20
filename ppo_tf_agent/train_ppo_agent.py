@@ -104,7 +104,7 @@ def train_eval(
     log_interval=50,
     summary_interval=50,
     summaries_flush_secs=1,
-    use_tf_functions=True,
+    use_tf_functions=False,
     debug_summaries=False,
     summarize_grads_and_vars=False):
   """A simple train and eval for PPO."""
