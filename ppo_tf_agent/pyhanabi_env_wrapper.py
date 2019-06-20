@@ -33,10 +33,10 @@ class PyhanabiEnvWrapper(PyEnvironmentBaseWrapper):
         returns a boolean mask indicating whether actions are legal or not """
 
         legal_moves_as_int = observation['legal_moves_as_int']
-        mask = np.full(self._env.num_moves(), -np.inf)
+        mask = np.full(self._env.num_moves(), np.finfo(np.float32).min)
         mask[legal_moves_as_int] = 0
 
-        return mask
+        return mask.astype(np.float32)
 
     def _reset(self):
         """Must return a tf_agents.trajectories.time_step.TimeStep namedTubple obj"""
@@ -91,16 +91,17 @@ class PyhanabiEnvWrapper(PyEnvironmentBaseWrapper):
 
         # i.e. ('_shape', '_dtype', '_name', '_minimum', '_maximum')
 
-        state_spec = ArraySpec(
+        state_spec = BoundedArraySpec(
             shape=self._env.vectorized_observation_shape(),
             dtype=dtype_vectorized,
+            minimum=0,
+            maximum=1,
             name='state'
         )
         mask_spec = ArraySpec(
             shape=(self._env.num_moves(), ),
-            dtype=float,
-            name='mask'
-        )
+            dtype=np.float32,
+            name='mask')
 
         return {'state': state_spec, 'mask': mask_spec}
 

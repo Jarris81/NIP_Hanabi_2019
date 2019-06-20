@@ -25,10 +25,8 @@ class MaskedActorDistributionNetwork(ActorDistributionNetwork):
         states = observations['state']
         masks = observations['mask']
         
-        # convert mask to -np.infs
-        #negInfs = np.full(masks.shape, -np.inf)
-        #zeros = np.zeros(masks.shape)
-        masks = tf.dtypes.cast(masks, np.float32)
+        #print('MASKS', masks)
+        #print('STATES', states)
 
         action_distributions, new_network_states = super().call(
             states, step_type, network_state)
@@ -38,7 +36,11 @@ class MaskedActorDistributionNetwork(ActorDistributionNetwork):
         if len(action_distributions.logits.shape) == 4:
             masks = tf.expand_dims(masks, 2)
 
-        masked_logits = masks + action_distributions.logits
+        # set logits to -inf if their corresponding move is illegal
+        #masks = masks.astype(np.float32)
+        #neginfs = tf.convert_to_tensor(np.full(action_distributions.logits.shape, np.NINF), dtype='float')
+        #masked_logits = tf.where(condition=masks, x=action_distributions.logits, y=neginfs)
+        masked_logits = tf.add(action_distributions.logits, masks)
 
         # the dtype doesn't refer to the logits
         # but the action that is then created from the distribution

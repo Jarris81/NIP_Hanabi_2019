@@ -203,9 +203,6 @@ def train_eval(
 
     i = 0
     while environment_steps_metric.result() < num_environment_steps:
-      if i % 1 == 0:
-        print("STEP", i)
-      i+=1
       global_step_val = global_step.numpy()
       if global_step_val % eval_interval == 0:
         metric_utils.eager_compute(
@@ -227,6 +224,10 @@ def train_eval(
       total_loss, _ = tf_agent.train(experience=trajectories)
       replay_buffer.clear()
       train_time += time.time() - start_time
+      
+      if i % 1 == 0:
+        print("STEP", i, total_loss)
+      i+=1
 
       for train_metric in train_metrics:
         train_metric.tf_summaries(
