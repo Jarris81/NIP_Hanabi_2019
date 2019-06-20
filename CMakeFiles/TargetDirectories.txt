@@ -1,7 +1,0 @@
-/home/cawa/Documents/SoSe19/NIP/hanabi/CMakeFiles/rebuild_cache.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/CMakeFiles/pyhanabi.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/CMakeFiles/edit_cache.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/CMakeFiles/game_example.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/hanabi_lib/CMakeFiles/rebuild_cache.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/hanabi_lib/CMakeFiles/hanabi.dir
-/home/cawa/Documents/SoSe19/NIP/hanabi/hanabi_lib/CMakeFiles/edit_cache.dir
