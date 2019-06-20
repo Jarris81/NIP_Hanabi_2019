@@ -167,8 +167,7 @@ class RuleBasedAgent(Agent):
                     if card['color'] is not color:
                         continue
                     if self.playable_card(card, fireworks) and \
-                            knowledge.color() is None and \
-                            knowledge.rank() is None:
+                            knowledge.color() is None:
                         if D:
                             print('Hint for color {} is informative'.format(color))
                         information_content += 1
@@ -195,8 +194,7 @@ class RuleBasedAgent(Agent):
                     if card['rank'] is not rank:
                         continue
                     if self.playable_card(card, fireworks) and \
-                            knowledge.color() is None and \
-                            knowledge.rank() is None:
+                            (knowledge.rank() is None or self.rank_hinted_but_no_play[player_offset][index]):
                         information_content += 1
                     elif not self.playable_card(card, fireworks):
                         missinformative = True
