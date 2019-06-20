@@ -51,9 +51,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
 # own imports
-from actor_distribution_network_custom import ActorDistributionNetworkCustom
-from value_network_custom import ValueNetworkCustom
-import ppo_agent_custom
+import MaskedNetworks
 import rl_env
 import pyhanabi_env_wrapper
 
@@ -149,14 +147,14 @@ def train_eval(
           input_fc_layer_params=value_fc_layers,
           output_fc_layer_params=None)
     else:
-      actor_net = ActorDistributionNetworkCustom(
+      actor_net = MaskedNetworks.MaskedActorDistributionNetwork(
           tf_env.observation_spec(),
           tf_env.action_spec(),
           fc_layer_params=actor_fc_layers)
-      value_net = value_network.ValueNetwork(
-          tf_env.observation_spec()['state'], fc_layer_params=value_fc_layers)
+      value_net = MaskedNetworks.MaskedValueNetwork(
+          tf_env.observation_spec(), fc_layer_params=value_fc_layers)
 
-    tf_agent = ppo_agent_custom.PPOAgentCustom(
+    tf_agent = ppo_agent.PPOAgent(
         tf_env.time_step_spec(),
         tf_env.action_spec(),
         optimizer,
@@ -202,7 +200,11 @@ def train_eval(
     train_time = 0
     timed_at_step = global_step.numpy()
 
+    i = 0
     while environment_steps_metric.result() < num_environment_steps:
+      if i % 1 == 0:
+        print("STEP", i)
+      i+=1
       global_step_val = global_step.numpy()
       if global_step_val % eval_interval == 0:
         metric_utils.eager_compute(
