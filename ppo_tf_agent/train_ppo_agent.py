@@ -297,8 +297,7 @@ def main(_):
       num_parallel_environments=FLAGS.num_parallel_environments,
       replay_buffer_capacity=FLAGS.replay_buffer_capacity,
       num_epochs=FLAGS.num_epochs,
-      num_eval_episodes=FLAGS.num_eval_episodes,
-      eval_interval=100,)
+      num_eval_episodes=FLAGS.num_eval_episodes)
 
 
 if __name__ == '__main__':
