@@ -86,8 +86,8 @@ def train_eval(
     env_load_fn=None,
     random_seed=0,
     # TODO(b/127576522): rename to policy_fc_layers.
-    actor_fc_layers=(200, 100),
-    value_fc_layers=(200, 100),
+    actor_fc_layers=(512, 256),
+    value_fc_layers=(256, 128),
     use_rnns=False,
     # Params for collect
     num_environment_steps=10000000,
@@ -104,7 +104,7 @@ def train_eval(
     log_interval=50,
     summary_interval=50,
     summaries_flush_secs=1,
-    use_tf_functions=False,
+    use_tf_functions=True,
     debug_summaries=False,
     summarize_grads_and_vars=False):
   """A simple train and eval for PPO."""
@@ -216,6 +216,7 @@ def train_eval(
             summary_writer=eval_summary_writer,
             summary_prefix='Metrics',
         )
+        print('AVG RETURN:', compute_avg_return(eval_tf_env, eval_policy))
 
       start_time = time.time()
       collect_driver.run()
@@ -262,6 +263,26 @@ def load_hanabi_env(env_name="Hanabi-Full", num_players=4):
   pyhanabi_env = rl_env.make(environment_name=env_name, num_players=num_players)
   py_env = pyhanabi_env_wrapper.PyhanabiEnvWrapper(pyhanabi_env)
   return py_env
+
+def compute_avg_return(environment, policy, num_episodes=30):
+    total_return = 0.0
+    for _ in range(num_episodes):
+
+        time_step = environment.reset()
+        episode_return = 0.0
+
+        while not time_step.is_last():
+            action_step = policy.action(time_step)
+            time_step = environment.step(action_step.action)
+
+            if not time_step.is_last():
+                episode_return += time_step.reward
+
+        total_return += episode_return
+
+    avg_return = total_return / num_episodes
+    environment.reset()
+    return avg_return.numpy()[0]
 
 def main(_):
   logging.set_verbosity(logging.INFO)
