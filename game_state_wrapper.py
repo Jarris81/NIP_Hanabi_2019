@@ -153,7 +153,8 @@ class GameStateWrapper:
         del self.hand_list[pid][idx_card]
 
         # Remove card from clues
-        self.clues[pid][idx_card] = {'color': None, 'rank': None}
+        del self.clues[pid][idx_card]
+        self.clues[pid].insert(0, {'color': None, 'rank': None})
 
         # Update discard pile
         self.discard_pile.append(self.card(d['which']['suit'], d['which']['rank']))
@@ -366,6 +367,11 @@ class GameStateWrapper:
         legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
         observation["legal_moves_as_int"] = legal_moves_as_int
         observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
+
+        print("OBSRVATION")
+        print(observation)
+        print("LAST MBOBES")
+        [print(o) for o in observation['last_moves']]
         print("VECTORIZED OBJECT INSIDE GAME STATE WRAPPER")
         print(observation['vectorized'])
         return observation
@@ -588,6 +594,9 @@ class GameStateWrapper:
             # target is referenced by absolute card number, gotta convert from given index
             max_idx = self.hand_size - 1
             target = str(self.card_numbers[self.players.index(self.agent_name)][max_idx - card_index])
+            # target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
+            print("max_idx - card_index", max_idx - card_index)
+            print("card_idx", card_index)
 
             a = 'action {"type":' + type + ',"target":' + target + '}'
 
@@ -598,6 +607,10 @@ class GameStateWrapper:
             # target is referenced by absolute card number, gotta convert from given index
             max_idx = self.hand_size - 1
             target = str(self.card_numbers[self.players.index(self.agent_name)][max_idx - card_index])
+            print("max_idx - card_index", max_idx - card_index)
+            print("card_idx", card_index)
+
+            # target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
 
             a = 'action {"type":' + type + ',"target":' + target + '}'
 
@@ -733,8 +746,7 @@ class GameStateWrapper:
                 suit = move['clue']['value']
                 # map number to color
                 color = self.convert_suit_legal_moves(suit, move_type="REVEAL")
-                print("ENTERED CLUE STATEMTNET")
-                print(f"COLOR: {color}")
+
                 # color may be None here, depending on whether we got dealt a card
                 # todo have to check how the item behaves in that case (it represents this case as XX)
         if move['type'] == 'play' or move['type'] == 'discard':
