@@ -457,7 +457,11 @@ class HanabiMoveType(enum.IntEnum):
     DEAL = 5
 
 
+<<<<<<< HEAD
 def get_pyhanabi_move_mock(dict_action, deepcopy_card_nums, num_players):
+=======
+def get_pyhanabi_move_mock(self, dict_action, deepcopy_card_nums):
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
     """ dict_action looks like
     ############   DRAW   ##############
@@ -475,7 +479,11 @@ def get_pyhanabi_move_mock(dict_action, deepcopy_card_nums, num_players):
     move_type = get_move_type(dict_action)
     card_index = get_move_card_index(dict_action, deepcopy_card_nums)
     if "target" in dict_action and "giver" in dict_action:
+<<<<<<< HEAD
         target_offset = get_target_offset(dict_action['giver'], dict_action['target'], num_players)
+=======
+        target_offset = get_target_offset(dict_action['giver'], dict_action['target'])
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     else:
         target_offset = -1
     color = get_move_color(dict_action)

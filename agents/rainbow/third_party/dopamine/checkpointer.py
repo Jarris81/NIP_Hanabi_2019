@@ -64,9 +64,12 @@ def get_latest_checkpoint_number(base_directory):
     int, the iteration number of the latest checkpoint, or -1 if none was found.
   """
   glob = os.path.join(base_directory, 'sentinel_checkpoint_complete.*')
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
   def extract_iteration(x):
     return int(x[x.rfind('.') + 1:])
   try:
@@ -75,6 +78,7 @@ def get_latest_checkpoint_number(base_directory):
     return -1
   try:
     latest_iteration = max(extract_iteration(x) for x in checkpoint_files)
+<<<<<<< HEAD
     print("=================")
     print(f"LATEST ITERATION DEBUG: {latest_iteration}")
     print("=================")
@@ -83,6 +87,11 @@ def get_latest_checkpoint_number(base_directory):
   except ValueError:
     return -1
   return latest_iteration
+=======
+    return latest_iteration
+  except ValueError:
+    return -1
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
 
 class Checkpointer(object):
@@ -139,7 +148,11 @@ class Checkpointer(object):
     self._save_data_to_file(data, filename)
     filename = self._generate_filename('sentinel_checkpoint_complete',
                                        iteration_number)
+<<<<<<< HEAD
     with tf.gfile.GFile(filename, 'w') as fout:
+=======
+    with tf.gfile.GFile(filename, 'wb') as fout:
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
       fout.write('done')
 
     self._clean_up_old_checkpoints(iteration_number)
@@ -165,6 +178,7 @@ class Checkpointer(object):
                                                             stale_sentinel))
 
   def _load_data_from_file(self, filename):
+<<<<<<< HEAD
     print("==========================")
     print(f"Filename of trained model {filename}")
     print("==========================")
@@ -174,6 +188,12 @@ class Checkpointer(object):
       model = pickle.load(fin, encoding='latin1')
       print("Loaded model with pickle")
       return model
+=======
+    if not tf.gfile.Exists(filename):
+      return None
+    with tf.gfile.GFile(filename, 'rb') as fin:
+      return pickle.load(fin)
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
   def load_checkpoint(self, iteration_number):
     """Tries to reload a checkpoint at the selected iteration number.

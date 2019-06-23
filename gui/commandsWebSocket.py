@@ -108,7 +108,11 @@ def _action_clue(action, agent_pos, num_players):
         # compute absolute player position from target_offset
         target = str((action['target_offset'] + agent_pos) % num_players)
         # Change color representation to GUI
+<<<<<<< HEAD
         cluevalue = str(utils.parse_rank_server(action['rank']))
+=======
+        cluevalue = str(utils.convert_color(action['color']))
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
         action_msg = 'action {"type":' + str(CLUE) + \
                      ',"target":' + target + \

@@ -2,7 +2,11 @@ import os, sys
 rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/')
 sys.path.append(rel_path)
 
+<<<<<<< HEAD
 import agents.rainbow.run_experiment_ui as xp
+=======
+import agents.rainbow.run_experiment as xp
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 import vectorizer
 import agent_player
 import vectorizer_test
@@ -30,6 +34,7 @@ agent_config = {
 # agent = "DQN"
 agent = "Rainbow"
 ### create agent player from latest trained model
+<<<<<<< HEAD
 agent_config = dict({
     'observation_size': get_observation_size(game_config),
     'num_actions': get_num_actions(game_config),  # todo
@@ -50,6 +55,12 @@ player = agent_player.RLPlayer(agent_config)
 
 # Create Vectorizer Objects to encode state and actions to Neural Network-digestable vectors
 
+=======
+player = agent_player.RLPlayer(agent,env,observation_size,history_size)
+
+# Create Vectorizer Objects to encode state and actions to Neural Network-digestable vectors
+obs_vectorizer = vectorizer.ObservationVectorizer(env)
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 legalMovesVectorizer = vectorizer.LegalMovesVectorizer(env)
 
 # Get Mock Observation - This all needs o happen on Server Side

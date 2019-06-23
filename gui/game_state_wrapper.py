@@ -314,7 +314,11 @@ class GameStateWrapper:
         {"type":"discard","failed":false,"which":{"index":1,"suit":0,"rank":4,"order":7}}
         """
 
+<<<<<<< HEAD
         move = pyhanabi_mocks.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums, self.num_players)
+=======
+        move = pyhanabi_mocks.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums)
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
         def get_player(dict_action):
             player = None
@@ -379,6 +383,10 @@ class GameStateWrapper:
 
         return [list(reversed(clues)) for clues in card_knowledge]
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     def get_vectorized(self, observation):
         """ calls vectorizer.ObservationVectorizer with envMock to get the vectorized observation """
         return self.vectorizer.vectorize_observation(observation)
