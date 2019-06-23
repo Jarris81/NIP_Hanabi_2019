@@ -14,7 +14,7 @@
 """Simple Agent."""
 
 from rl_env import Agent
-import numpy as np
+
 
 class SimpleAgent(Agent):
   """Agent that applies a simple heuristic."""
@@ -34,9 +34,7 @@ class SimpleAgent(Agent):
     """Act based on an observation."""
     if observation['current_player_offset'] != 0:
       return None
-    print("---------------------")
-    v = np.array(observation['vectorized'], dtype='uint8')
-    print(type(v[0]))
+
     # Check if there are any pending hints and play the card corresponding to
     # the hint.
     for card_index, hint in enumerate(observation['card_knowledge'][0]):

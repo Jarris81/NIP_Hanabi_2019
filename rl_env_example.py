@@ -48,9 +48,6 @@ class Runner(object):
             while not done:
                 for agent_id, agent in enumerate(agents):
                     observation = observations['player_observations'][agent_id]
-                    print("LEGAL MOVES")
-                    print(observation['legal_moves'])
-                    print(type(observation['legal_moves']))
                     # print(f"Player {observation['current_player']} to move:")
                     # print(observation['observed_hands'])
                     # print(observation.keys())
