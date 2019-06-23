@@ -1,7 +1,6 @@
 import numpy as np
 np.set_printoptions(threshold=np.inf)
 import pyhanabi as utils
-<<<<<<< HEAD
 import copy
 
 COLOR_CHAR = ["R", "Y", "G", "W", "B"]
@@ -69,57 +68,6 @@ class CardKnowledge(object):
     def remove_color(self, color):
         if color in self.colors:
             self.colors[color] = None
-=======
-
-COLOR_CHAR = ["R", "Y", "G", "W", "B"]
-
-def color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, last_player_action, last_player_card_knowledge):
-
-    plausible = True
-    if last_hand:
-        if last_player_action == "PLAY" or last_player_action == "DISCARD":
-            player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-            if card_id == (len(last_player_card_knowledge)-1):
-                return plausible
-
-    color = utils.color_idx_to_char(color)
-    if card_color_revealed == True :
-        if color == player_card_knowledge[card_id]["color"]:
-            return plausible
-        else:
-            plausible = False
-            return plausible
-
-    for i,card in enumerate(player_card_knowledge):
-
-        tmp_color = card["color"]
-        if (tmp_color == color):
-            plausible = False
-
-    return plausible
-
-def rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, last_player_action, last_player_card_knowledge):
-
-    plausible = True
-    if last_hand:
-        if last_player_action == "PLAY" or last_player_action == "DISCARD":
-            player_card_knowledge = player_card_knowledge + last_player_card_knowledge
-            if card_id == (len(player_card_knowledge)-1):
-                return plausible
-
-    if card_rank_revealed == True:
-        if rank == player_card_knowledge[card_id][rank]:
-            return True
-        else:
-            return False
-
-    for i,card in enumerate(player_card_knowledge):
-        tmp_rank = card["rank"]
-        if (card["rank"] == rank):
-            plausible = False
-
-    return plausible
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
 '''
 Used to vectorize/encode player-dependent state-dicts and action dicts that are used
@@ -212,61 +160,38 @@ class ObservationVectorizer(object):
             # Compute total state length
             self.hands_bit_length = (self.num_players - 1) * self.hand_size * \
                             self.bits_per_card + self.num_players
-<<<<<<< HEAD
             print("hand encoding section in range: {}-{}".format(0,self.hands_bit_length))
-=======
-            # print("hand encoding section in range: {}-{}".format(0,self.hands_bit_length))
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
             self.board_bit_length = self.max_deck_size - self.num_players * \
                             self.hand_size + self.num_colors * self.num_ranks \
                                 + self.max_info_tokens + self.max_life_tokens
-<<<<<<< HEAD
             print("board encoding section in range: {}-{}".format(self.hands_bit_length,self.hands_bit_length+self.board_bit_length))
 
             self.discard_pile_bit_length = self.max_deck_size
             print("discard pile encoding in range: {}-{}".format(self.hands_bit_length+self.board_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length))
-=======
-            # print("board encoding section in range: {}-{}".format(self.hands_bit_length,self.hands_bit_length+self.board_bit_length))
-
-            self.discard_pile_bit_length = self.max_deck_size
-            # print("discard pile encoding in range: {}-{}".format(self.hands_bit_length+self.board_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length))
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
             self.last_action_bit_length = self.num_players + 4 + self.num_players + \
                             self.num_colors + self.num_ranks \
                                 + self.hand_size + self.hand_size + self.bits_per_card + 2
-<<<<<<< HEAD
             print("last action encoding in range {}-{}".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length))
             self.card_knowledge_bit_length = self.num_players * self.hand_size *\
                             (self.bits_per_card + self.num_colors + self.num_ranks)
             print("card knowledge encoding in range: {}-{}\n".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length+self.card_knowledge_bit_length))
-=======
-            # print("last action encoding in range {}-{}".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length))
-            self.card_knowledge_bit_length = self.num_players * self.hand_size *\
-                            (self.bits_per_card + self.num_colors + self.num_ranks)
-            # print("card knowledge encoding in range: {}-{}\n".format(self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length,self.hands_bit_length+self.board_bit_length+self.discard_pile_bit_length+self.last_action_bit_length+self.card_knowledge_bit_length))
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
             self.total_state_length = self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length \
                                     + self.last_action_bit_length + self.card_knowledge_bit_length
             self.obs_vec = np.zeros(self.total_state_length)
 
             self.last_player_card_knowledge = []
 
-<<<<<<< HEAD
             self.player_knowledge = [HandKnowledge(self.hand_size, self.num_ranks, self.num_colors) for _ in range(self.num_players)]
 
             self.player_id = 0
 
             self.last_player_action = []
-=======
-            self.last_player_action = None
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
     def get_vector_length(self):
         return self.total_state_length
 
-<<<<<<< HEAD
     # NOTE FOR NOW JUST PARSING VERY LAST 2 MOVES
     def parse_last_moves(self,last_moves):
 
@@ -320,15 +245,6 @@ class ObservationVectorizer(object):
                 self.last_player_action = obs["last_moves"][0]
             else:
                 self.last_player_action = []
-=======
-    def vectorize_observation(self,obs):
-        self.obs = obs
-
-        if obs["last_moves"][0] != "DEAL":
-            self.last_player_action = obs["last_moves"][0]
-        else:
-            self.last_player_action = obs["last_moves"][1]
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
         self.encode_hands(obs)
         self.encode_board(obs)
@@ -338,7 +254,6 @@ class ObservationVectorizer(object):
 
         return self.obs_vec
 
-<<<<<<< HEAD
     '''Enocdes cards in all other player's hands (excluding our unknown hand),
      and whether the hand is missing a card for all players (when deck is empty.)
      Each card in a hand is encoded with a one-hot representation using
@@ -381,32 +296,6 @@ class ObservationVectorizer(object):
                 self.obs_vec[self.offset+i] = 1
 
         self.offset += self.num_players
-=======
-    def encode_hands(self,obs):
-        # start of the vectorized observation
-        self.offset = 0
-        # don't use own hand
-        hands = obs["observed_hands"]
-        for player_hand in hands:
-            if (player_hand[0]["color"] != None):
-                num_cards = 0
-                for card in player_hand:
-                    rank = card["rank"]
-                    color = utils.color_char_to_idx(card["color"])
-                    card_index = color * self.num_ranks + rank
-                    self.obs_vec[self.offset + card_index] = 1
-                    num_cards += 1
-                    self.offset += self.bits_per_card
-                if num_cards < self.hand_size:
-                    print(self.num_cards)
-                    self.offset += (self.hand_size - self.num_cards) * self.bits_per_card
-
-        #For each player, set a bit if their hand is missing a card
-        for i,player_hand in enumerate(hands):
-            if len(player_hand) < self.hand_size:
-                self.obs_vec[self.offset+i] = 1
-            self.offset += 1
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
         assert self.offset - self.hands_bit_length == 0
         return True
@@ -459,7 +348,6 @@ class ObservationVectorizer(object):
         assert self.offset - (self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length) == 0
         return True
 
-<<<<<<< HEAD
 
     # NOTE: CHANGE ACTION TYPE BACK
     def encode_last_action(self,obs):
@@ -470,14 +358,6 @@ class ObservationVectorizer(object):
             self.offset += self.last_action_bit_length
         else:
             last_move_type = self.last_player_action["action_type"]
-=======
-    def encode_last_action(self,obs):
-        if self.last_player_action == None:
-            self.offset += self.last_action_bit_length
-        else:
-            last_move_type = self.last_player_action["type"]
-            #print("Last Move Type: {}".format(last_move_type))
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
             self.obs_vec[self.offset + self.last_player_action["player"]] = 1
             self.offset += self.num_players
 
@@ -522,11 +402,7 @@ class ObservationVectorizer(object):
             self.offset += self.hand_size
 
             if last_move_type == "PLAY" or last_move_type == "DISCARD":
-<<<<<<< HEAD
                 card_index = self.last_player_action["card_index"]
-=======
-                card_index = self.last_player_action["hand_card_id"]
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
                 self.obs_vec[self.offset + card_index] = 1
 
             self.offset += self.hand_size
@@ -551,18 +427,14 @@ class ObservationVectorizer(object):
         assert self.offset - (self.hands_bit_length + self.board_bit_length + self.discard_pile_bit_length + self.last_action_bit_length) == 0
         return True
 
-<<<<<<< HEAD
     # TODO: NEED TO SYNC WITH player_card_knowledge
 
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     def encode_card_knowledge(self,obs):
 
         hands = obs["observed_hands"]
         card_knowledge_list = obs["card_knowledge"]
         discard_pile_knowledge = obs["discard_pile"]
         fireworks_knowledge = obs["fireworks"]
-<<<<<<< HEAD
         current_player_id = obs["current_player"]
 
         ### SYNC CARD KNOWLEDGE AFTER HINT GIVEN ###
@@ -603,14 +475,11 @@ class ObservationVectorizer(object):
         # print("##########################################")
         # print(f"############### CURRENT PLAYER {current_player_id} ################")
         # print("##########################################\n")
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
         for ih, player_card_knowledge in enumerate(card_knowledge_list):
             num_cards = 0
 
             # print("##########################################")
-<<<<<<< HEAD
             # print("############### TMP PLAYER CARD KNOWLEDGE ID {} ################".format(ih))
             # print(player_card_knowledge)
             # print("##########################################\n")
@@ -647,72 +516,23 @@ class ObservationVectorizer(object):
                                 self.obs_vec[self.offset + card_index] = 1
 
 
-=======
-            # print("############### PLAYER {} ################".format(ih+1))
-            # print("##########################################\n")
-
-            ### TREAT LAST HAND EDGE CASES
-            if ih == self.num_players-1:
-                last_hand = True
-            else:
-                last_hand = False
-
-            for card_id, card in enumerate(player_card_knowledge):
-
-                # print("##########################################")
-                # print("tmp-card id: {}".format(card_id))
-                # print("##########################################")
-
-                if card["color"] != None:
-                    card_color_revealed = True
-                else:
-                    card_color_revealed = False
-                if card["rank"] != None:
-                    card_rank_revealed = True
-                else:
-                    card_rank_revealed = False
-
-                for color in range(self.num_colors):
-
-                    if color_plausible(color, player_card_knowledge, card_id, card_color_revealed, last_hand, self.last_player_action["type"], self.last_player_card_knowledge):
-
-                        for rank in range(self.num_ranks):
-
-                            if rank_plausible(rank, color, player_card_knowledge, card_id, card_rank_revealed, last_hand, self.last_player_action["type"], self.last_player_card_knowledge):
-
-                                card_index = color * self.num_ranks + rank
-
-                                # if ((self.offset+card_index) in error_list):
-                                #     print(self.offset+card_index)
-                                #     print("\nFailed encoded card: {}, with index: {}, at hand_index: {}".format(card, card_id, ih))
-                                #     print("Wrongly assigned 'plausible' to color: {}, rank: {}\n".format(utils.color_idx_to_char(color),rank))
-                                self.obs_vec[self.offset + card_index] = 1
-
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
                 self.offset += self.bits_per_card
 
                 # Encode explicitly revealed colors and ranks
                 if card["color"] != None:
                     color = utils.color_char_to_idx(card["color"])
-<<<<<<< HEAD
                     # print("OFFSET TO BE SET IN 542")
                     # print(self.offset + color)
-=======
-
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
                     self.obs_vec[self.offset + color] = 1
 
                 self.offset += self.num_colors
 
                 if card["rank"] != None:
                     rank = card["rank"]
-<<<<<<< HEAD
 
                     # print("OFFSET TO BE SET IN 551")
                     # print(self.offset + rank)
 
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
                     self.obs_vec[self.offset + rank] = 1
 
                 self.offset += self.num_ranks

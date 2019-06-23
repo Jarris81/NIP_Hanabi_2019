@@ -141,11 +141,8 @@ class DQNAgent(object):
       optimizer: Optimizer instance used for learning.
     """
 
-<<<<<<< HEAD
     self.partial_reload = False
 
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     tf.logging.info('Creating %s agent with the following parameters:',
                     self.__class__.__name__)
     tf.logging.info('\t gamma: %f', gamma)
@@ -410,14 +407,11 @@ class DQNAgent(object):
                                 self.min_replay_history, self.epsilon_train)
 
     if random.random() <= epsilon:
-<<<<<<< HEAD
       print("\n===============")
       print(f"EPSILON PARAMETER: {epsilon}")
       print("Random Legal Actions in DQN method")
       print(legal_actions)
       print("\n")
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
       # Choose a random action with probability epsilon.
       legal_action_indices = np.where(legal_actions == 0.0)
       return np.random.choice(legal_action_indices[0])
@@ -425,14 +419,11 @@ class DQNAgent(object):
       # Convert observation into a batch-based format.
       self.state[0, :, 0] = observation
 
-<<<<<<< HEAD
       print("\n===============")
       print("REAL FORMATTED LEGAL MOVES VECTOR FROM DQN")
       print(legal_actions)
       print("\n")
 
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
       # Choose the action maximizing the q function for the current state.
       action = self._sess.run(self._q_argmax,
                               {self.state_ph: self.state,
@@ -441,12 +432,8 @@ class DQNAgent(object):
       return action
 
   def _train_step(self):
-<<<<<<< HEAD
     """
     Runs a single training step.
-=======
-    """Runs a single training step.
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
 
     Runs a training op if both:
     (1) A minimum number of frames have been added to the replay buffer.
@@ -526,10 +513,7 @@ class DQNAgent(object):
     return bundle_dictionary
 
   def unbundle(self, checkpoint_dir, iteration_number, bundle_dictionary):
-<<<<<<< HEAD
 
-=======
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     """Restores the agent from a checkpoint.
 
     Restores the agent's Python objects to those specified in bundle_dictionary,
@@ -545,7 +529,6 @@ class DQNAgent(object):
     Returns:
       A boolean indicating whether unbundling was successful.
     """
-<<<<<<< HEAD
     print("=========================")
     print("ENTERED UNBUNDLE FUNCTION")
     print("=========================")
@@ -572,17 +555,4 @@ class DQNAgent(object):
     tf.reset_default_graph()
     self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
     print("Saver restored latest checkpoint")
-=======
-    try:
-      # replay.load() will throw a GOSError if it does not find all the
-      # necessary files, in which case we should abort the process.
-      self._replay.load(checkpoint_dir, iteration_number)
-      print("Load successful")
-    except tf.errors.NotFoundError:
-      return False
-    for key in self.__dict__:
-      if key in bundle_dictionary:
-        self.__dict__[key] = bundle_dictionary[key]
-    self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
->>>>>>> 129841ad840271fc580ae63a9531f96031df82c0
     return True
