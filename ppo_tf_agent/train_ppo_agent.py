@@ -139,6 +139,7 @@ def train_eval(
     optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate)
 
     if use_rnns:
+      print('using rnns!')
       actor_net = masked_networks.MaskedActorDistributionRnnNetwork(
           tf_env.observation_spec(),
           tf_env.action_spec(),
@@ -274,10 +275,12 @@ def compute_avg_return(environment, policy, num_episodes=30):
 
         time_step = environment.reset()
         episode_return = 0.0
+        policy_state = policy.get_initial_state(1)
 
         while not time_step.is_last():
-            action_step = policy.action(time_step)
-            time_step = environment.step(action_step.action)
+            policy_step = policy.action(time_step, policy_state)
+            policy_state = policy_step.state
+            time_step = environment.step(policy_step.action)
 
             if not time_step.is_last():
                 episode_return += time_step.reward

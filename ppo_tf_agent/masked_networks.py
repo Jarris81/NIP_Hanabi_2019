@@ -125,9 +125,9 @@ class MaskedValueRnnNetwork(ValueRnnNetwork):
     needs the mask, so in the value network we have to throw it away explicitly
     """
 
-    def __init__(self, input_tensor_spec, fc_layer_params, output_fc_layer_params=None, lstm_size=(40,)):
+    def __init__(self, input_tensor_spec, input_fc_layer_params, output_fc_layer_params=None, lstm_size=(40,)):
         super().__init__(input_tensor_spec['state'], 
-            fc_layer_params=fc_layer_params, 
+            input_fc_layer_params=input_fc_layer_params, 
             output_fc_layer_params=output_fc_layer_params,
             lstm_size=lstm_size)
 
