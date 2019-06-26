@@ -101,6 +101,7 @@ class GameStateWrapper:
         self.player_position = None
         self.agents_turn = False
         self.deck_size = self.max_deck_size
+        self.order = 0
         return
 
     def init_players(self, notify_msg: str):

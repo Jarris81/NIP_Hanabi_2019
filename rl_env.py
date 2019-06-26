@@ -364,15 +364,25 @@ class HanabiEnv(Environment):
         done = self.state.is_terminal()
         # Reward is score differential. May be large and negative at game end.
         reward = self.state.score() - last_score
-        # reward = self._custom_reward()
+        # reward = self._custom_reward(observation, last_score)
         info = {}
 
         return (observation, reward, done, info)
 
-    def _custom_reward(self):
+    def _custom_reward(self, observation, last_score):
         # punish losing a life token very very hard
         # reward playing a hinted card and giving a hint that has a card played
-        pass
+        last_moves = observation['last_moves']
+        reward = self.state.score() - last_score
+        if len(last_moves) > 0:
+            last_move = last_moves[0]
+            if last_move.move().type() != pyhanabi.HanabiMoveType.DEAL:
+                if last_move.move().type() == pyhanabi.HanabiMoveType.PLAY:
+                    if not last_move.scored():
+                        reward = -15  # approx a third of the game ( for 3 life tokens)
+
+
+        return reward
 
     def _make_observation_all_players(self):
         """Make observation for all players.
