@@ -474,7 +474,27 @@ class HanabiHistoryItem(object):
     c_string = lib.HistoryItemToString(self._item)
     string = encode_ffi_string(c_string)
     lib.DeleteString(c_string)
-    return string
+
+    obj_arr = [
+    self.player(),
+    self.move().type(),
+    self.move().card_index(),
+    self.move().target_offset(),
+    self.move().color(),
+    self.move().rank(),
+    self.card_info_revealed()
+    ]
+    str_arr = [
+    "self._player",
+    "self._move._type",
+    "self._move._card_index",
+    "self._move._target_offset",
+    "self._move._color",
+    "self._move._rank",
+    "self._card_info_revealed"
+    ]
+
+    return str(list(zip(str_arr, obj_arr)))
 
   def __repr__(self):
     return self.__str__()

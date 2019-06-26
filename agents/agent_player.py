@@ -16,7 +16,6 @@ from absl import flags
 
 import dqn_agent as dqn
 import run_experiment_ui as xp
-import vectorizer
 import rainbow_agent as rainbow
 import functools
 from third_party.dopamine import logger
@@ -39,10 +38,8 @@ class RLPlayer(object):
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
 
-        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/"
-
-
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/"
 
         #self.base_dir = "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
         self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))

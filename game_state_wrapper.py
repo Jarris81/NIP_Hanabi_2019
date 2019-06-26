@@ -16,7 +16,8 @@ class GameStateWrapper:
         self.num_players = game_config['num_total_players']  # number of players ingame
         self.max_life_tokens = game_config['life_tokens']
         self.max_info_tokens = game_config['info_tokens']
-        self.deck_size = game_config['deck_size']
+        self.max_deck_size = game_config['deck_size']
+        self.deck_size = self.max_deck_size
         self.life_tokens = self.max_life_tokens
         self.information_tokens = self.max_info_tokens
 
@@ -24,7 +25,6 @@ class GameStateWrapper:
         self.player_position = None  # agents absolute position at table
         self.agents_turn = False  # flag that is True whenever its our turn
         self.cards_per_hand = 4 if self.num_players > 3 else 5  # deal 5 cards when playing with 2 or 3 ppl
-
 
         """
         # ################################################ #
@@ -103,6 +103,18 @@ class GameStateWrapper:
         self.player_position = self.players.index(self.agent_name)
         return
 
+    def set_players(self, players):
+        self.players = players
+
+    def set_fireworks(self, fireworks):
+        self.fireworks = fireworks
+
+    def set_hand_list(self, hand_list):
+        self.hand_list = hand_list
+
+    def set_player_position(self):
+        self.player_position = self.players.index(self.agent_name)
+
     def deal_cards(self, notify_msg):
         """ Initializes self.hand_list from server message 'notifyList [{"type":"draw","who":0,"rank":4,"suit":1,
         "order":0},...'"""
@@ -152,7 +164,8 @@ class GameStateWrapper:
         del self.hand_list[pid][idx_card]
 
         # Remove card from clues
-        self.clues[pid][idx_card] = {'color': None, 'rank': None}
+        del self.clues[pid][idx_card]
+        self.clues[pid].insert(0, {'color': None, 'rank': None})
 
         # Update discard pile
         self.discard_pile.append(self.card(d['which']['suit'], d['which']['rank']))
@@ -176,7 +189,7 @@ class GameStateWrapper:
         information_token = False
         deal_to_player = -1
         card_info_revealed = list()
-
+        discarded = False
         # DISCARD
         if d['type'] == 'discard':
             self.discard(d)
@@ -185,19 +198,24 @@ class GameStateWrapper:
                 self.information_tokens += 1
                 # will be used in HanabiHistoryItemMock
                 information_token = True
+            if 'failed' in d and d['failed']:
+                discarded = True
+                d['type'] = 'play'
 
         # DRAW - if player with pid draws a card, it is prepended to hand_list[pid]
         if d['type'] == 'draw':
             self.draw_card(d)
-            deal_to_player = d['pid']
+            deal_to_player = d['who']
         # PLAY - remove played card from players hand and update fireworks/life tokens
         if d['type'] == 'play':
-            # remove card
-            self.discard(d)
+            # server names some plays "discard" and hence we can come from the discard-if
+            if not discarded:
+                # remove card
+                self.discard(d)
 
             # update fireworks and life tokens eventually
             c = self.card(d['which']['suit'], d['which']['rank'])
-            scored, information_token = self.play(c)[0]
+            scored, information_token = self.play(c)
 
         # CLUE - change players card_knowledge and remove an info-token
         if d['type'] == 'clue':
@@ -215,6 +233,7 @@ class GameStateWrapper:
         if d['type'] in ['play', 'draw', 'clue', 'discard']:
             # print(d['type'])
             # print(notify_msg)
+            #  {type: "discard", failed: true, which: {index: 1, suit: 2, rank: 2, order: 8}} is also possible
             self.append_to_last_moves(d, tmp_deepcopy, scored, information_token, deal_to_player, card_info_revealed)
 
         # On end of game, do something later if necessary (resetting happens on init so no need here)
@@ -230,12 +249,19 @@ class GameStateWrapper:
         touched_cards = dict_clue['List']
         for c in touched_cards:
             idx_c = self.card_numbers[target].index(c)
-            card_info_revealed.append(idx_c)
+            # reverse order to match with pyhanabi encoding
+            max_idx = self.hand_size - 1
+            # card_info_revealed.append(idx_c)
+            card_info_revealed.append(max_idx - idx_c)
             if clue['type'] == 0:
                 # self.clues[target][idx_c]['rank'] = clue['value']
-                self.clues[target][idx_c] = self.card(self.clues[target][idx_c]['color'], clue['value'])
+                clued_card_color = self.clues[target][idx_c]['color']
+                clued_card_rank = self.card(self.clues[target][idx_c]['color'], clue['value'])['rank']
+                self.clues[target][idx_c] = {'color': clued_card_color, 'rank': clued_card_rank}
             else:
-                self.clues[target][idx_c] = self.card(clue['value'], self.clues[target][idx_c]['rank'])
+                clued_card_rank = self.clues[target][idx_c]['rank']
+                clued_card_color = self.card(clue['value'], -1)['color']
+                self.clues[target][idx_c] = {'color': clued_card_color, 'rank': clued_card_rank}
         return card_info_revealed
 
     def play(self, card):
@@ -254,7 +280,7 @@ class GameStateWrapper:
         else:
             self.life_tokens -= 1
         return scored, information_token
-
+    # scored, information_token are bool
     def append_to_last_moves(self, dict_action, deepcopy_card_nums, scored, information_token, deal_to_player, card_info_revealed):
         """
         Mocks HanabiHistoryItems as gotten from pyhanabi. As these objects provide callables, we have to create these
@@ -274,7 +300,18 @@ class GameStateWrapper:
         # but these are necessary to compute the information below.
 
         move = self.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums)
-        player = self.player_position  # absolute player position
+        def get_player(dict_action):
+            player = None
+            type = dict_action['type']
+            if 'clue' in type:
+                player = dict_action['giver']
+            elif 'play' in type or 'discard' in type:
+                player = dict_action['which']['index']
+            else:
+                player = -1
+            return player
+        player = get_player(dict_action)
+        # player = self.player_position  # absolute player position
         scored = scored  # boolean, True if firework increased
         information_token = information_token  # boolean, True if info_token gained on discard or play
         color = None
@@ -304,9 +341,10 @@ class GameStateWrapper:
         """ Agent expects list of observations, always starting with his own cards. So we sort it here. """
         # moves self.cur_player hand to the front
         hand_list = copy.deepcopy(self.hand_list)
-        hand_list.insert(0, hand_list.pop(hand_list.index(hand_list[self.player_position])))
-
-        return [hand for hand in hand_list]
+        # hand_list.insert(0, hand_list.pop(hand_list.index(hand_list[self.player_position])))
+        n = self.player_position
+        hand_list = hand_list[n:] + hand_list[:n]
+        return [list(reversed(hand)) for hand in hand_list]
 
     @staticmethod
     def create_env_mock(num_players, num_colors, num_ranks, hand_size, max_info_tokens, max_life_tokens, max_moves, variant):
@@ -317,7 +355,7 @@ class GameStateWrapper:
         max_info_tokens = max_info_tokens
         max_life_tokens = max_life_tokens
         max_moves = max_moves
-        variant = variant
+        variant = "Hanabi-Full"
 
         return envMock(
             num_players=num_players,
@@ -362,16 +400,19 @@ class GameStateWrapper:
         legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
         observation["legal_moves_as_int"] = legal_moves_as_int
         observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
-        if len(observation["last_moves"]) > 1:
-            print("LAST MOVE AS RETURNED BY GAME STATE WRAPPER")
-            print(observation['last_moves'][0])
-        print(f"Legal moves as int {legal_moves_as_int}")
-        print(f"Legal moves as int formatted {legal_moves_as_int_formated}")
 
+        #print(f"KNOWLEDGE PLAYER {self.agent_name} \n")
+        #print(observation['card_knowledge'])
+        #print(f"OBSERVED HANDS PLAYER {self.agent_name} \n")
+        #print(observation['observed_hands'])
+        #print(f"LAST MOVES PLAYER {self.agent_name} \n")
+        #[print(f'MOVE {i}', o, "\n") for i, o in enumerate(observation['last_moves'])]
+        #print("VECTIZED SHAPE")
+        #print(observation['vectorized'].shape)
         return observation
 
     def card(self, suit: int, rank: int):
-        """ Returns card format desired by agent. Rank values of None and -1 will be passed through."""
+        # """ Returns card format desired by agent. Rank values of None and -1 will be passed through."""
 
         if rank is not None:
             if rank > -1:  # return rank = -1 for an own unclued card
@@ -383,13 +424,8 @@ class GameStateWrapper:
         # make up for the fact, that we changed the order of the agents, s.t. self always is at first position
         idx = self.player_position
 
-        if offset <= idx:
-            if target == 'server':
-                return offset - 1  # returns indices for absolute player positions
-            #elif target == 'agent':
-            #    return offset + 1  # returns indices relative to self
 
-        return offset
+        return (offset + idx) % self.num_players
 
     @staticmethod
     def convert_suit(suit: int) -> Optional[str]:
@@ -412,7 +448,7 @@ class GameStateWrapper:
         return None
 
     @staticmethod
-    def convert_suit_legal_moves(suit: int, move_type) -> Optional[str]:
+    def convert_suit_legal_moves(suit, move_type):
 
         """
         Returns format desired by agent
@@ -423,23 +459,25 @@ class GameStateWrapper:
         // 4 is purple
         returns None if suit is None or -1
         """
-        if move_type == "PLAY" or "DISCARD" or "DEAL":
-            if suit == -1: return suit
-            if suit == 0: return 4  # 'B'
-            if suit == 1: return 2  # 'G'
-            if suit == 2: return 1  # 'Y'
-            if suit == 3: return 0  # 'R'
-            if suit == 4: return 3  # 'W'
-            return -1
-        else:
+        if move_type == 'REVEAL':
             if suit == -1: return None
             if suit == 0: return 'B'
             if suit == 1: return 'G'
             if suit == 2: return 'Y'
             if suit == 3: return 'R'
             if suit == 4: return 'W'
+            else:
+                return None
 
-            return None
+        if move_type == "PLAY" or "DISCARD" or "DEAL":
+            if suit == -1: return suit
+            elif suit == 0: return 4  # 'B'
+            elif suit == 1: return 2  # 'G'
+            elif suit == 2: return 1  # 'Y'
+            elif suit == 3: return 0  # 'R'
+            elif suit == 4: return 3  # 'W'
+            return -1
+
 
     @staticmethod
     def convert_color(color: str) -> Optional[int]:
@@ -465,13 +503,15 @@ class GameStateWrapper:
 
         for hand in self.clues:
             h = list()
-            for c in hand:
+            for c in reversed(hand):
                 # h.append(self.card(c['color'], c['rank']))
                 h.append(c)
             card_knowledge.append(h)
         # return [self.card(c['color'], c['rank']) for hand in self.clues for c in hand]
         # sort, s.t. agents cards are at index 0
-        card_knowledge.insert(0, card_knowledge.pop(card_knowledge.index(card_knowledge[self.player_position])))
+        n = self.player_position
+        # card_knowledge.insert(0, card_knowledge.pop(card_knowledge.index(card_knowledge[self.player_position])))
+        card_knowledge = card_knowledge[n:] + card_knowledge[:n]
         return card_knowledge
 
     def get_legal_moves(self):
@@ -584,8 +624,11 @@ class GameStateWrapper:
             type = '1'
             card_index = action['card_index']
             # target is referenced by absolute card number, gotta convert from given index
-
-            target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
+            max_idx = self.hand_size - 1
+            target = str(self.card_numbers[self.players.index(self.agent_name)][max_idx - card_index])
+            # target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
+            print("max_idx - card_index", max_idx - card_index)
+            print("card_idx", card_index)
 
             a = 'action {"type":' + type + ',"target":' + target + '}'
 
@@ -594,11 +637,16 @@ class GameStateWrapper:
             type = '2'  # 2 for type 'DISCARD'
             card_index = action['card_index']
             # target is referenced by absolute card number, gotta convert from given index
-            target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
+            max_idx = self.hand_size - 1
+            target = str(self.card_numbers[self.players.index(self.agent_name)][max_idx - card_index])
+            print("max_idx - card_index", max_idx - card_index)
+            print("card_idx", card_index)
+
+            # target = str(self.card_numbers[self.players.index(self.agent_name)][card_index])
 
             a = 'action {"type":' + type + ',"target":' + target + '}'
-        print('action')
-        print(a)
+        print("ACTION")
+        print(action)
         return a
 
     def reset(self):
@@ -612,6 +660,7 @@ class GameStateWrapper:
         self.last_moves = list()
         self.player_position = None
         self.agents_turn = False
+        self.deck_size = self.max_deck_size
         return
 
     """
@@ -631,6 +680,7 @@ class GameStateWrapper:
 
 
     def get_pyhanabi_move_mock(self, dict_action, deepcopy_card_nums):
+
         """ dict_action looks like
         ############   DRAW   ##############
         {"type":"draw","who":1,"rank":-1,"suit":-1,"order":11}
@@ -638,15 +688,16 @@ class GameStateWrapper:
         {"type":"clue","clue":{"type":0,"value":3},"giver":0,"list":[5,8,9],"target":1,"turn":0}
         ############   PLAY   ##############
         {"type":"play","which":{"index":1,"suit":1,"rank":1,"order":11}}
+        #  {type: "discard", failed: true, which: {index: 1, suit: 2, rank: 2, order: 8}} is also possible
         ############   DISCARD   ##############
-        {"type":"discard","failed":false,"which":{"index":1,"suit":0,"rank":4,"order":7}}
-        """
+        {"type":"discard","failed":false,"which":{"index":1,"suit":0,"rank":4,"order":7}}"""
 
-        move_dict = self.get_move_dict(dict_action, deepcopy_card_nums)
+        # move_dict = self.get_move_dict(dict_action, deepcopy_card_nums)
+        move_dict = None
         move_type = self.get_move_type(dict_action)
         card_index = self.get_move_card_index(dict_action, deepcopy_card_nums)
         target_offset = self.get_move_target_offset(dict_action)
-        color = self.get_move_color(dict_action)
+        color = self.get_move_color(dict_action, deepcopy_card_nums)
         rank = self.get_move_rank(dict_action)
 
         discard_move = None
@@ -660,6 +711,7 @@ class GameStateWrapper:
             target_offset=target_offset,
             color=color,
             rank=rank,
+            # not implemented
             discard_move=discard_move,
             play_move=play_move,
             reveal_color_move=reveal_color_move,
@@ -683,7 +735,7 @@ class GameStateWrapper:
             return HanabiMoveType.PLAY
         elif move['type'] == 'discard' and move['failed'] is False:  # when failed is True, discard comes from play
             return HanabiMoveType.DISCARD
-        elif move['type'] == 'discard' and move['failed'] is True:
+        elif move['type'] == 'discard' and move['failed']:
             return HanabiMoveType.PLAY
         elif move['type'] == 'clue':
             if move['clue']['type'] == 0:  # rank clue
@@ -697,31 +749,44 @@ class GameStateWrapper:
 
     def get_move_card_index(self, move, deepcopy_card_nums):
         """Returns 0-based card index for PLAY and DISCARD moves."""
-        card_index = None
+        card_index = -1
         if move['type'] == 'play' or move['type'] == 'discard':
             # abs_card_num ranges from 0 to |decksize|
             abs_card_num = move['which']['order']
+
             # get target player index
             pid = move['which']['index']
+
             # get index of card with number abs_card_num in hand of player pid
-            card_index = deepcopy_card_nums[pid].index(abs_card_num)
+            card_index = deepcopy_card_nums[pid][::-1].index(abs_card_num)
+
+            print("\n============================")
+            print("PRINTING STATS FOR COMPUTING CARD INDEX")
+            print(f"ABSOLUTE CARD NUM: {abs_card_num}")
+            print(f"PLAYER ID: {pid}")
+            print(f"DEEPCOPY CARD NUMS: {deepcopy_card_nums}")
+            print(f"DEEPCOPY CARD NUMS FOR PLAYER ID: {deepcopy_card_nums[pid]}")
+            print(f"COMPUTED CARD INDEX: {card_index}")
+            print("============================")
+
         return card_index
 
     def get_move_target_offset(self, move: Dict) -> int:
         """Returns target player offset for REVEAL_XYZ moves."""
 
-        target_offset = None
+        target_offset = -1
         if 'target' in move:
             target = move['target']
             giver = move['giver']
             target_offset = self.get_target_offset(giver, target)
         return target_offset
 
-    def get_move_color(self, move):
+    def get_move_color(self, move, card_nums):
         """Returns 0-based color index for REVEAL_COLOR and DEAL moves."""
         """ R,Y,G,W,B map onto 0,1,2,3,4 in pyhanabi"""
         """ 0, 1, 2, 3, 4 map onto B, G, Y, R, W on server """
         color = None
+
         # for REVEAL_COLOR moves
         if move['type'] == 'clue':
             colorclue = bool(move['clue']['type'])  # 0 means rank clue, 1 means color clue
@@ -729,36 +794,36 @@ class GameStateWrapper:
                 suit = move['clue']['value']
                 # map number to color
                 color = self.convert_suit_legal_moves(suit, move_type="REVEAL")
-                print("ENTERED CLUE STATEMTNET")
-                print(f"COLOR: {color}")
+
                 # color may be None here, depending on whether we got dealt a card
                 # todo have to check how the item behaves in that case (it represents this case as XX)
-        # for DEAL moves
-        # elif move['type'] == 'draw':
-        #    color = self.convert_suit_legal_moves(move['suit'])
-        else:
-            print("ENTERED PLAY STATEMENT")
-            card_index = move['card_index']
-            card_num = move['target']
-            suit = self.hand_list[self.players.index(self.agent_name)][card_index]['color']
-            # convert suit to int
-
+        if move['type'] == 'play' or move['type'] == 'discard':
+            suit = int(move['which']['suit'])
             color = self.convert_suit_legal_moves(suit, move_type="PLAY")
+
         return color
 
 
     def get_move_rank(self, move):
         """Returns 0-based rank index for REVEAL_RANK and DEAL moves. We have to subtract 1 as the server uses
         1-indexed ranks """
-        rank = None
+        rank = -1
         # for REVEAL_RANK moves
         if move['type'] == 'clue':
             rankclue = not bool(move['clue']['type'])  # 0 means rank clue, 1 means color clue
             if rankclue:
                 rank = int(self.parse_rank(move['clue']['value'], target='agent'))
+            else:
+                rank = None
         # for DEAL moves
         if move['type'] == 'draw':
             rank = self.parse_rank(move['rank'], target='agent')
+
+        # for PLAY moves
+        if move['type'] == 'play' or move['type'] == 'discard':
+            r = move['which']['rank']
+            rank = int(self.parse_rank(r, target='agent'))
+
         return rank
 
     def get_move_dict(self, move, deepcopy_card_nums) -> Dict:
@@ -896,6 +961,7 @@ class HanabiHistoryItemMock:
 
         # return str(self._move.to_dict()) + f"card_info_revealed{self._card_info_revealed}"
         obj_arr = [
+        self._player,
         self._move._type,
         self._move._card_index,
         self._move._target_offset,
@@ -904,9 +970,11 @@ class HanabiHistoryItemMock:
         self._move._discard_move,
         self._move._play_move,
         self._move._reveal_color_move,
-        self._move._reveal_rank_move
+        self._move._reveal_rank_move,
+        self._card_info_revealed
         ]
         str_arr = [
+        "self._player",
         "self._move._type",
         "self._move._card_index",
         "self._move._target_offset",
@@ -915,7 +983,8 @@ class HanabiHistoryItemMock:
         "self._move._discard_move",
         "self._move._play_move",
         "self._move._reveal_color_move",
-        "self._move._reveal_rank_move"
+        "self._move._reveal_rank_move",
+        "self._card_info_revealed"
         ]
         return str(list(zip(str_arr, obj_arr)))
     # def __repr__(self):

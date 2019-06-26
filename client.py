@@ -28,7 +28,6 @@ BROWSERS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'
 ]
 
-
 class Client:
     # counts how often this class has been instantiated, e.g. for determining first agent to open a lobby
     # and makes them iterable
@@ -210,10 +209,23 @@ class Client:
                             time.sleep(self.config['wait_move'])
                             # Get observation
                             obs = self.game.get_agent_observation()
+
+                            print("\n=================")
+                            print("CURRENT PLAYER OBSERVATION")
+                            print(obs)
+                            print("=================\n")
+
                             # Compute action
                             a = self.agent.act(obs)
+
+                            print("\n================")
+                            print(f"SELECTED ACTION BY AGENT: {self.username}")
+                            print(a)
+                            print("=================\n")
+
                             # Send to server
                             self.ws.send(self.game.parse_action_to_msg(a))
+
                         #time.sleep()
 
                         # leave replay lobby when game has ended

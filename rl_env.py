@@ -482,7 +482,9 @@ class HanabiEnv(Environment):
     assert isinstance(action, dict), "Expected dict, got: {}".format(action)
     assert "action_type" in action, ("Action should contain `action_type`. "
                                      "action: {}").format(action)
+
     action_type = action["action_type"]
+
     assert (action_type in MOVE_TYPES), (
         "action_type: {} should be one of: {}".format(action_type, MOVE_TYPES))
 
@@ -550,7 +552,8 @@ def make(environment_name="Hanabi-Full", num_players=2, pyhanabi_path=None):
             "max_life_tokens":
                 3,
             "observation_type":
-                pyhanabi.AgentObservationType.CARD_KNOWLEDGE.value
+                pyhanabi.AgentObservationType.CARD_KNOWLEDGE.value,
+            "random_start_player": True
         })
   elif environment_name == "Hanabi-Full-Minimal":
     return HanabiEnv(
