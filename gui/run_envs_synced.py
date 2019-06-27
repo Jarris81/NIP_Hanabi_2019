@@ -25,6 +25,7 @@ import pyhanabi_to_gui
 import numpy as np
 import utils
 import agents.pyhanabi_vectorizer as baseline_vectorizer
+import vectorizer
 
 def msg_deal_card(observation):
     """
@@ -85,13 +86,16 @@ class Runner(object):
             episode_reward = 0
             episode_correct_cards = 0
             it = 0
+
             vectorized_observations = list()  # list that stores vectorized observation for each agent
+            last_observations = list() # list that stores vectorized observation for each agent
+            last_observations_pyhanabi = list()
+
             while not done:
                 for agent_id, agent in enumerate(agents):
 
                     # get observation from pyhanabi env
                     observation = observations['player_observations'][agent_id]
-
 
                     # on reset, setup game_state_wraopers for each agent
                     if it == 0:
@@ -111,21 +115,31 @@ class Runner(object):
                             msg_notifyList = pyhanabi_to_gui.create_notifyList_message(observation)
                             self.game_state_wrappers[i].deal_cards(msg_notifyList)
 
-
                             # get current observation for gui env
                             observation_gui = self.game_state_wrappers[i].get_agent_observation()
                             vectorized_gui = observation_gui['vectorized']
+
                             vectorized_observations.append(vectorized_gui)
 
+                            last_observations.append(observation_gui)
 
+                            last_observations_pyhanabi.append(observation_gui)
 
                     # generate action
                     action = agent.act(observation)
 
                     if observation['current_player'] == agent_id:
+
                         vectorized = np.array(observation['vectorized'])
+
                         vectorized_gui = vectorized_observations[agent_id]
+
                         vectorized_baseline = self.baseline_vectorizer.vectorize_observation(observation)
+
+                        print("===========================")
+                        print("PRINTING CURRENT PLAYER OBSERVATION OBJECT")
+                        print(observation)
+                        print("===========================")
 
                         # compare the 2 vectorized objects
                         print('===========================================================')
@@ -133,14 +147,20 @@ class Runner(object):
                         print('-----------------------COMPARISON--------------------------')
                         print('===========================================================')
                         print('===========================================================')
-                        print("Vectorized objects of rl_env and gui are equal:")
-                        equal = np.array_equal(vectorized, vectorized_gui)
-                        # print(equal)
+                        print("REAL VECTORIZED - GUI VECTORIZED ARE EQUAL")
+                        equal = np.array_equal(vectorized_gui, vectorized)
+                        print("\nPRINT OBSERVED HANDS FROM PYHANABI ENV")
+                        print(last_observations_pyhanabi[agent_id]["observed_hands"])
+                        print(equal)
 
                         print("========================")
-                        print("BASELINE COMPARISON")
+                        print("REAL VECTORIZED - PYHANABI VECTORIZED ARE EQUAL")
                         print(np.array_equal(vectorized, vectorized_baseline))
+                        print("\nPRINT OBSERVED HANDS FROM REAL ENV")
+                        print(observations['player_observations'][agent_id]["observed_hands"])
                         print("========================")
+
+                        sys.exit(0)
 
                         if not equal:
                             last_false_idx = last_false(vectorized == vectorized_gui)
@@ -152,7 +172,7 @@ class Runner(object):
                         print('-------------------END COMPARISON--------------------------')
                         print('===========================================================')
                         print('===========================================================')
-                        
+
                         assert action is not None
                         current_player_action = action
                         print("ACTION")
@@ -172,8 +192,8 @@ class Runner(object):
                 if observation['current_player'] == agent_id:
                     # after step, synchronize gui env by using last_moves,
                     last_moves = observations['player_observations'][agent_id]['last_moves']
-                    print("LAST MOVES")
-                    print(last_moves)
+                    # print("LAST MOVES")
+                    # print(last_moves)
                     # send json encoded action to all game_state_wrappers to update their internal state
                     for i in range(len(agents)):
                         notify_msg = pyhanabi_to_gui.create_notify_message_from_last_move(self.game_state_wrappers[i],last_moves, agent_id)

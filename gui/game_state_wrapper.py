@@ -415,8 +415,7 @@ class GameStateWrapper:
         legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
         observation["legal_moves_as_int"] = legal_moves_as_int
         observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
-        print(f"CARD KNOWLEDGE AS SEEN BZ PLAYER {self.agent_name}")
-        print(observation['card_knowledge'])
+
         return observation
 
     @staticmethod

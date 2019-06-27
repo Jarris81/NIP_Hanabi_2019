@@ -274,14 +274,25 @@ class ObservationVectorizer(object):
         self.offset = 0
 
         hands = obs["observed_hands"]
+
+        print("\n====================")
+        print("PRINTING HANDS IN PYHANABI VECTORIZER")
+        print(hands)
+        print("=======================")
+
         for i,player_hand in enumerate(hands):
+
             if (player_hand[0]["color"] != None):
 
                 num_cards = 0
+
                 for card in player_hand:
                     # Only a player's own cards can be invalid/unobserved.
+
                     rank = card["rank"]
+
                     color = utils.color_char_to_idx(card["color"])
+
                     card_index = color * self.num_ranks + rank
 
                     self.obs_vec[self.offset + card_index] = 1
