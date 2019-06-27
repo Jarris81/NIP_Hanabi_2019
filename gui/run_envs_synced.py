@@ -91,8 +91,9 @@ class Runner(object):
                 for agent_id, agent in enumerate(agents):
 
                     # get observation from pyhanabi env
-                    observation = observations['player_observations'][agent_id]
-
+                    observation_pyhanabi = observations['player_observations'][agent_id]
+                    # 1 pyhanabi observation contains 4 vectorized objects and each is computed individually for one agent
+                    # you can see that, when you print out observation['vectorized'] for different agent_ids
 
                     # on reset, setup game_state_wraopers for each agent
                     if it == 0:
@@ -100,30 +101,31 @@ class Runner(object):
                             # create game_config for game_state_wrapper
                             agent_config = game_config
                             agent_config['username'] = str(i)
-
+                            observation_tmp = observations['player_observations'][i]
                             # init game_state_wrapper for each agent
                             self.game_state_wrappers.append(GameStateWrapper(agent_config))
 
                             # inject init message
-                            msg_init = pyhanabi_to_gui.create_init_message(observation, i)
+                            msg_init = pyhanabi_to_gui.create_init_message(observation_tmp, i)
                             self.game_state_wrappers[i].init_players(msg_init)
 
                             # inject notifyList message
-                            msg_notifyList = pyhanabi_to_gui.create_notifyList_message(observation)
+                            msg_notifyList = pyhanabi_to_gui.create_notifyList_message(observation_tmp)
                             self.game_state_wrappers[i].deal_cards(msg_notifyList)
 
 
                             # get current observation for gui env
-                            observation_gui = self.game_state_wrappers[i].get_agent_observation()
-                            vectorized_gui = observation_gui['vectorized']
+                            obs = self.game_state_wrappers[i].get_agent_observation()
+                            vectorized_gui = obs['vectorized']
                             vectorized_observations.append(vectorized_gui)
 
 
                     # generate action
-                    action = agent.act(observation)
+                    action = agent.act(observation_pyhanabi)
 
-                    if observation['current_player'] == agent_id:
-                        vectorized = np.array(observation['vectorized'])
+                    if observation_pyhanabi['current_player'] == agent_id:
+                        observation_gui = self.game_state_wrappers[agent_id].get_agent_observation()
+                        vectorized = np.array(observation_pyhanabi['vectorized'])
                         vectorized_gui = vectorized_observations[agent_id]
 
                         # compare the 2 vectorized objects
@@ -135,11 +137,14 @@ class Runner(object):
                         print("Vectorized objects of rl_env and gui are equal:")
                         equal = np.array_equal(vectorized, vectorized_gui)
                         print(equal)
-
+                        print(f"SUM OF VEC PYHANABI = {sum(vectorized)}")
+                        print(f"SUM OF VEC GUI = {sum(vectorized_gui)}")
                         if not equal:
                             last_false_idx = last_false(vectorized == vectorized_gui)
                             print(f"Last deviation at index: {last_false_idx}")
-                            print(vectorized_gui == vectorized)
+                            #print(vectorized_gui == vectorized)
+                            print(observation_gui['observed_hands'])
+
                         print('===========================================================')
                         print('===========================================================')
                         print('-------------------END COMPARISON--------------------------')
@@ -157,12 +162,14 @@ class Runner(object):
                     it += 1
 
                 # Make an environment step.
-                print('Agent: {} action: {}'.format(observation['current_player'],
+                print('Agent: {} action: {}'.format(observation_pyhanabi['current_player'],
                                                     current_player_action))
                 observations, reward, done, unused_info = self.environment.step(
                     current_player_action)
-                if observation['current_player'] == agent_id:
-                    # after step, synchronize gui env by using last_moves,
+
+                # after step, synchronize gui env by using last_moves,
+                if observation_pyhanabi['current_player'] == agent_id:
+
                     last_moves = observations['player_observations'][agent_id]['last_moves']
                     print("LAST MOVES")
                     print(last_moves)
@@ -174,6 +181,9 @@ class Runner(object):
                         # we do this seperately because I forgot about it when encoding the notify messages :)
                         deal_msg = None
                         if len(last_moves) > 0 and last_moves[0].move().type() == utils.HanabiMoveType.DEAL:
+                            # we have to use last_moves of different agent in order to see color and rank of drawn card
+                            idx_next = (agent_id + 1) % observation_pyhanabi['num_players']
+                            last_moves = observations['player_observations'][idx_next]['last_moves']
                             deal_msg = pyhanabi_to_gui.create_notify_message_deal(self.game_state_wrappers[i],last_moves, agent_id)
                         if deal_msg != None:
                             self.game_state_wrappers[i].update_state(deal_msg)

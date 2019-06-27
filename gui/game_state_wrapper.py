@@ -143,13 +143,15 @@ class GameStateWrapper:
                 # notifyList message also contains info on who goes first
                 if d['who'] == self.player_position:
                     self.agents_turn = True
-        print("AFTER DEALING CARDS")
-        print(self.card_numbers)
+        #print("AFTER DEALING CARDS")
+        #print(self.card_numbers)
         return
 
     def draw_card(self, d):
         """ Adds card to players hand and updates deck size. Then updates card references and clues."""
         # prepend drawn card to players hand, i.e. oldest card has highest index
+        "PRINT INSIDE GAME STATE WRAPPER "
+        print(f"d[suit] = {d['suit']}, d[rank] = {d['rank']}")
         self.observed_hands[d['who']].insert(0, self.card(d['suit'], d['rank']))
 
         # decrease deck size counter
@@ -265,8 +267,8 @@ class GameStateWrapper:
         clue = dict_clue['clue']
         target = dict_clue['target']
         touched_cards = dict_clue['List']
-        print(f"TOUCHED CARDS: {touched_cards}")
-        print(f"CARD NUMS: {self.card_numbers}")
+        #print(f"TOUCHED CARDS: {touched_cards}")
+        #print(f"CARD NUMS: {self.card_numbers}")
         for c in touched_cards:
             idx_c = self.card_numbers[target].index(c)
             # reverse order to match with pyhanabi encoding
@@ -412,12 +414,13 @@ class GameStateWrapper:
             # rl_env.HanabiEnvobservation._extract_from_dict method, but we need a history so we add this here.
             # Similarly, it can be added by appending obs_dict['last_moves'] = observation.last_moves() in said method.
         }
-        observation['vectorized'] = self.get_vectorized(observation)
+
         legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
         observation["legal_moves_as_int"] = legal_moves_as_int
         observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
-        print(f"CARD KNOWLEDGE AS SEEN BZ PLAYER {self.agent_name}")
-        print(observation['card_knowledge'])
+        observation['vectorized'] = self.get_vectorized(observation)
+        #print(f"CARD KNOWLEDGE AS SEEN BZ PLAYER {self.agent_name}")
+        #print(observation['card_knowledge'])
         return observation
 
     @staticmethod
