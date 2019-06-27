@@ -147,12 +147,14 @@ def from_relative_to_abs(player_observation, target='observed_hands'):
     def shift(arr, n):
         return arr[n:] + arr[:n]
 
-    p_idx = get_player_index_abs(player_observation)
-
     assert target in player_observation
     assert isinstance(player_observation[target], list)
 
-    return shift(player_observation[target], p_idx)
+    cur_pid = player_observation['current_player']
+    cur_pid_offset = player_observation['current_player_offset']  # distance from calling agent to current player
+    pid = (cur_pid_offset - cur_pid) % player_observation['num_players']  # absolute player position
+
+    return shift(player_observation[target], pid)
 
 # todo add yield to enforce order of calling these methods
 
@@ -209,9 +211,7 @@ def pyhanabi_card_index_to_gui_card_order(player, card_index, game_state_wrapper
     hand_size = len(game_state_wrapper.card_numbers[player])
     # cards are in reverse order, so take the 'mirrored' index
     actual_idx = (hand_size - 1) - card_index
-    print(f"CARD NUMBERS {game_state_wrapper.card_numbers}")
-    print(f"PLAYER {player}")
-    print(f"ACTUAL INDEX {actual_idx}")
+
     card_num = game_state_wrapper.card_numbers[player][actual_idx]
 
     return card_num
@@ -341,21 +341,10 @@ def create_notifyList_message(player_observation):
     # Server stores order to represent the absolute card number ranging from 0 to deck size-1
     order = 0
     # birds eye
-    print(f"Current player = {player_observation['current_player']}, Current player offset = {player_observation['current_player_offset']}")
-
-    print(f"Observed hands : {player_observation['observed_hands']}")
-    #observed_hands_abs = from_relative_to_abs(player_observation, target='observed_hands')
-    cur_pid = player_observation['current_player']
-    cur_pid_offset = player_observation['current_player_offset']  # distance from calling agent to current player
-    pid = (cur_pid_offset - cur_pid) % player_observation['num_players']
-    observed_hands = player_observation['observed_hands']
-    observed_hands_abs = observed_hands[pid:] + observed_hands[:pid]
-
-    print("OBSERVED HANDS ABS ")
-    print(observed_hands_abs)
-    hand_size = len(player_observation['observed_hands'][0])
+    observed_hands_abs = from_relative_to_abs(player_observation, target='observed_hands')
 
     # append jsons for card deals
+    hand_size = len(player_observation['observed_hands'][0])
     for pid in range(player_observation['num_players']):
         for cid in range(hand_size):
             ret_msg += format_draw(observed_hands_abs[pid][cid], who=pid, order=order) + ','
@@ -385,7 +374,7 @@ def create_notify_message_play(game_state_wrapper, last_move, agent_id):
     assert last_move.move().type() == utils.HanabiMoveType.PLAY
 
     index, suit, rank, order = get_json_params_for_play_or_discard(game_state_wrapper, last_move, agent_id)
-    print(f"INDEX PLAY: {index}")
+
     return format_play(index, suit, rank, order)
 
 
@@ -402,7 +391,7 @@ def create_notify_message_discard(game_state_wrapper, last_move, agent_id):
     assert last_move.move().type() == utils.HanabiMoveType.DISCARD
 
     index, suit, rank, order = get_json_params_for_play_or_discard(game_state_wrapper, last_move, agent_id)
-    print(f"INDEX DISCARD: {index}")
+
     return format_discard(index, suit, rank, order)
 
 
@@ -420,7 +409,7 @@ def create_notify_message_reveal_move(game_state_wrapper, last_move, agent_id):
     assert last_move.move().type() in [utils.HanabiMoveType.REVEAL_COLOR, utils.HanabiMoveType.REVEAL_RANK]
 
     cluetype, cluevalue, giver, touched, target = get_json_params_for_reveal_move(game_state_wrapper, last_move, agent_id)
-    print(f"GIVER REVEAL: {giver}")
+
     return format_reveal_move(cluetype, cluevalue, giver, touched, target)
 
 
@@ -485,7 +474,6 @@ def create_notify_message_deal(game_state_wrapper, last_moves, agent_id):
     ret_msg = 'notify '
 
     who, rank, color, order = get_json_params_for_deal_move(game_state_wrapper, last_moves[0], agent_id)
-    print(f"WHO={who}, RANK={rank}, color={color}, order={order}")
     card = {'color': color, 'rank': rank}
     # format draw expects color and rank as in pyhanabi
     ret_msg += format_draw(card, who, order)

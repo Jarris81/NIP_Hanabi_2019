@@ -142,8 +142,8 @@ class Runner(object):
                         if not equal:
                             last_false_idx = last_false(vectorized == vectorized_gui)
                             print(f"Last deviation at index: {last_false_idx}")
-                            #print(vectorized_gui == vectorized)
-                            print(observation_gui['observed_hands'])
+                            print(vectorized_gui == vectorized)
+                            #print(observation_gui['observed_hands'])
 
                         print('===========================================================')
                         print('===========================================================')
@@ -171,8 +171,6 @@ class Runner(object):
                 if observation_pyhanabi['current_player'] == agent_id:
 
                     last_moves = observations['player_observations'][agent_id]['last_moves']
-                    print("LAST MOVES")
-                    print(last_moves)
                     # send json encoded action to all game_state_wrappers to update their internal state
                     for i in range(len(agents)):
                         notify_msg = pyhanabi_to_gui.create_notify_message_from_last_move(self.game_state_wrappers[i],last_moves, agent_id)

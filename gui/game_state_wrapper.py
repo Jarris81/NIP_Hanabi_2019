@@ -150,8 +150,6 @@ class GameStateWrapper:
     def draw_card(self, d):
         """ Adds card to players hand and updates deck size. Then updates card references and clues."""
         # prepend drawn card to players hand, i.e. oldest card has highest index
-        "PRINT INSIDE GAME STATE WRAPPER "
-        print(f"d[suit] = {d['suit']}, d[rank] = {d['rank']}")
         self.observed_hands[d['who']].insert(0, self.card(d['suit'], d['rank']))
 
         # decrease deck size counter
