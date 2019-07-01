@@ -101,6 +101,7 @@ class GameStateWrapper:
         self.player_position = None
         self.agents_turn = False
         self.deck_size = self.max_deck_size
+        self.order = 0
         return
 
     def init_players(self, notify_msg: str):
@@ -142,8 +143,8 @@ class GameStateWrapper:
                 # notifyList message also contains info on who goes first
                 if d['who'] == self.player_position:
                     self.agents_turn = True
-        print("AFTER DEALING CARDS")
-        print(self.card_numbers)
+        #print("AFTER DEALING CARDS")
+        #print(self.card_numbers)
         return
 
     def draw_card(self, d):
@@ -160,7 +161,7 @@ class GameStateWrapper:
         # so we store the number too, to map it onto indices for playing and discarding
         self.card_numbers[d['who']].insert(0, d['order'])
 
-    def discard(self, d):
+    def discard(self, d, true_discard):
         """
         Synchronizes references between handcards and clues.
         Need to reference by card_number, as we cannot access the card by rank and suit, if we discard own card,
@@ -180,8 +181,9 @@ class GameStateWrapper:
         del self.clues[pid][idx_card]
         self.clues[pid].insert(0, {'color': None, 'rank': None})
 
-        # Update discard pile
-        self.discard_pile.append(self.card(d['which']['suit'], d['which']['rank']))
+        # Update discard pile only if not PLAY move
+        if true_discard:
+            self.discard_pile.append(self.card(d['which']['suit'], d['which']['rank']))
 
         return
 
@@ -210,15 +212,19 @@ class GameStateWrapper:
 
         # DISCARD
         if d['type'] == 'discard':
-            self.discard(d)
+            true_discard = False
             # only recover info token when not discarding through failed play
             if 'failed' in d and d['failed'] is False:
                 self.information_tokens += 1
+                true_discard = True
                 # will be used in HanabiHistoryItemMock
                 information_token = True
             if 'failed' in d and d['failed']:
                 discarded = True
+                true_discard = True
                 d['type'] = 'play'
+
+            self.discard(d, true_discard=true_discard)
 
         # DRAW - if player with pid draws a card, it is prepended to hand_list[pid]
         if d['type'] == 'draw':
@@ -229,12 +235,13 @@ class GameStateWrapper:
             # server names some plays "discard" and hence we can come from the discard-if
             if not discarded:
                 # remove card
-                self.discard(d)
+                self.discard(d, true_discard=False)
 
             # update fireworks and life tokens eventually
             c = self.card(d['which']['suit'], d['which']['rank'])
             scored, information_token = self.play(c)
-
+            if 'failed' not in d and not scored:
+                self.discard_pile.append(self.card(d['which']['suit'], d['which']['rank']))
         # CLUE - change players card_knowledge and remove an info-token
         if d['type'] == 'clue':
             card_info_revealed = self.update_clues(d)
@@ -264,8 +271,8 @@ class GameStateWrapper:
         clue = dict_clue['clue']
         target = dict_clue['target']
         touched_cards = dict_clue['List']
-        print(f"TOUCHED CARDS: {touched_cards}")
-        print(f"CARD NUMS: {self.card_numbers}")
+        #print(f"TOUCHED CARDS: {touched_cards}")
+        #print(f"CARD NUMS: {self.card_numbers}")
         for c in touched_cards:
             idx_c = self.card_numbers[target].index(c)
             # reverse order to match with pyhanabi encoding
@@ -331,7 +338,7 @@ class GameStateWrapper:
                 player = -1
             return player
 
-        player = get_player(dict_action)
+        player = 3  # get_player(dict_action)
         scored = scored  # boolean, True if firework increased
         information_token = information_token  # boolean, True if info_token gained on discard or play
         card_info_revealed = card_info_revealed
@@ -411,11 +418,13 @@ class GameStateWrapper:
             # rl_env.HanabiEnvobservation._extract_from_dict method, but we need a history so we add this here.
             # Similarly, it can be added by appending obs_dict['last_moves'] = observation.last_moves() in said method.
         }
-        observation['vectorized'] = self.get_vectorized(observation)
+
         legal_moves_as_int, legal_moves_as_int_formated = self.get_legal_moves_as_int(observation['legal_moves'])
         observation["legal_moves_as_int"] = legal_moves_as_int
         observation["legal_moves_as_int_formated"] = legal_moves_as_int_formated
-
+        observation['vectorized'] = self.get_vectorized(observation)
+        #print(f"CARD KNOWLEDGE AS SEEN BZ PLAYER {self.agent_name}")
+        #print(observation['card_knowledge'])
         return observation
 
     @staticmethod
@@ -429,16 +438,18 @@ class GameStateWrapper:
 
     def get_legal_moves(self):
         """ Computes observation['legal_moves'] or observation.legal_moves(), depending on use_pyhanabi_mock"""
-        # order is 1. discard 2. play 3. reveal_color reveal rank and RYGWB for color
+        # order is 2. discard 1. play 3. reveal_color reveal rank and RYGWB for color
         legal_moves = []
+
+
+        # play
+        for i in range(self.hand_size):
+            legal_moves.append({'action_type': 'PLAY', 'card_index': i})
 
         # discard if possible
         if self.information_tokens < self.max_info_tokens:
             for i in range(self.hand_size):
                 legal_moves.append({'action_type': 'DISCARD', 'card_index': i})
-        # play
-        for i in range(self.hand_size):
-            legal_moves.append({'action_type': 'PLAY', 'card_index': i})
 
         # clue if info token available
         if self.information_tokens > 0:
