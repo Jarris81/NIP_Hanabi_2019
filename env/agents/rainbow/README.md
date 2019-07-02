@@ -31,7 +31,7 @@ python -um train \
   --base_dir=/tmp/hanabi_rainbow \
   --gin_files='configs/hanabi_rainbow.gin'
 ```
-
+-ten
 The `PYTHONPATH` fix exposes `rl_env.py`, the main entry point to the Hanabi
 Learning Environment. The `--base_dir` argument must be provided.
 

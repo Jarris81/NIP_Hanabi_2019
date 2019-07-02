@@ -7,5 +7,4 @@
 env/Makefile
 env/game_example
 env/CMakeFiles/
-env/hanabi_lib/
 env/CMakeCache.txt
