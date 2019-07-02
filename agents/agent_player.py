@@ -76,4 +76,4 @@ class RLPlayer(object):
         # Decode it back to dictionary object
         move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]
 
-        return move_dict
+        return action, move_dict

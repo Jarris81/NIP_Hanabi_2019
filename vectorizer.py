@@ -224,6 +224,7 @@ class ObservationVectorizer(object):
      Each card in a hand is encoded with a one-hot representation using
      <num_colors> * <num_ranks> bits (25 bits in a standard game) per card.
      Returns the number of entries written to the encoding.'''
+     
     def encode_hands(self, obs):
         self.offset = 0
         # don't use own hand
@@ -256,6 +257,9 @@ class ObservationVectorizer(object):
                 self.obs_vec[self.offset + i] = 1
         self.offset += self.num_players
 
+        print(self.offset)
+        print(self.hands_bit_length)
+        print(obs["observed_hands"])
 
         assert self.offset - self.hands_bit_length == 0
         return True

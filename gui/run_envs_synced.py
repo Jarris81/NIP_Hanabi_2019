@@ -24,7 +24,7 @@ from game_state_wrapper import GameStateWrapper
 import pyhanabi_to_gui
 import numpy as np
 import utils
-import agents.vectorizer as vec
+import agents.pyhanabi_vectorizer as vec
 
 def msg_deal_card(observation):
     """
