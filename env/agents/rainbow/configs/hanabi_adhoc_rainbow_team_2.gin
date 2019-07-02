@@ -34,7 +34,7 @@ AGENT_CLASS_3 = @RuleBasedAgent
 create_adhoc_team.team_no = 2
 
 run_experiment.training_steps = 10001
-run_experiment.num_iterations = 10000
+run_experiment.num_iterations = 20000
 run_experiment.checkpoint_every_n = 100
 run_one_iteration.evaluate_every_n = 50
 
