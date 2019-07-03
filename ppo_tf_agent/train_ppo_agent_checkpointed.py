@@ -98,8 +98,8 @@ def train_eval(
     # TODO(b/127576522): rename to policy_fc_layers.
     actor_fc_layers=(512, 256),
     value_fc_layers=(256, 128),
-    actor_fc_layers_rnn=(256,),
-    value_fc_layers_rnn=(256,),
+    actor_fc_layers_rnn=(200,),
+    value_fc_layers_rnn=(200,),
     use_rnns=False,
     # Params for collect
     num_environment_steps=10000000,
@@ -167,14 +167,14 @@ def train_eval(
           tf_env.action_spec(),
           input_fc_layer_params=actor_fc_layers_rnn,
           output_fc_layer_params=None, 
-          lstm_size=(256,256),)
-      value_net = masked_networks.MaskedValueRnnNetwork(
-          tf_env.observation_spec(),
-          input_fc_layer_params=value_fc_layers_rnn,
-          output_fc_layer_params=None,
-          lstm_size=(256,256),)
-    #   value_net = masked_networks.MaskedValueNetwork(
-    #       tf_env.observation_spec(), fc_layer_params=value_fc_layers)
+          lstm_size=(100,100),)
+    #  value_net = masked_networks.MaskedValueRnnNetwork(
+    #      tf_env.observation_spec(),
+    #      input_fc_layer_params=value_fc_layers_rnn,
+    #      output_fc_layer_params=None,
+    #      lstm_size=(256,256),)
+      value_net = masked_networks.MaskedValueNetwork(
+          tf_env.observation_spec(), fc_layer_params=value_fc_layers)
     else:
       actor_net = masked_networks.MaskedActorDistributionNetwork(
           tf_env.observation_spec(),
