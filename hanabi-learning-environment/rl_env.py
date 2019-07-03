@@ -365,7 +365,7 @@ class HanabiEnv(Environment):
 
     # modified reward function
     rew = modifyReward(self.state, action)
-    if (rew != 0):
+    if (rew != 0 and not self.state.is_terminal()):
       reward = rew
 
     return (observation, reward, done, info)
