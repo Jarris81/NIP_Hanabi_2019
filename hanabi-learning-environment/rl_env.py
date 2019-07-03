@@ -363,6 +363,11 @@ class HanabiEnv(Environment):
     reward = self.state.score() - last_score
     info = {}
 
+    # modified reward function
+    rew = modifyReward(self.state, action)
+    if (rew != 0):
+      reward = rew
+
     return (observation, reward, done, info)
 
   def _make_observation_all_players(self):
@@ -497,6 +502,59 @@ class HanabiEnv(Environment):
 
     return move
 
+def modifyReward(state, action):
+  '''
+    returns a modifed reward
+
+    state: the current state
+    action: the action taken
+  '''
+  reward = 0
+  if(action.type() == pyhanabi.HanabiMoveType.DISCARD):
+    #print()
+    #print('INDEX:', action.card_index())
+    #print('FIREWORKS (RYGWB):', state.fireworks())
+    #print('DISCARDS:', state.discard_pile())
+    discarded = state.discard_pile()[-1]
+    #print('DISCARDED:', discarded)
+
+    # check whether discarded card is already on fireworks
+    # discard was good so we give some positive reward
+    if (discarded.rank() + 1 <= state.fireworks()[discarded.color()]):
+      return 0.5
+
+    count = len(list(filter(lambda x: x == discarded, state.discard_pile())))
+    if(isCardFullyDiscarded(count, discarded.rank())):
+      reward = discarded.rank() - 5
+      # check other discarded cards
+      # check whether a higher card of the same color was already fully discarded,
+      # because then, we dont give the full negative reward
+      # also check whether a lower card of the same color was already fully discarded,
+      # because then, discarding this card is actually fine
+      #print(discarded, 'discarded for', count, 'time')
+      for rank in range(0,5): # highest card depends on player number?
+        if(rank == discarded.rank()): continue
+       
+        count = len(list(filter(
+          lambda x: x.color() == discarded.color() and x.rank() == rank, 
+          state.discard_pile())))
+        if(isCardFullyDiscarded(count, rank)):
+          if(rank < discarded.rank()):
+            reward = 0.2
+            break
+          elif(rank > discarded.rank()):
+            reward = -(rank - discarded.rank())
+            break
+    #print()
+
+  return reward
+
+def isCardFullyDiscarded(discard_count, rank):
+  isOneFullyDiscarded = rank == 0 and discard_count == 3
+  isTwoThreeFourAndFullyDiscarded = rank > 0 and rank < 4 and discard_count == 2
+  isFiveFullyDiscarded = rank == 4 and discard_count == 1
+
+  return isOneFullyDiscarded or isTwoThreeFourAndFullyDiscarded or isFiveFullyDiscarded
 
 def make(environment_name="Hanabi-Full", num_players=2, pyhanabi_path=None):
   """Make an environment.
