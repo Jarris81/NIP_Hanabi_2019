@@ -28,18 +28,17 @@ RainbowAgent.tf_device = '/cpu:*'  # '/cpu:*' use for non-GPU version
 WrappedReplayMemory.replay_capacity = 50000
 
 # Configures selfplay
-
-run_experiment.training_steps = 500
-run_experiment.num_iterations = 500
-run_experiment.checkpoint_every_n = 50
-run_one_iteration.evaluate_every_n = 10
+run_experiment.run_experiment.training_steps = 100
+run_experiment.run_experiment.num_iterations = 100
+run_experiment.run_experiment.checkpoint_every_n = 50
+run_experiment.run_one_iteration.evaluate_every_n = 10
 
 # Small Hanabi.
-create_environment.game_type = 'Hanabi-Full-CardKnowledge'
-create_environment.num_players = 2
+run_experiment.create_environment.game_type = 'Hanabi-Full-CardKnowledge'
+run_experiment.create_environment.num_players = 4
 
-create_agent.agent_type = 'Rainbow'
-create_obs_stacker.history_size = 1
+run_experiment.create_agent.agent_type = 'Rainbow'
+run_experiment.create_obs_stacker.history_size = 3
 
 rainbow_template.layer_size=512
 rainbow_template.num_layers=2

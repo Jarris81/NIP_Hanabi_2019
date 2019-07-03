@@ -448,20 +448,16 @@ def run_one_episode(agents_list, environment, obs_stacker):
                 action = agents_list[current_player].step(reward_since_last_action[current_player],
                                                  current_player, legal_moves, observation_vector)
             else:
-                #print("Observations: ", observations)
                 player_observation = parse_player_observation(observations)
                 action = agents_list[current_player].act_train(player_observation)
-                #print(action)
         else:
 
             if agents_list[current_player].is_rl_agent():
                 action = agents_list[current_player].begin_episode(current_player, legal_moves,
                                                                    observation_vector)
             else:
-                #print("Observations: ", observations)
                 player_observation = parse_player_observation(observations)
                 action = agents_list[current_player].act_train(player_observation)
-                #print(action)
 
             has_played.add(current_player)
 

@@ -35,12 +35,12 @@ create_adhoc_team.team_no = 1
 
 run_experiment.training_steps = 10001
 run_experiment.num_iterations = 20000
-run_experiment.checkpoint_every_n = 100
-run_one_iteration.evaluate_every_n = 50
+run_experiment.checkpoint_every_n = 1000
+run_one_iteration.evaluate_every_n = 500
 
 # Small Hanabi.
 create_environment.game_type = 'Hanabi-Full-CardKnowledge'
-create_environment.num_players = 2
+# create_environment.num_players = 2
 
 # create_agent.agent_type = 'Rainbow'
 create_obs_stacker.history_size = 1

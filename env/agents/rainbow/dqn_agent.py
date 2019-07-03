@@ -175,6 +175,8 @@ class DQNAgent(object):
         self.batch_staged = False
         self.optimizer = optimizer
 
+        self.last_rec_trans = 0
+
         with tf.device(tf_device):
             # Calling online_convnet will generate a new graph as defined in
             # graph_template using whatever input is passed, but will always share
@@ -320,8 +322,17 @@ class DQNAgent(object):
         self._train_step()
 
         self.action = self._select_action(observation, legal_actions)
-        self._record_transition(current_player, reward, observation, legal_actions,
+        self.last_rec_trans = self._record_transition(current_player, reward, observation, legal_actions,
                                 self.action)
+
+
+        # check if old transition was wrong rewarded:
+        reset_trans = True
+
+        if reset_trans:
+
+            self.reset_transition(current_player, self.last_rec_trans, 50)
+
         return self.action
 
     def end_episode(self, final_rewards):
@@ -332,7 +343,11 @@ class DQNAgent(object):
             player gets their own reward, which is the sum of the rewards since
             their last move.
         """
+
+        self.last_rec_trans = -1
         self._post_transitions(terminal_rewards=final_rewards)
+
+
 
     def _record_transition(self, current_player, reward, observation,
                            legal_actions, action, begin=False):
@@ -356,6 +371,23 @@ class DQNAgent(object):
             Transition(reward, np.array(observation, dtype=np.uint8, copy=True),
                        np.array(legal_actions, dtype=np.float32, copy=True),
                        action, begin))
+
+        # return the index of last played transition
+        return len(self.transitions[current_player]) - 1
+
+    def reset_transition(self, current_player, idx_transition, new_reward):
+        """
+
+        """
+        old_transition = self.transitions[current_player][idx_transition]
+
+        new_transition = Transition(new_reward, old_transition[1],
+                                    old_transition[2],
+                                    old_transition[3],
+                                    old_transition[4])
+
+        self.transitions[current_player][idx_transition] = new_transition
+
 
     def _post_transitions(self, terminal_rewards):
         """Posts this episode to the replay memory.
