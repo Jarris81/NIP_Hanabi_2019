@@ -46,6 +46,9 @@ class Runner(object):
       while not done:
         for agent_id, agent in enumerate(agents):
           observation = observations['player_observations'][agent_id]
+          print("\nLAST MOVES")
+          print(len(observation["last_moves"]))
+          print("\n")
           action = agent.act(observation)
           if observation['current_player'] == agent_id:
             assert action is not None

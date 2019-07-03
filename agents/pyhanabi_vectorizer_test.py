@@ -54,7 +54,6 @@ if __name__=="__main__":
     # print(f"Wrong indices size: {wrong_indices[0].size}")
 
     moves_as_int = vec_obs["legal_moves_as_int"]
-    # print(moves_as_int)
 
     own_moves_as_int = moves_vectorizer.get_legal_moves_as_int(vec_obs["legal_moves"])
 

@@ -20,42 +20,44 @@ import rainbow_agent as rainbow
 import functools
 from third_party.dopamine import logger
 
-class RLPlayer(object):
+class AdHocRLPlayer(object):
 
-    def __init__(self,agent_config):
+    def __init__(self, observation_size, num_players, history_size, max_moves, type):
 
-        """
-        Main Interface that allows a trained agent to interact with other Hanabi-Environments
-        """
+        agent_config = {
+            "observation_size": observation_size,
+            "num_players": num_players,
+            "history_size": history_size,
+            "max_moves": max_moves,
+            "type": type
+        }
 
         self.observation_size = agent_config["observation_size"]
-        self.players = agent_config["players"]
+        self.players = agent_config["num_players"]
         self.history_size = agent_config["history_size"]
         self.vectorized_observation_shape = agent_config["observation_size"]
-
-        self.obs_stacker = xp.create_obs_stacker(self.history_size, self.vectorized_observation_shape, self.players)
         self.num_actions = agent_config["max_moves"]
-        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
-        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
 
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
-        #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/"
+        self.base_dir = None
 
-        #self.base_dir = "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
-        self.experiment_logger = logger.Logger('{}/logs'.format(self.base_dir))
+        if agent_config["type"] == "10kit":
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        elif agent_config["type"] == "20kit":
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_20kit"
+        elif agent_config["type"] == "custom_dis_punish":
+            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_custom_r_discard_playable"
+        else:
+            print("AGENT TYPE UNKNOWN")
+            sys.exit(0)
 
-        path_rainbow = os.path.join(self.base_dir,'checkpoints')
-        #print(path_rainbow)
+        ## Hard coded for now
+        self.experiment_logger = logger.Logger('/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/adhoc/rainbow_10kit_2_x_rainbow_20kit_2/logs')
+
+        path_weights = os.path.join(self.base_dir,'checkpoints')
 
         self.agent = xp.create_agent(self.observation_size, self.num_actions, self.players, "Rainbow")
-        # print("====================")
-        # print("Created Agent successfully")
-        # print("====================")
-        self.agent.eval_mode = True
-        self.agent.partial_reload = True
-        # print(self.agent.partial_reload)
 
-        start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_rainbow,"ckpt")
+        start_iteration, experiment_checkpointer = xp.initialize_checkpointing(self.agent,self.experiment_logger,path_weights,"ckpt")
         print("\n---------------------------------------------------")
         print("Initialized Model weights at start iteration: {}".format(start_iteration))
         print("---------------------------------------------------\n")
@@ -71,9 +73,8 @@ class RLPlayer(object):
 
         # Returns Integer Action
         action = self.agent._select_action(observation["vectorized"], observation["legal_moves_as_int_formated"])
-        # print(action)
 
         # Decode it back to dictionary object
         move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]
 
-        return action, move_dict
+        return action
