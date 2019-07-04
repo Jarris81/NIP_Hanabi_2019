@@ -96,10 +96,10 @@ def train_eval(
     env_load_fn=None,
     random_seed=0,
     # TODO(b/127576522): rename to policy_fc_layers.
-    actor_fc_layers=(512, 256),
-    value_fc_layers=(256, 128),
-    actor_fc_layers_rnn=(200,),
-    value_fc_layers_rnn=(200,),
+    actor_fc_layers=(150, 75),
+    value_fc_layers=(150, 75),
+    actor_fc_layers_rnn=(150,),
+    value_fc_layers_rnn=(150,),
     use_rnns=False,
     # Params for collect
     num_environment_steps=10000000,
@@ -152,7 +152,7 @@ def train_eval(
   with tf.compat.v2.summary.record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
     tf.compat.v1.set_random_seed(random_seed)
-    #eval_tf_env = tf_py_environment.TFPyEnvironment(env_load_fn(env_name, num_players))
+    eval_py_env2 = env_load_fn(env_name, num_players)
     eval_py_env = parallel_py_environment.ParallelPyEnvironment(
         [lambda: env_load_fn(env_name, num_players)] * num_parallel_environments)
     tf_env = tf_py_environment.TFPyEnvironment(
@@ -200,7 +200,7 @@ def train_eval(
         batch_size=num_parallel_environments,
         max_length=replay_buffer_capacity)
 
-    #eval_policy = tf_agent.policy
+    eval_py_policy2 = py_tf_policy.PyTFPolicy(tf_agent.policy)
     eval_py_policy = py_tf_policy.PyTFPolicy(tf_agent.policy)
 
     environment_steps_metric = tf_metrics.EnvironmentSteps()
@@ -294,7 +294,7 @@ def train_eval(
               log=True,
           )
           sess.run(eval_summary_writer_flush_op)
-          #print('AVG RETURN:', compute_avg_return(eval_tf_env, eval_policy))  ! extremely slow
+          print('AVG RETURN:', compute_avg_return(eval_py_env2, eval_py_policy2))
 
         start_time = time.time()
         sess.run(collect_op)
@@ -351,25 +351,25 @@ def compute_avg_return(environment, policy, num_episodes=30):
 
         time_step = environment.reset()
         episode_return = 0.0
-        policy_state = policy.get_initial_state(1)
+        #policy_state = policy.get_initial_state(1)
 
-        print('TIME STEP', time_step)
-        print('TIME STEP', time_step.is_last().eval()[0])
-        print('POLICY STATE', policy_state)
+        #print('TIME STEP', time_step)
+        #print('TIME STEP', time_step.is_last())
+        #print('POLICY STATE', policy_state)
 
-        while not time_step.is_last().eval()[0]:
-            policy_step = policy.action(time_step, policy_state)
-            policy_state = policy_step.state
+        while not time_step.is_last():
+            policy_step = policy.action(time_step)
+            #policy_state = policy_step.state
             time_step = environment.step(policy_step.action)
 
-            if not time_step.is_last().eval()[0]:
+            if time_step.reward == 1 or time_step.is_last():
                 episode_return += time_step.reward
 
         total_return += episode_return
 
     avg_return = total_return / num_episodes
     environment.reset()
-    return avg_return.numpy()[0]
+    return avg_return
 
 def main(_):
   tf.compat.v1.enable_resource_variables()
