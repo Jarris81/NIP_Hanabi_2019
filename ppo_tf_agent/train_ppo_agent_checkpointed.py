@@ -294,7 +294,7 @@ def train_eval(
               log=True,
           )
           sess.run(eval_summary_writer_flush_op)
-          #print('AVG RETURN:', compute_avg_return(eval_tf_env, eval_policy))  ! extremely slow
+          print('AVG RETURN:', compute_avg_return(eval_py_env2, eval_py_policy2))
 
         start_time = time.time()
         sess.run(collect_op)
