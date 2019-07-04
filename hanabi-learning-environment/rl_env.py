@@ -208,6 +208,7 @@ class HanabiEnv(Environment):
                                   'vectorized': [ 0, 0, 1, ... ]}]}
     """
     self.state = self.game.new_initial_state()
+    #self.moded_reward = 0
 
     while self.state.cur_player() == pyhanabi.CHANCE_PLAYER_ID:
       self.state.deal_random_card()
@@ -366,7 +367,12 @@ class HanabiEnv(Environment):
     # modified reward function
     rew = modifyReward(self.state, action)
     if (rew != 0 and not self.state.is_terminal()):
+      print('MOD:', reward, '->', rew)
       reward = rew
+      #self.moded_reward += rew
+    #if(self.state.is_terminal()): 
+      #print(self.state.end_of_game_status(), reward, self.moded_reward)
+      #reward -= self.moded_reward
 
     return (observation, reward, done, info)
 
@@ -519,13 +525,14 @@ def modifyReward(state, action):
     #print('DISCARDED:', discarded)
 
     # check whether discarded card is already on fireworks
-    # discard was good so we give some positive reward
+    # discard was good so we dont give negative reward
     if (discarded.rank() + 1 <= state.fireworks()[discarded.color()]):
-      return 0.5
+      return 0
 
     count = len(list(filter(lambda x: x == discarded, state.discard_pile())))
     if(isCardFullyDiscarded(count, discarded.rank())):
-      reward = discarded.rank() - 5
+      #reward = discarded.rank() - 5
+      reward = -1
       # check other discarded cards
       # check whether a higher card of the same color was already fully discarded,
       # because then, we dont give the full negative reward
@@ -540,10 +547,12 @@ def modifyReward(state, action):
           state.discard_pile())))
         if(isCardFullyDiscarded(count, rank)):
           if(rank < discarded.rank()):
-            reward = 0.2
+            # there was lower card already fully discarded of that color, dont give more negative reward
+            reward = 0
             break
           elif(rank > discarded.rank()):
-            reward = -(rank - discarded.rank())
+            #reward = -(rank - discarded.rank())
+            reward = -1
             break
     #print()
 
