@@ -33,10 +33,10 @@ AGENT_CLASS_3 = @RuleBasedAgent
 # Configures adhoc team
 create_adhoc_team.team_no = 1
 
-rurun_adhoc_experiment.n_experiment.training_steps = 10001
-rurun_adhoc_experiment.n_experiment.num_iterations = 20000
-rurun_adhoc_experiment.n_experiment.checkpoint_every_n = 1000
-rurun_adhoc_experiment.n_one_iteration.evaluate_every_n = 500
+run_adhoc_experiment.run_experiment.training_steps = 10001
+rur_adhoc_experiment.run_experiment.num_iterations = 20000
+rur_adhoc_experiment.run_experiment.checkpoint_every_n = 1000
+rur_adhoc_experiment.run_one_iteration.evaluate_every_n = 500
 
 # Small Hanabi.
 run_adhoc_experiment.create_environment.game_type = 'Hanabi-Full-CardKnowledge'
