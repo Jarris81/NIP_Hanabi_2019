@@ -37,7 +37,7 @@ import rl_env
 import numpy as np
 import rainbow_agent
 import tensorflow as tf
-#from pyhanabi import HanabiMoveType
+from pyhanabi import HanabiMoveType
 
 LENIENT_SCORE = False
 
@@ -299,6 +299,8 @@ def run_one_episode(agent, environment, obs_stacker):
     is_done = False
     total_reward = 0
     step_number = 0
+    last_moves_stack = list()
+
 
     has_played = {current_player}
 
@@ -306,7 +308,24 @@ def run_one_episode(agent, environment, obs_stacker):
     reward_since_last_action = np.zeros(environment.players)
 
     while not is_done:
+        print(action.item())
         observations, reward, is_done, _ = environment.step(action.item())
+
+        # check if we need to adjust reward
+        # get last moves
+        last_moves = observations['player_observations'][current_player]['pyhanabi'].last_moves()
+
+        last_moves_stack.append(last_moves[len(last_moves) - 1])
+
+        print("last_moves_stack")
+
+        last_hints_current_player = [last_move for last_move in last_moves_stack\
+                                     if last_move.player() is current_player and\
+                                     last_move.move().type() == HanabiMoveType.REVEAL_RANK or\
+                                     last_move.move().type() == HanabiMoveType.REVEAL_COLOR]
+
+
+
 
         modified_reward = max(reward, 0) if LENIENT_SCORE else reward
         total_reward += modified_reward
@@ -327,22 +346,6 @@ def run_one_episode(agent, environment, obs_stacker):
             action = agent.begin_episode(current_player, legal_moves,
                                          observation_vector)
             has_played.add(current_player)
-
-            # check if we need to adjust reward
-            """last_moves = observations['player_observations'][current_player]['pyhanabi'].last_moves()
-
-            print("type is from this shit: {}".format(last_moves))
-
-            for idx, last_move in enumerate(last_moves):
-
-                print(last_move)
-                if last_move.player() == current_player and\
-                        last_move.move().type() == HanabiMoveType.REVEAL_RANK or\
-                        last_move.move().type() == HanabiMoveType.REVEAL_Color:
-
-                    target_offset = last_move.target_offset()"""
-
-
 
 
         # Reset this player's reward accumulator.
