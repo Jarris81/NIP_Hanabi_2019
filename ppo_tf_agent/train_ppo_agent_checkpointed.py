@@ -96,10 +96,10 @@ def train_eval(
     env_load_fn=None,
     random_seed=0,
     # TODO(b/127576522): rename to policy_fc_layers.
-    actor_fc_layers=(512, 256),
-    value_fc_layers=(256, 128),
-    actor_fc_layers_rnn=(200,),
-    value_fc_layers_rnn=(200,),
+    actor_fc_layers=(150, 75),
+    value_fc_layers=(150, 75),
+    actor_fc_layers_rnn=(150,),
+    value_fc_layers_rnn=(150,),
     use_rnns=False,
     # Params for collect
     num_environment_steps=10000000,
