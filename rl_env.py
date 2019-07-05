@@ -425,10 +425,8 @@ class HanabiEnv(Environment):
 
         """ punish losing life token """
         if last_move.type() == HanabiMoveType.PLAY and not last_move.scored():
-            # -8 is useful for Hanabi-Full games:
-            # By that, agents will be allowed to risk losing one or two lifes
-            # as they can still receive a positive sum of rewards at the end, if they play good enough
-            reward = -8
+
+            reward = -1
 
         return reward
 
