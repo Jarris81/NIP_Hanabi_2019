@@ -36,7 +36,7 @@ import tensorflow as tf
 slim = tf.contrib.slim
 
 
-@gin.configurable
+# @gin.configurable
 def rainbow_template(state,
                      num_actions,
                      num_atoms=51,
@@ -71,11 +71,11 @@ def rainbow_template(state,
   return net
 
 
-@gin.configurable
+# @gin.configurable
 class RainbowAgent(dqn_agent.DQNAgent):
   """A compact implementation of the multiplayer Rainbow agent."""
 
-  @gin.configurable
+  # @gin.configurable
   def __init__(self,
                num_actions=None,
                observation_size=None,

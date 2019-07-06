@@ -35,7 +35,7 @@ import dqn_agent
 import gin.tf
 import rl_env
 import numpy as np
-import rainbow_agent
+import rainbow_no_distributional_projections
 import tensorflow as tf
 
 LENIENT_SCORE = False
@@ -165,7 +165,7 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
                               num_actions=environment.num_moves(),
                               num_players=environment.players)
   elif agent_type == 'Rainbow':
-    return rainbow_agent.RainbowAgent(
+    return rainbow_no_distributional_projections.RainbowAgent(
         observation_size=obs_stacker.observation_size(),
         num_actions=environment.num_moves(),
         num_players=environment.players)
