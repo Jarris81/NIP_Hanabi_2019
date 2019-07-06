@@ -188,11 +188,11 @@ def create_adhoc_team(environment, obs_stacker, team_no, rl_shared_model=True):
     agent_repo = ['DQN', 'SimpleAgent', 'Rainbow']
 
     if team_no == 1:
-        team = {'SimpleAgent': [0, 1, 2], "Rainbow": [3]}
+        team = {"Rainbow": [0], 'SimpleAgent': [1, 2, 3], }
     elif team_no == 2:
-        team = {'SimpleAgent': [0, 1], "Rainbow": [2, 3]}
+        team = {'Rainbow': [0, 1], 'SimpleAgent': [2, 3]}
     elif team_no == 3:
-        team = {'SimpleAgent': [0], "Rainbow": [1, 2, 3]}
+        team = {'Rainbow': [0, 1, 2], 'SimpleAgent': [1, 2, 3]}
     else:
         print("No valid team number defined!!")
         return None
@@ -235,7 +235,7 @@ def create_adhoc_team(environment, obs_stacker, team_no, rl_shared_model=True):
                     agent = dqn_agent.DQNAgent(
                         observation_size=obs_stacker.observation_size(),
                         num_actions=environment.num_moves(),
-                        num_players=environment.players)
+                        num_players=team_no)
                     agent_list[pos] = agent
 
             elif agent_type == 'Rainbow':
@@ -246,7 +246,7 @@ def create_adhoc_team(environment, obs_stacker, team_no, rl_shared_model=True):
                     agent = rainbow_agent.RainbowAgent(
                         observation_size=obs_stacker.observation_size(),
                         num_actions=environment.num_moves(),
-                        num_players=environment.players)
+                        num_players=team_no)
                     agent_list[pos] = agent
 
             elif agent_type == "SimpleAgent":
@@ -429,10 +429,24 @@ def run_one_episode(agents_list, environment, obs_stacker):
     reward_since_last_action = np.zeros(environment.players)
 
     while not is_done:
-        observations, reward, is_done, _ = environment.step(action.item())
+        observations, reward, is_done, info = environment.step(action.item())
 
         modified_reward = max(reward, 0) if LENIENT_SCORE else reward
         total_reward += modified_reward
+
+        should_get_rewarded = info['should_get_rewarded']
+
+        if should_get_rewarded is not None:
+
+            for turns_since, player_fix, reward_fix in should_get_rewarded:
+
+                for idx, agent in enumerate(agents_list):
+
+                    if agent.is_rl_agent() and idx==player_fix:
+
+                        print("Will give agent at pos{}, reward of {}, for move at:{}"
+                              .format(player_fix, reward_fix, turns_since))
+                        agent.reset_transition(player_fix, turns_since, reward_fix)
 
         reward_since_last_action += modified_reward
 
@@ -442,7 +456,7 @@ def run_one_episode(agents_list, environment, obs_stacker):
         current_player, legal_moves, observation_vector = (
             parse_observations(observations, environment.num_moves(), obs_stacker))
 
-        #print("Agent: {} is making an action.".format(agents_list[current_player]))
+        # print("Agent: {} is making an action.".format(agents_list[current_player]))
         if current_player in has_played:
             if agents_list[current_player].is_rl_agent():
                 action = agents_list[current_player].step(reward_since_last_action[current_player],

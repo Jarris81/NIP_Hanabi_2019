@@ -61,6 +61,7 @@ class ObservationStacker(object):
             self._obs_stacks.append(np.zeros(self._observation_size *
                                              self._history_size))
 
+
     def add_observation(self, observation, current_player):
         """Adds observation for the current player.
 
@@ -299,8 +300,9 @@ def run_one_episode(agent, environment, obs_stacker):
     is_done = False
     total_reward = 0
     step_number = 0
-    last_moves_stack = list()
 
+    num_players = observations['player_observations'][current_player]['num_players']
+    last_moves_stack = [list()] * num_players
 
     has_played = {current_player}
 
@@ -308,32 +310,50 @@ def run_one_episode(agent, environment, obs_stacker):
     reward_since_last_action = np.zeros(environment.players)
 
     while not is_done:
-        print(action.item())
-        observations, reward, is_done, _ = environment.step(action.item())
-
-        # check if we need to adjust reward
-        # get last moves
-        last_moves = observations['player_observations'][current_player]['pyhanabi'].last_moves()
-
-        last_moves_stack.append(last_moves[len(last_moves) - 1])
-
-        print("last_moves_stack")
-
-        last_hints_current_player = [last_move for last_move in last_moves_stack\
-                                     if last_move.player() is current_player and\
-                                     last_move.move().type() == HanabiMoveType.REVEAL_RANK or\
-                                     last_move.move().type() == HanabiMoveType.REVEAL_COLOR]
+        observations, reward, is_done, info = environment.step(action.item())
 
 
+        should_get_rewarded = info['should_get_rewarded']
 
+        for turns_since, player_fix, reward_fix in should_get_rewarded:
+
+            agent.reset_transition(player_fix, turns_since , reward_fix)
 
         modified_reward = max(reward, 0) if LENIENT_SCORE else reward
         total_reward += modified_reward
 
         reward_since_last_action += modified_reward
 
+        # check if we need to adjust reward
+        # get last moves
+
+        """last_moves_stack[current_player].extend(observations['player_observations'][current_player]['pyhanabi'].last_moves())
+
+        print("last_moves_stack")
+        for target_offset in range(1, num_players):
+            last_hints_current_player_to_target_offset = [last_move for last_move in last_moves_stack[current_player]
+                                                          if target_offset == last_move.move().target_offset() and
+                                                          (last_move.move().type() == HanabiMoveType.REVEAL_RANK or
+                                                           last_move.move().type() == HanabiMoveType.REVEAL_COLOR)]
+
+            print(last_hints_current_player_to_target_offset)
+
+            for hint in last_hints_current_player_to_target_offset:
+
+                play_discard_by_target = [last_move for last_move in last_moves_stack[current_player]
+                                          if target_offset == last_move.player() and
+                                          last_move.move().card_index() in hint.card_info_revealed()
+                                          (last_move.move().type() == HanabiMoveType.PLAY or
+                                           last_move.move().type() == HanabiMoveType.DISCARD)]
+
+                if len(play_discard_by_target) is not 0:
+                    print("Card hinted and played or discarded")
+                    print(play_discard_by_target)
+"""
         step_number += 1
         if is_done:
+            print(environment.history_stack)
+            print(len(environment.history_stack))
             break
         current_player, legal_moves, observation_vector = (
             parse_observations(observations, environment.num_moves(), obs_stacker))
@@ -346,7 +366,6 @@ def run_one_episode(agent, environment, obs_stacker):
             action = agent.begin_episode(current_player, legal_moves,
                                          observation_vector)
             has_played.add(current_player)
-
 
         # Reset this player's reward accumulator.
         reward_since_last_action[current_player] = 0

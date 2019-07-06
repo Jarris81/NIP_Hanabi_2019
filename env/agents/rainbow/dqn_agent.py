@@ -325,14 +325,6 @@ class DQNAgent(object):
         self.last_rec_trans = self._record_transition(current_player, reward, observation, legal_actions,
                                 self.action)
 
-
-        # check if old transition was wrong rewarded:
-        reset_trans = True
-
-        if reset_trans:
-
-            self.reset_transition(current_player, self.last_rec_trans, 50)
-
         return self.action
 
     def end_episode(self, final_rewards):
@@ -375,18 +367,32 @@ class DQNAgent(object):
         # return the index of last played transition
         return len(self.transitions[current_player]) - 1
 
-    def reset_transition(self, current_player, idx_transition, new_reward):
+    def reset_transition(self, current_player, turns_since, new_reward):
         """
 
         """
-        old_transition = self.transitions[current_player][idx_transition]
+        print("turns since:")
+        print(turns_since)
+        rounds_since = turns_since % 4
+        print("Rounds since:", rounds_since)
+
+        print("len of transition is:", len(self.transitions))
+        print("len of transition of current player is:", len(self.transitions[current_player]))
+
+        idx_helpful_move = len(self.transitions[current_player]) - 1 - rounds_since
+
+        print("index of helpfful hint is:", idx_helpful_move)
+
+        old_transition = self.transitions[current_player][idx_helpful_move]
 
         new_transition = Transition(new_reward, old_transition[1],
                                     old_transition[2],
                                     old_transition[3],
                                     old_transition[4])
 
-        self.transitions[current_player][idx_transition] = new_transition
+        self.transitions[current_player][idx_helpful_move] = new_transition
+
+        i = 1/0
 
 
     def _post_transitions(self, terminal_rewards):
