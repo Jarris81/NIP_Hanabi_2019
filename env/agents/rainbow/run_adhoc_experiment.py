@@ -192,7 +192,7 @@ def create_adhoc_team(environment, obs_stacker, team_no, rl_shared_model=True):
     elif team_no == 2:
         team = {'Rainbow': [0, 1], 'SimpleAgent': [2, 3]}
     elif team_no == 3:
-        team = {'Rainbow': [0, 1, 2], 'SimpleAgent': [1, 2, 3]}
+        team = {'Rainbow': [0, 1, 2], 'SimpleAgent': [3]}
     else:
         print("No valid team number defined!!")
         return None
