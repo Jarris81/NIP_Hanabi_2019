@@ -167,7 +167,7 @@ def train_eval(
           tf_env.action_spec(),
           input_fc_layer_params=actor_fc_layers_rnn,
           output_fc_layer_params=None, 
-          lstm_size=(100,100),)
+          lstm_size=(75,75),)
     #  value_net = masked_networks.MaskedValueRnnNetwork(
     #      tf_env.observation_spec(),
     #      input_fc_layer_params=value_fc_layers_rnn,
