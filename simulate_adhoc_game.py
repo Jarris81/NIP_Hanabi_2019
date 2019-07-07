@@ -3,11 +3,16 @@ import sys
 
 rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/')
 sys.path.append(rel_path)
+sys.path.append('../ppo_tf_agent2')
 
 import numpy as np
-import agents.rainbow.run_experiment as xp
+#import agents.rainbow.run_experiment as xp
 import agents.pyhanabi_vectorizer as vectorizer
-from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
+from agents.ppo_tf_agent_adhoc_player import PPOTfAgentAdHocPlayer
+#from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
+#from ppo_tf_agent2.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+import rl_env
+import tensorflow as tf
 
 if __name__=="__main__":
 
@@ -23,10 +28,11 @@ if __name__=="__main__":
     observation_size = 1041
 
     # Simulation objects
-    env = xp.create_environment(game_type=game_type, num_players=num_players)
-    obs_stacker = xp.create_obs_stacker(env, history_size)
-    moves_vectorizer = vectorizer.LegalMovesVectorizer(env)
-    max_moves = env.num_moves()
+    pyhanabi_env = rl_env.make(environment_name=game_type, num_players=num_players)
+    py_env = PyhanabiEnvWrapper(pyhanabi_env)
+    moves_vectorizer = vectorizer.LegalMovesVectorizer(pyhanabi_env)
+    max_moves = pyhanabi_env.num_moves()
+
 
     ### Reinforcement Learning Agent Player
     agents = [
@@ -42,27 +48,20 @@ if __name__=="__main__":
     # Game Loop: Simulate # eval_episodes independent games
     for ep in range(eval_episodes):
 
-        observations = env.reset()
-
-        current_player, legal_moves, observation_vector  = xp.parse_observations(observations, env.num_moves(), obs_stacker)
-        current_player_observation = observations["player_observations"][current_player]
-        current_player_observation["legal_moves_as_int_formated"] = moves_vectorizer.get_legal_moves_as_int_formated(current_player_observation["legal_moves_as_int"])
-
-        action = agents[current_player].act(current_player_observation)
+        time_step = py_env.reset()
 
         is_done = False
         total_reward = 0
         step_number = 0
 
-        has_played = {current_player}
-
-        # Keep track of per-player reward.
-        reward_since_last_action = np.zeros(env.players)
-
         # simulate whole game
-        while not is_done:
+        while not time_step.is_last():
 
-            observations, reward, is_done, _ = env.step(action.item())
+            current_player = py_env._env.state.cur_player()
+            action = agents[current_player].act(time_step)
+
+            time_step = py_env.step(action)
+            reward = time_step.reward
 
             modified_reward = max(reward, 0) if LENIENT_SCORE else reward
             total_reward += modified_reward
@@ -73,27 +72,11 @@ if __name__=="__main__":
 
             step_number += 1
 
-            if is_done:
+            if time_step.is_last():
                 print("Game is done")
                 print(f"Steps taken {step_number}, Total reward: {total_reward}")
                 if max_reward < total_reward:
                     max_reward = total_reward
 
-            current_player, legal_moves, observation_vector_d  = xp.parse_observations(observations, env.num_moves(), obs_stacker)
-            current_player_observation = observations["player_observations"][current_player]
-            current_player_observation["legal_moves_as_int_formated"] = moves_vectorizer.get_legal_moves_as_int_formated(current_player_observation["legal_moves_as_int"])
-
-            if current_player in has_played:
-              action = agents[current_player].act(current_player_observation)
-
-            else:
-              action = agents[current_player].act(current_player_observation)
-              has_played.add(current_player)
-
-            # Reset this player's reward accumulator.
-            reward_since_last_action[current_player] = 0
-
     print(f"Average reward over all actions: {total_reward_over_all_ep/eval_episodes}")
     print(f"Max episode reached over {eval_episodes} games: {max_reward}")
-
-    #agents[current_player].end_episode(reward_since_last_action)

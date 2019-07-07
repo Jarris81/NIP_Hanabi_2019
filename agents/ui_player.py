@@ -38,7 +38,7 @@ class RLPlayer(object):
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_test"
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
 
-        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+        self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_custom_r_discard_playable/checkpoints"
         #self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/"
 
         #self.base_dir = "/home/grinwald/Projects/TUB/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"

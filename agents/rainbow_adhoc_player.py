@@ -5,13 +5,10 @@ from __future__ import print_function
 import os
 import sys
 
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow/')
-sys.path.append(rel_path)
-
 import numpy as np
 
-import agents.run_experiment_ui as xp
-import agents.rainbow_agent as rainbow
+import run_experiment_ui as xp
+import rainbow_agent as rainbow
 
 from agents.rainbow.third_party.dopamine import logger
 

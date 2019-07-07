@@ -42,8 +42,7 @@ else:
 def make_env():
     return ptan.common.wrappers.wrap_dqn(gym.make(ENV_NAME))
 
-TotalReward = collections.namedtuple('TotalReward', field_names='reward')
-
+TotalReward = collections.namedtuple('TotalReward', field_names='reward'
 
 # data_func is forked and run by each process
 # It grabs one experience transition from an environment and adds it to the training queue
