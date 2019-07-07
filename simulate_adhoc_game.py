@@ -1,18 +1,7 @@
-import os
-import sys
-
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/')
-sys.path.append(rel_path)
-sys.path.append('../ppo_tf_agent2')
-
-import numpy as np
-#import agents.rainbow.run_experiment as xp
-import agents.pyhanabi_vectorizer as vectorizer
-from agents.ppo_tf_agent_adhoc_player import PPOTfAgentAdHocPlayer
-#from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
-#from ppo_tf_agent2.pyhanabi_env_wrapper import PyhanabiEnvWrapper
 import rl_env
-import tensorflow as tf
+
+from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
+from ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
 
 if __name__=="__main__":
 
@@ -20,7 +9,7 @@ if __name__=="__main__":
     max_reward = 0
     total_reward_over_all_ep = 0
     eval_episodes = 20
-    LENIENT_SCORE = False
+    LENIENT_SCORE = True
 
     game_type = "Hanabi-Full"
     num_players = 4
@@ -30,9 +19,7 @@ if __name__=="__main__":
     # Simulation objects
     pyhanabi_env = rl_env.make(environment_name=game_type, num_players=num_players)
     py_env = PyhanabiEnvWrapper(pyhanabi_env)
-    moves_vectorizer = vectorizer.LegalMovesVectorizer(pyhanabi_env)
     max_moves = pyhanabi_env.num_moves()
-
 
     ### Reinforcement Learning Agent Player
     agents = [
@@ -66,7 +53,6 @@ if __name__=="__main__":
             modified_reward = max(reward, 0) if LENIENT_SCORE else reward
             total_reward += modified_reward
 
-            reward_since_last_action += modified_reward
             if modified_reward >= 0:
                 total_reward_over_all_ep += modified_reward
 

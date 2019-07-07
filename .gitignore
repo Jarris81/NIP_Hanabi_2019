@@ -4,4 +4,6 @@ agents/rainbow/__pycache__/
 __pycache__/
 baselines/
 .idea/
+*__pycache__
+__pycache__*
 

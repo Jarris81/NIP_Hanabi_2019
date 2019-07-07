@@ -3,12 +3,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import os
-import sys
 
-import numpy as np
-
-import run_experiment_ui as xp
-import rainbow_agent as rainbow
+import agents.rainbow.run_experiment_ui as xp
+import agents.rainbow.rainbow_agent as rainbow
 
 from agents.rainbow.third_party.dopamine import logger
 
@@ -56,19 +53,12 @@ class RainbowAdHocRLPlayer(object):
         print("Initialized Model weights at start iteration: {}".format(start_iteration))
         print("---------------------------------------------------\n")
 
-    '''
-    args:
-        observation: expects an already vectorized observation from vectorizer.ObservationVectorizer
-    returns:
-        action dict object
-    '''
-
     def act(self, observation):
 
-        # Returns Integer Action
-        action = self.agent._select_action(observation["vectorized"], observation["legal_moves_as_int_formated"])
+        vectorized_observation = observation.observation['state']
+        legal_moves_mask = observation.observation['mask']
 
-        # Decode it back to dictionary object
-        move_dict = observation["legal_moves"][np.where(np.equal(action,observation["legal_moves_as_int"]))[0][0]]
+        # Returns Integer Action
+        action = self.agent._select_action(vectorized_observation, legal_moves_mask)
 
         return action
