@@ -28,13 +28,10 @@ from __future__ import division
 from __future__ import print_function
 
 import time, os, sys
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
-sys.path.append(rel_path)
 
-from third_party.dopamine import checkpointer
-from third_party.dopamine import iteration_statistics
-import dqn_agent
-import rainbow_agent
+from agents.rainbow.third_party.dopamine import checkpointer
+from agents.rainbow.third_party.dopamine import iteration_statistics
+
 import gin.tf
 import rl_env
 import numpy as np

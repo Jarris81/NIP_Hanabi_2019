@@ -25,14 +25,10 @@ from __future__ import division
 from __future__ import print_function
 
 import functools, os, sys
-
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
-sys.path.append(rel_path)
-
-import dqn_agent
+import agents.rainbow.dqn_agent as dqn_agent
 import gin.tf
 import numpy as np
-import prioritized_replay_memory
+import agents.rainbow.prioritized_replay_memory as prioritized_replay_memory
 import tensorflow as tf
 
 

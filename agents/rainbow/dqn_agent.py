@@ -27,13 +27,11 @@ from __future__ import print_function
 import collections
 import math
 import os,sys
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
-sys.path.append(rel_path)
 
 import random
 import gin.tf
 import numpy as np
-import replay_memory
+import agents.rainbow.replay_memory
 import tensorflow as tf
 
 
