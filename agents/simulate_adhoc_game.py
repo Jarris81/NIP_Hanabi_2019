@@ -5,17 +5,15 @@ rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/')
 sys.path.append(rel_path)
 
 import numpy as np
-import rainbow.run_experiment as xp
-import pyhanabi_vectorizer as vectorizer
-# import vectorizer
-import rl_env
-import tensorflow as tf
-from adhoc_player import AdHocRLPlayer
+import agents.rainbow.run_experiment as xp
+import agents.pyhanabi_vectorizer as vectorizer
+from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
 
 if __name__=="__main__":
 
     # Game-simulation Parameters
     max_reward = 0
+    total_reward_over_all_ep = 0
     eval_episodes = 20
     LENIENT_SCORE = False
 
@@ -31,11 +29,12 @@ if __name__=="__main__":
     max_moves = env.num_moves()
 
     ### Reinforcement Learning Agent Player
-    agents = [AdHocRLPlayer(observation_size, num_players, history_size, max_moves, "custom_dis_punish"),
-                    AdHocRLPlayer(observation_size, num_players, history_size, max_moves, "custom_dis_punish"),
-                    AdHocRLPlayer(observation_size, num_players, history_size, max_moves, "10kit"),
-                    AdHocRLPlayer(observation_size, num_players, history_size, max_moves, "10kit")
-                    ]
+    agents = [
+                RainbowAdHocRLPlayer(observation_size, num_players, history_size, max_moves, type="Rainbow", version="custom_r1"),
+                RainbowAdHocRLPlayer(observation_size, num_players, history_size, max_moves, type="Rainbow", version="custom_r1"),
+                RainbowAdHocRLPlayer(observation_size, num_players, history_size, max_moves, type="Rainbow", version="custom_r1"),
+                RainbowAdHocRLPlayer(observation_size, num_players, history_size, max_moves, type="Rainbow", version="custom_r1")
+              ]
 
     for agent in agents:
         agent.eval_mode = True
@@ -60,7 +59,6 @@ if __name__=="__main__":
         # Keep track of per-player reward.
         reward_since_last_action = np.zeros(env.players)
 
-
         # simulate whole game
         while not is_done:
 
@@ -70,6 +68,8 @@ if __name__=="__main__":
             total_reward += modified_reward
 
             reward_since_last_action += modified_reward
+            if modified_reward >= 0:
+                total_reward_over_all_ep += modified_reward
 
             step_number += 1
 
@@ -93,6 +93,7 @@ if __name__=="__main__":
             # Reset this player's reward accumulator.
             reward_since_last_action[current_player] = 0
 
+    print(f"Average reward over all actions: {total_reward_over_all_ep/eval_episodes}")
     print(f"Max episode reached over {eval_episodes} games: {max_reward}")
 
     #agents[current_player].end_episode(reward_since_last_action)
