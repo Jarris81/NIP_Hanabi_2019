@@ -59,6 +59,8 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
 # own imports
+import sys
+sys.path.insert(0, 'lib')
 import masked_networks
 import rl_env
 import pyhanabi_env_wrapper
