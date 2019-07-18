@@ -19,7 +19,7 @@ if __name__=="__main__":
     # Game-simulation Parameters
     max_reward = 0
     total_reward_over_all_ep = 0
-    eval_episodes = 50
+    eval_episodes = 100
     LENIENT_SCORE = False
 
     game_type = "Hanabi-Full"
