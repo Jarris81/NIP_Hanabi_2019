@@ -44,7 +44,6 @@ import tensorflow as tf
 
 LENIENT_SCORE = False
 
-
 class ObservationStacker(object):
   """Class for stacking agent observations."""
 

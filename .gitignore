@@ -1,9 +1,14 @@
 agents/trained_models/
 agents/__pycache__/
 agents/rainbow/__pycache__/
+agents/rainbow/third_party/dopamine/__pycache__/
+agents/rainbow/third_party/__pycache__/
 __pycache__/
 baselines/
 .idea/
 *__pycache__
 __pycache__*
+*.ipynb
+
+
 

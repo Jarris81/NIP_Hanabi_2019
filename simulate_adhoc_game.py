@@ -1,7 +1,10 @@
 import rl_env
 
+from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
 from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
-from ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+from agents.tf_agent_adhoc_player_ppo import PPOTfAgentAdHocPlayer
+from agents.tf_agent_adhoc_player_reinforce import ReinforceTfAgentAdHocPlayer
+
 
 class AdHocExperiment():
 
@@ -26,7 +29,7 @@ class AdHocExperiment():
         max_reward = 0
         total_reward_over_all_ep = 0
         eval_episodes = num_games
-        LENIENT_SCORE = True
+        LENIENT_SCORE = False
 
         game_rewards_list = []
 
@@ -60,15 +63,11 @@ class AdHocExperiment():
                     print(f"Steps taken {step_number}, Total reward: {total_reward}")
                     if max_reward < total_reward:
                         max_reward = total_reward
-
-        print(f"Average reward over all actions: {total_reward_over_all_ep / eval_episodes}")
+        avg = total_reward_over_all_ep / eval_episodes
+        print(f"Average reward over all actions: {avg}")
         print(f"Max episode reached over {eval_episodes} games: {max_reward}")
 
-        return game_rewards_list
-
-
-
-
+        return game_rewards_list, avg
 
 if __name__=="__main__":
     num_players = 4
@@ -77,7 +76,15 @@ if __name__=="__main__":
     max_moves = 38
     agent_version = "custom_r1"
 
-    agents = [RainbowAdHocRLPlayer(observation_size, num_players, max_moves, agent_version) for _ in range(num_players)]
+    ppo_rootdir = "agents/trained_models/ppo/"
+    reinforce_rootdir = "agents/trained_models/reinforce/train/policy/"
+
+    agents = [
+              PPOTfAgentAdHocPlayer(ppo_rootdir, game_type, num_players),
+              ReinforceTfAgentAdHocPlayer(reinforce_rootdir, game_type, num_players),
+              PPOTfAgentAdHocPlayer(ppo_rootdir, game_type, num_players),
+              RainbowAdHocRLPlayer(observation_size, num_players, max_moves, agent_version)
+              ]
 
     xp = AdHocExperiment(game_type, agents)
 

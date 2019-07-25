@@ -91,7 +91,9 @@ class RainbowAgent(dqn_agent.DQNAgent):
                epsilon_decay_period=1000,
                learning_rate=0.000025,
                optimizer_epsilon=0.00003125,
-               tf_device='/cpu:*'):
+               num_layers=1,
+               tf_device='/cpu:*'
+               ):
     """Initializes the agent and constructs its graph.
 
     Args:
@@ -122,7 +124,8 @@ class RainbowAgent(dqn_agent.DQNAgent):
     self.learning_rate = learning_rate
     self.optimizer_epsilon = optimizer_epsilon
 
-    graph_template = functools.partial(rainbow_template, num_atoms=num_atoms)
+    graph_template = functools.partial(rainbow_template, num_layers=num_layers, num_atoms=num_atoms)
+
     super(RainbowAgent, self).__init__(
         num_actions=num_actions,
         observation_size=observation_size,

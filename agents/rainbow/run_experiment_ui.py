@@ -31,6 +31,8 @@ import time, os, sys
 
 from agents.rainbow.third_party.dopamine import checkpointer
 from agents.rainbow.third_party.dopamine import iteration_statistics
+import agents.rainbow.dqn_agent as dqn_agent
+import agents.rainbow.rainbow_agent as rainbow_agent
 
 import gin.tf
 import rl_env
@@ -219,6 +221,9 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
 
     if agent.unbundle(
         checkpoint_dir, latest_checkpoint_version, dqn_dictionary):
+
+
+
       assert 'logs' in dqn_dictionary
       assert 'current_iteration' in dqn_dictionary
       print("===============")

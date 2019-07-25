@@ -1,4 +1,4 @@
 {
-  "reward_function": "punish_discard_playable",
+  "reward_function": "standard_reward",
   "deck_limit": 10
 }
