@@ -1,0 +1,11 @@
+*.pyc
+*.idea/
+*.make
+*.o
+*.so
+*.cmake
+env/Makefile
+env/game_example
+env/CMakeFiles/
+env/CMakeCache.txt
+results
