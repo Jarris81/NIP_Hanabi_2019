@@ -13,8 +13,6 @@
 # limitations under the License.
 import sys
 """Simple Agent."""
-fp = str(__file__)[0:-len('agents/simple_agent.py')]
-sys.path.insert(1, fp+'hanabi-learning-environment/')
 from rl_env import Agent
 
 

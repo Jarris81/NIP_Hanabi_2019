@@ -29,6 +29,9 @@ from __future__ import print_function
 
 import time
 
+fp = str(__file__)[0:-len('agents/simple_agent.py')]
+sys.path.insert(1, fp+'hanabi_learning_environment/')
+
 from third_party.dopamine import checkpointer
 from third_party.dopamine import iteration_statistics
 import dqn_agent
