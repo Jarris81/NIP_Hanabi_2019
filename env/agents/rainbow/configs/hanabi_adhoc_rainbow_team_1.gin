@@ -46,4 +46,4 @@ run_adhoc_experiment.create_environment.num_players = 4
 run_adhoc_experiment.create_obs_stacker.history_size = 1
 
 rainbow_template.layer_size=512
-rainbow_template.num_layers=2
+rainbow_template.num_layers=1

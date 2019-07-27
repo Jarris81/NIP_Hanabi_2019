@@ -8,3 +8,4 @@ env/Makefile
 env/game_example
 env/CMakeFiles/
 env/CMakeCache.txt
+results

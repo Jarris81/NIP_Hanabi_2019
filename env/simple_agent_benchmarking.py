@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 
 AGENT_CLASSES = {'SimpleAgent': SimpleAgent, 'RandomAgent': RandomAgent, 'DQN': DQNAgent, 'RuleBaseAgent': RuleBasedAgent}
 
+colors = ["green", "blue", "red", "orange"]
 
 class Runner(object):
     """Runner class."""
@@ -77,7 +78,7 @@ class Runner(object):
 
 
 if __name__ == "__main__":
-    flags = {'players': 2, 'num_episodes': 100, 'agent_class': 'RuleBaseAgent'}
+    flags = {'players': 2, 'num_episodes': 1000, 'agent_class': 'RuleBaseAgent'}
     options, arguments = getopt.getopt(sys.argv[1:], '',
                                        ['players=',
                                         'num_episodes=',
@@ -101,17 +102,27 @@ if __name__ == "__main__":
         all_scores[:, num_players] = runner.run()
 
     # create bar chart showing avg. scores
+
+    font = {'size': 26}
+    plt.rc('font', **font)
+    fig = plt.figure(figsize=(5, 10))
+
+
     x_labels = range(2, 6)
     rects = plt.bar(x_labels, all_scores.mean(axis=0))
     plt.xticks(x_labels, x_labels)
 
+    font = {'size': 26}
+    plt.rc('font', **font)
+
     plt.xlabel("Number of Players")
     plt.ylabel("Avg. Score")
-    plt.title('Benchmarking of Simple Agent with N={}'.format(flags['num_episodes']))
+    plt.title('Benchmarking of Rule Based Agents, 1000 Trials'.format(flags['num_episodes']))
     plt.ylim(0, 25)
 
-    for rect in rects:
+    for i, rect in enumerate(rects):
 
+        rect.set_color(colors[i])
         height = rect.get_height()
         plt.text(rect.get_x() + rect.get_width()/2., 1.05*height,
                  str(height), ha='center', va='bottom')
