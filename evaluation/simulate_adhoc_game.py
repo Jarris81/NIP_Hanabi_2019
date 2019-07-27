@@ -1,4 +1,4 @@
-import rl_env
+import hanabirl_env
 
 from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
 from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
