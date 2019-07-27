@@ -9,6 +9,4 @@ baselines/
 *__pycache__
 __pycache__*
 *.ipynb
-
-
-
+hanabi_learning_environment/

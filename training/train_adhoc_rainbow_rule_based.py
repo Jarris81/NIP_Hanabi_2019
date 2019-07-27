@@ -29,7 +29,7 @@ from absl import flags
 
 from third_party.dopamine import logger
 
-import run_experiment
+import run_adhoc_experiment
 
 FLAGS = flags.FLAGS
 
@@ -58,50 +58,51 @@ flags.DEFINE_string('logging_file_prefix', 'log',
 
 
 def launch_experiment():
-  """Launches the experiment.
+    """Launches the experiment.
 
-  Specifically:
-  - Load the gin configs and bindings.
-  - Initialize the Logger object.
-  - Initialize the environment.
-  - Initialize the observation stacker.
-  - Initialize the agent.
-  - Reload from the latest checkpoint, if available, and initialize the
-    Checkpointer object.
-  - Run the experiment.
-  """
-  if FLAGS.base_dir == None:
-    raise ValueError('--base_dir is None: please provide a path for '
-                     'logs and checkpoints.')
+    Specifically:
+    - Load the gin configs and bindings.
+    - Initialize the Logger object.
+    - Initialize the environment.
+    - Initialize the observation stacker.
+    - Initialize the agent.
+    - Reload from the latest checkpoint, if available, and initialize the
+      Checkpointer object.
+    - Run the experiment.
+    """
+    if FLAGS.base_dir == None:
+        raise ValueError('--base_dir is None: please provide a path for '
+                         'logs and checkpoints.')
 
-  run_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
-  experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
+    run_adhoc_experiment.load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
+    experiment_logger = logger.Logger('{}/logs'.format(FLAGS.base_dir))
 
-  environment = run_experiment.create_environment()
-  obs_stacker = run_experiment.create_obs_stacker(environment)
-  agent = run_experiment.create_agent(environment, obs_stacker)
+    environment = run_adhoc_experiment.create_environment()
+    obs_stacker = run_adhoc_experiment.create_obs_stacker(environment)
 
-  checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
-  start_iteration, experiment_checkpointer = (
-      run_experiment.initialize_checkpointing(agent,
-                                              experiment_logger,
-                                              checkpoint_dir,
-                                              FLAGS.checkpoint_file_prefix))
+    agents_list = run_adhoc_experiment.create_adhoc_team(environment, obs_stacker, rl_shared_model=True)
 
-  run_experiment.run_experiment(agent, environment, start_iteration,
-                                obs_stacker,
-                                experiment_logger, experiment_checkpointer,
-                                checkpoint_dir,
-                                logging_file_prefix=FLAGS.logging_file_prefix)
+    checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
+    start_iteration, experiment_checkpointer = (
+        run_adhoc_experiment.initialize_checkpointing(agents_list,
+                                                      experiment_logger,
+                                                      checkpoint_dir,
+                                                      FLAGS.checkpoint_file_prefix))
 
+    run_adhoc_experiment.run_experiment(agents_list, environment, start_iteration,
+                                        obs_stacker,
+                                        experiment_logger, experiment_checkpointer,
+                                        checkpoint_dir,
+                                        logging_file_prefix=FLAGS.logging_file_prefix)
 
 def main(unused_argv):
-  """This main function acts as a wrapper around a gin-configurable experiment.
+    """This main function acts as a wrapper around a gin-configurable experiment.
+    Args:
+      unused_argv: Arguments (unused).
+    """
 
-  Args:
-    unused_argv: Arguments (unused).
-  """
-  launch_experiment()
+    launch_experiment()
+
 
 if __name__ == '__main__':
-  app.run(main)
+    app.run(main)
