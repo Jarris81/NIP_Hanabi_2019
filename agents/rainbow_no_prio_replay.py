@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import functools, os, sys
 
-rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
+rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow_copy')
 sys.path.append(rel_path)
 
 import dqn_agent

@@ -397,7 +397,7 @@ def get_configs_from_args(cmd_args) -> Dict:
         # Config for client instance, e.g. username etc
         client_config = get_client_config_from_args(cmd_args, game_config, i)
 
-        # Config for agent instance, e.g. num_actions for rainbow agent
+        # Config for agent instance, e.g. num_actions for rainbow_copy agent
         conf = utils.get_agent_config(client_config, cmd_args.agent_classes[i])
 
         # concatenate with game_config
@@ -440,7 +440,7 @@ def init_args(argparser):
     argparser.add_argument(
         '-a',
         '--agent_classes',
-        help='Expects agent-class keywords as specified in client_config.py. Example: \n client.py -a simple rainbow '
+        help='Expects agent-class keywords as specified in client_config.py. Example: \n client.py -a simple rainbow_copy '
              'simple \n will run a game with 2 SimpleAgent instances and 1 RainbowAgent instance. Default is simple '
              'simple, i.e. running with 2 SimpleAgent instances',
         nargs='+',
