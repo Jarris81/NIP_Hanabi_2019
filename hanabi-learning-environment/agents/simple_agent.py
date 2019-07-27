@@ -11,10 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
 """Simple Agent."""
-fp = str(__file__)[0:-len('agents/simple_agent.py')]
-sys.path.insert(1, fp+'hanabi-learning-environment/')
+
 from rl_env import Agent
 
 

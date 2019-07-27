@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 """ PROJECT LVL IMPORTS """
 from game_state_wrapper import GameStateWrapper
-import gui_config as conf, utils, commandsWebSocket as cmd
+import config as conf, utils, commands_websocket as cmd
 from agents.simple_agent import SimpleAgent
-from agents.ui_player import RLPlayer
+from agents.agent_player import RLPlayer
 """ PYTHON IMPORTS """
 from typing import Dict
 import requests

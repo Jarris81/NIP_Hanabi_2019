@@ -1,19 +1,3 @@
-# coding=utf-8
-# Copyright 2018 The Dopamine Authors and Google LLC.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-#
 #
 # This file is a fork of the original Dopamine code incorporating changes for
 # the multiplayer setting and the Hanabi Learning Environment.
@@ -24,12 +8,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import functools
+import functools, os, sys
+
+rel_path = os.path.join(os.environ['PYTHONPATH'],'agents/rainbow')
+sys.path.append(rel_path)
 
 import dqn_agent
 import gin.tf
 import numpy as np
-import prioritized_replay_memory
+import replay_memory
 import tensorflow as tf
 
 
@@ -152,7 +139,7 @@ class RainbowAgent(dqn_agent.DQNAgent):
     Returns:
       A replay memory object.
     """
-    return prioritized_replay_memory.WrappedPrioritizedReplayMemory(
+    return replay_memory.WrappedReplayMemory(
         num_actions=self.num_actions,
         observation_size=self.observation_size,
         stack_size=1,
@@ -235,18 +222,20 @@ class RainbowAgent(dqn_agent.DQNAgent):
         learning_rate=self.learning_rate,
         epsilon=self.optimizer_epsilon)
 
-    update_priorities_op = self._replay.tf_set_priority(
-        self._replay.indices, tf.sqrt(loss + 1e-10))
+    #update_priorities_op = self._replay.tf_set_priority(
+    #    self._replay.indices, tf.sqrt(loss + 1e-10))
 
-    target_priorities = self._replay.tf_get_priority(self._replay.indices)
-    target_priorities = tf.math.add(target_priorities, 1e-10)
-    target_priorities = 1.0 / tf.sqrt(target_priorities)
-    target_priorities /= tf.reduce_max(target_priorities)
+    # target_priorities = self._replay.tf_get_priority(self._replay.indices)
+    # target_priorities = tf.math.add(target_priorities, 1e-10)
+    # target_priorities = 1.0 / tf.sqrt(target_priorities)
+    # target_priorities /= tf.reduce_max(target_priorities)
 
-    weighted_loss = target_priorities * loss
+    weighted_loss = loss
 
-    with tf.control_dependencies([update_priorities_op]):
-      return optimizer.minimize(tf.reduce_mean(weighted_loss)), weighted_loss
+    with tf.control_dependencies(None):
+        return optimizer.minimize(tf.reduce_mean(weighted_loss)), weighted_loss
+
+    #return optimizer.minimize(tf.reduce_mean(weighted_loss)), weighted_loss
 
 
 def project_distribution(supports, weights, target_support,

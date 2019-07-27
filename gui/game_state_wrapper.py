@@ -6,8 +6,8 @@ import sys
 rel_path = os.path.join(os.environ['PYTHONPATH'])
 sys.path.append(rel_path)
 import vectorizer
-import pyhanabi_mocks, utils
-import commandsWebSocket as cmd
+import json_to_pyhanabi, utils
+import commands_websocket as cmd
 
 
 class GameStateWrapper:
@@ -75,7 +75,7 @@ class GameStateWrapper:
         # ################################################ #
         """
 
-        self.env = pyhanabi_mocks.create_env_mock(
+        self.env = json_to_pyhanabi.create_env_mock(
             num_players=self.num_players,
             num_colors=self.num_colors,
             num_ranks=self.num_ranks,
@@ -325,7 +325,7 @@ class GameStateWrapper:
         {"type":"discard","failed":false,"which":{"index":1,"suit":0,"rank":4,"order":7}}
         """
 
-        move = pyhanabi_mocks.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums, self.num_players)
+        move = json_to_pyhanabi.get_pyhanabi_move_mock(dict_action, deepcopy_card_nums, self.num_players)
 
         def get_player(dict_action):
             player = None
@@ -344,7 +344,7 @@ class GameStateWrapper:
         card_info_revealed = card_info_revealed
         deal_to_player = deal_to_player
 
-        history_item_mock = pyhanabi_mocks.HanabiHistoryItemMock(
+        history_item_mock = json_to_pyhanabi.HanabiHistoryItemMock(
             move=move,
             player=player,
             scored=scored,
