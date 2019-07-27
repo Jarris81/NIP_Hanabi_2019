@@ -9,4 +9,11 @@ baselines/
 *__pycache__
 __pycache__*
 *.ipynb
-hanabi_learning_environment/
+*.make
+*.o
+*.so
+*.cmake
+env/Makefile
+env/game_example
+env/CMakeFiles/
+env/CMakeCache.txt
