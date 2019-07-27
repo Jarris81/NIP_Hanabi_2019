@@ -27,15 +27,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+
 import time
 
-from hanabi_learning_environment.agents.rainbow.third_party.dopamine import checkpointer
-from hanabi_learning_environment.agents.rainbow.third_party.dopamine import iteration_statistics
+from agents.rainbow_copy.third_party.dopamine import checkpointer
+from agents.rainbow_copy.third_party.dopamine import iteration_statistics
 import hanabi_learning_environment.rl_env as rl_env
-import agents.rainbow.dqn_agent as dqn_agent
+import agents.rainbow_copy.dqn_agent as dqn_agent
 import gin.tf
 import numpy as np
-import agents.rainbow.rainbow_agent as rainbow_agent
+import agents.rainbow_copy.rainbow_agent as rainbow_agent
 import tensorflow as tf
 
 LENIENT_SCORE = False
