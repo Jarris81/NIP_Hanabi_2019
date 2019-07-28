@@ -27,17 +27,23 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-
 import time
+import sys
+
+import gin.tf
+import numpy as np
+import tensorflow as tf
 
 from agents.rainbow_copy.third_party.dopamine import checkpointer
 from agents.rainbow_copy.third_party.dopamine import iteration_statistics
 import hanabi_learning_environment.rl_env as rl_env
-import agents.rainbow_copy.dqn_agent as dqn_agent
-import gin.tf
-import numpy as np
-import agents.rainbow_copy.rainbow_agent as rainbow_agent
-import tensorflow as tf
+
+import dqn_agent
+import rainbow_agent
+import rainbow_no_distributional_projections
+import rainbow_no_n_step_update
+import rainbow_no_prio_replay
+import rule_based_agent
 
 LENIENT_SCORE = False
 
@@ -148,6 +154,7 @@ def create_obs_stacker(environment, history_size=4):
 
 @gin.configurable
 def create_agent(environment, obs_stacker, agent_type='DQN'):
+
   """Creates the Hanabi agent.
 
   Args:
@@ -170,6 +177,29 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
         observation_size=obs_stacker.observation_size(),
         num_actions=environment.num_moves(),
         num_players=environment.players)
+
+  elif agent_type == 'RainbowAgentNoDist':
+
+    return getattr(rainbow_no_distributional_projections, agent_type)(
+      observation_size=obs_stacker.observation_size(),
+      num_actions=environment.num_moves(),
+      num_players=environment.players
+    )
+
+  elif agent_type == 'RainbowAgentNoNStep':
+    return getattr(rainbow_no_n_step_update, agent_type)(
+      observation_size=obs_stacker.observation_size(),
+      num_actions=environment.num_moves(),
+      num_players=environment.players
+    )
+
+  elif agent_type == 'RainbowAgentNoPrioReplay':
+    return getattr(rainbow_no_prio_replay, agent_type)(
+      observation_size=obs_stacker.observation_size(),
+      num_actions=environment.num_moves(),
+      num_players=environment.players
+    )
+
   else:
     raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
 

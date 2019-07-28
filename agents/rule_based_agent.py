@@ -2,7 +2,7 @@
 #
 """First attempt on building the rule based agent"""
 
-from rl_env import Agent
+from hanabi_learning_environment.rl_env import Agent
 import gin.tf
 import operator
 import numpy as np
