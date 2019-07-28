@@ -80,5 +80,28 @@ RUN SERVER:
 USE AGENTS:
 run the client.py via python3 from within the deepmind repo. They will automatically connect to games opened
 ```
+
+### GUI client
+```
+Prerequisites:
+ - python3
+ - running server (See Wiki: GUI-setup-(server-on-localhost) )
+
+Dependencies:
+ - python websockets (pip3 install websocket websocket-client)
+
+USAGE:
+ - python3 client.py  [defaults to one human player and 2 simple agents]
+ - open lobby before or after starting client and agents will join automatically 
+
+EXAMPLEs:
+ - python3 client.py -n=0              [n: number of human players --> launches AGENT_ONLY mode]
+ - python3 client.py -a simple simple  [a: agent classes as specified in ui_config.py]
+ - python3 client.py -e=1              [e: number of episodes agents will play if -n=0]
+Also, use -e=1 to finish running games (agents will auto-rejoin), that are hanging due to closed client
+ - python3 client.py --help [for more args and info]
+
+Client performs auto-login with created accounts as per default. If this is not desired, delete browsercache or restart server.
+```
 ## Further resources
 Please find detailed explanations about the learning environment, encoding of objects, Framework specifics in the wiki of this REPO and theoretical background about this project in the paper.
