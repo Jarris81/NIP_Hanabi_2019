@@ -31,7 +31,13 @@ python -um train_rainbow_variants.py --base_dir="ENTER_PREFERRED_BASE_DIR" --gin
 The ```base_dir path``` specifies the directory where training checkpoints(neural network weights, logs etc.) are saved during training. In general we recommend placing it inside ```agents/trained_models/```.
 The ```--gin_files``` flag specifies, which agent you want to train. Each DQN agent has it's own gin file. Find these in ```configs/```. For the specific explanations of the different DQN-agents, please refer to the paper.
 
-### TODO: PPO, RULE-BASED, REINFORCE agent training explanation
+### Training with tf-agents: PPO and REINFORCE
+Simply run 
+``` python3 train_ppo_agent.py --root_dir="ENTER_PREFERRED_BASE_DIR" --alsologtostderr```
+The ```root_dir path``` specifies the directory where training checkpoints(neural network weights, logs etc.) are saved during training.
+
+### Training with rule based agents
+
 ## Evaluate Performances
 In order to evaluate how the agents perform in self and adhoc play, run the jupyter-notebook:
 ```
@@ -78,7 +84,8 @@ RUN SERVER:
 	server should run now
 	open a browser and type localhost
 USE AGENTS:
-run the client.py via python3 from within the deepmind repo. They will automatically connect to games opened
+run the client.py via python3 from within the deepmind repo. 
+They will automatically connect to games opened
 ```
 
 ### GUI client
