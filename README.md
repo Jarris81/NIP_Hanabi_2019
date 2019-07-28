@@ -32,8 +32,10 @@ The ```base_dir path``` specifies the directory where training checkpoints(neura
 The ```--gin_files``` flag specifies, which agent you want to train. Each DQN agent has it's own gin file. Find these in ```configs/```. For the specific explanations of the different DQN-agents, please refer to the paper.
 
 ### Training with tf-agents: PPO and REINFORCE
-Simply run 
-``` python3 train_ppo_agent.py --root_dir="ENTER_PREFERRED_BASE_DIR" --alsologtostderr```
+Enter the ```training/``` directory and run:
+``` 
+python3 train_ppo_agent.py --root_dir="ENTER_PREFERRED_BASE_DIR" --alsologtostderr
+```
 The ```root_dir path``` specifies the directory where training checkpoints(neural network weights, logs etc.) are saved during training.
 
 ### Training with rule based agents
