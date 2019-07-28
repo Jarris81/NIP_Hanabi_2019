@@ -41,3 +41,5 @@ jupyter-notebook AdHocViz.ipynb
 There you see how to run evaluation games with the trained agents and plot their performances.
 ## Interact with trained agents via Graphical User Interface
 ### TODO
+## Further resources
+Please find detailed explanations about the learning environment, encoding of objects, Framework specifics in the wiki of this REPO and theoretical background about this project in the paper.
