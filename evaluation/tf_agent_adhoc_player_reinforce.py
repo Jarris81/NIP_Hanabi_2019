@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+
 import tensorflow as tf
 
 
@@ -67,7 +69,7 @@ class ReinforceTfAgentAdHocPlayer(object):
             self.policy = py_tf_policy.PyTFPolicy(tf_agent.policy)
 
             # load checkpoint
-            # train_dir = os.path.join(root_dir, 'train')
+            #train_dir = os.path.join(root_dir, 'train')
             self.policy.initialize(None)
             self.policy.restore(root_dir)
             init_agent_op = tf_agent.initialize()
