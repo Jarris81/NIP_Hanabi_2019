@@ -1,5 +1,5 @@
 # NIP_Hanabi_2019
-## Installation
+## Installation (tested on Ubuntu 18.04)
 In order to get everything up and running please first run the follwing commands:
 ```
 sudo apt-get install g++       
