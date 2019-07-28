@@ -11,9 +11,9 @@ from tf_agents.networks.value_network import ValueNetwork
 from tensorflow.python.keras.engine.network import Network
 
 # own imports
-import agents.ppo_tf_agent.masked_networks as masked_networks
-from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
-import rl_env
+import training.tf_agents_lib.masked_networks as masked_networks
+from training.tf_agents_lib.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+import hanabi_learning_environment.rl_env as rl_env
 
 class PPOTfAgentAdHocPlayer(object):
 

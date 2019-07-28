@@ -8,7 +8,6 @@ import tensorflow as tf
 
 import agents.rainbow_copy.run_experiment_ui as xp
 import agents.rainbow_copy.rainbow_agent as rainbow
-from agents.rainbow_copy.rainbow_agent import rainbow_template
 
 from agents.rainbow_copy.third_party.dopamine import logger
 

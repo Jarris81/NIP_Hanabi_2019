@@ -12,9 +12,9 @@ from tensorflow.python.keras.engine.network import Network
 from tf_agents.agents.reinforce import reinforce_agent
 
 # own imports
-from agents.ppo_tf_agent import masked_networks
-from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
-import rl_env
+from training.tf_agents_lib import masked_networks
+from training.tf_agents_lib.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+import hanabi_learning_environment.rl_env as rl_env
 
 
 class ReinforceTfAgentAdHocPlayer(object):

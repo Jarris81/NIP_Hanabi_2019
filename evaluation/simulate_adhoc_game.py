@@ -1,9 +1,9 @@
-import hanabirl_env
+from hanabi_learning_environment import rl_env
 
-from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
-from agents.rainbow_adhoc_player import RainbowAdHocRLPlayer
-from agents.tf_agent_adhoc_player_ppo import PPOTfAgentAdHocPlayer
-from agents.tf_agent_adhoc_player_reinforce import ReinforceTfAgentAdHocPlayer
+from training.tf_agents_lib.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+from evaluation.rainbow_adhoc_player import RainbowAdHocRLPlayer
+from evaluation.tf_agent_adhoc_player_ppo import PPOTfAgentAdHocPlayer
+from evaluation.tf_agent_adhoc_player_reinforce import ReinforceTfAgentAdHocPlayer
 
 
 class AdHocExperiment():

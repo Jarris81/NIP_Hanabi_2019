@@ -27,15 +27,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import time
+import time, os, sys
 
 from third_party.dopamine import checkpointer
 from third_party.dopamine import iteration_statistics
-import dqn_agent
+import dqn_agent as dqn_agent
+import rainbow_agent as rainbow_agent
+
 import gin.tf
-import rl_env
+import hanabi_learning_environment.rl_env as rl_env
 import numpy as np
-import rainbow_agent
 import tensorflow as tf
 
 LENIENT_SCORE = False
@@ -129,7 +130,7 @@ def create_environment(game_type='Hanabi-Full', num_players=2):
 
 
 @gin.configurable
-def create_obs_stacker(environment, history_size=4):
+def create_obs_stacker(history_size, vectorized_observation_shape, players):
   """Creates an observation stacker.
 
   Args:
@@ -141,12 +142,12 @@ def create_obs_stacker(environment, history_size=4):
   """
 
   return ObservationStacker(history_size,
-                            environment.vectorized_observation_shape()[0],
-                            environment.players)
+                            vectorized_observation_shape,
+                            players)
 
 
 @gin.configurable
-def create_agent(environment, obs_stacker, agent_type='DQN'):
+def create_agent(observation_size, num_actions, num_players, agent_type='DQN'):
   """Creates the Hanabi agent.
 
   Args:
@@ -161,14 +162,14 @@ def create_agent(environment, obs_stacker, agent_type='DQN'):
     ValueError: if an unknown agent type is requested.
   """
   if agent_type == 'DQN':
-    return dqn_agent.DQNAgent(observation_size=obs_stacker.observation_size(),
-                              num_actions=environment.num_moves(),
-                              num_players=environment.players)
+    return dqn_agent.DQNAgent(observation_size=observation_size,
+    num_actions=num_actions,
+    num_players=num_players)
   elif agent_type == 'Rainbow':
     return rainbow_agent.RainbowAgent(
-        observation_size=obs_stacker.observation_size(),
-        num_actions=environment.num_moves(),
-        num_players=environment.players)
+        observation_size=observation_size,
+        num_actions=num_actions,
+        num_players=num_players)
   else:
     raise ValueError('Expected valid agent_type, got {}'.format(agent_type))
 
@@ -211,13 +212,23 @@ def initialize_checkpointing(agent, experiment_logger, checkpoint_dir,
   # that we have finished iteration 0 (so we will start from iteration 1).
   latest_checkpoint_version = checkpointer.get_latest_checkpoint_number(
       checkpoint_dir)
+  print("===============")
+  print(f"Latest Checkpoint Version: {latest_checkpoint_version}")
+  print("===============")
   if latest_checkpoint_version >= 0:
     dqn_dictionary = experiment_checkpointer.load_checkpoint(
         latest_checkpoint_version)
+
     if agent.unbundle(
         checkpoint_dir, latest_checkpoint_version, dqn_dictionary):
+
+
+
       assert 'logs' in dqn_dictionary
       assert 'current_iteration' in dqn_dictionary
+      print("===============")
+      print("Unbundled Agent")
+      print("===============")
       experiment_logger.data = dqn_dictionary['logs']
       start_iteration = dqn_dictionary['current_iteration'] + 1
       tf.logging.info('Reloaded checkpoint and will start from iteration %d',
@@ -348,7 +359,7 @@ def run_one_phase(agent, environment, obs_stacker, min_steps, statistics,
     statistics: `IterationStatistics` object which records the experimental
       results.
     run_mode_str: str, describes the run mode for this agent.
-
+ 
   Returns:
     The number of steps taken in this phase, the sum of returns, and the
       number of episodes performed.
