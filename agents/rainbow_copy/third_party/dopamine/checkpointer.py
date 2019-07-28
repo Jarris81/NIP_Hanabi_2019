@@ -64,6 +64,9 @@ def get_latest_checkpoint_number(base_directory):
     int, the iteration number of the latest checkpoint, or -1 if none was found.
   """
   glob = os.path.join(base_directory, 'sentinel_checkpoint_complete.*')
+
+
+
   def extract_iteration(x):
     return int(x[x.rfind('.') + 1:])
   try:
@@ -72,9 +75,14 @@ def get_latest_checkpoint_number(base_directory):
     return -1
   try:
     latest_iteration = max(extract_iteration(x) for x in checkpoint_files)
+    print("=================")
+    print(f"LATEST ITERATION DEBUG: {latest_iteration}")
+    print("=================")
     return latest_iteration
+
   except ValueError:
     return -1
+  return latest_iteration
 
 
 class Checkpointer(object):
@@ -131,7 +139,7 @@ class Checkpointer(object):
     self._save_data_to_file(data, filename)
     filename = self._generate_filename('sentinel_checkpoint_complete',
                                        iteration_number)
-    with tf.gfile.GFile(filename, 'wb') as fout:
+    with tf.gfile.GFile(filename, 'w') as fout:
       fout.write('done')
 
     self._clean_up_old_checkpoints(iteration_number)
@@ -157,10 +165,15 @@ class Checkpointer(object):
                                                             stale_sentinel))
 
   def _load_data_from_file(self, filename):
+    print("==========================")
+    print(f"Filename of trained model {filename}")
+    print("==========================")
     if not tf.gfile.Exists(filename):
       return None
     with tf.gfile.GFile(filename, 'rb') as fin:
-      return pickle.load(fin, encoding='latin1')
+      model = pickle.load(fin, encoding='latin1')
+      print("Loaded model with pickle")
+      return model
 
   def load_checkpoint(self, iteration_number):
     """Tries to reload a checkpoint at the selected iteration number.
