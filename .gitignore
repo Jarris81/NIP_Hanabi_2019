@@ -9,6 +9,8 @@ baselines/
 *__pycache__
 __pycache__*
 *.ipynb
+*.pyc
+*.idea/
 *.make
 *.o
 *.so
@@ -17,3 +19,5 @@ env/Makefile
 env/game_example
 env/CMakeFiles/
 env/CMakeCache.txt
+results
+
