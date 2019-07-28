@@ -160,7 +160,7 @@ class Checkpointer(object):
     if not tf.gfile.Exists(filename):
       return None
     with tf.gfile.GFile(filename, 'rb') as fin:
-      return pickle.load(fin)
+      return pickle.load(fin, encoding='latin1')
 
   def load_checkpoint(self, iteration_number):
     """Tries to reload a checkpoint at the selected iteration number.
