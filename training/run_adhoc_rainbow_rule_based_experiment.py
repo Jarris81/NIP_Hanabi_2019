@@ -32,7 +32,7 @@ import time
 from agents import rule_based_agent
 from third_party.dopamine import checkpointer
 from third_party.dopamine import iteration_statistics
-import dqn_agent
+import agents.rainbow_copy.dqn_agent as dqn_agent
 import gin.tf
 import rl_env
 import numpy as np

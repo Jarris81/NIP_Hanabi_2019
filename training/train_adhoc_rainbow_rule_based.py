@@ -29,7 +29,7 @@ from absl import flags
 
 from third_party.dopamine import logger
 
-import run_adhoc_experiment
+import run_adhoc_rainbow_rule_based_experiment as run_adhoc_experiment
 
 FLAGS = flags.FLAGS
 
