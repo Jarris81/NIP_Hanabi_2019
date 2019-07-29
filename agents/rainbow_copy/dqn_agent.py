@@ -522,7 +522,7 @@ class DQNAgent(object):
     print("=========================")
     print(self.partial_reload)
     if self.partial_reload == True:
-        print(f"partial reload = {self.partial_reload}")
+        print("partial reload = {self.partial_reload}")
         print("Entered Partial Reload Loop")
         try:
           # replay.load() will throw a GOSError if it does not find all the
@@ -543,4 +543,8 @@ class DQNAgent(object):
     tf.reset_default_graph()
     self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
     print("Saver restored latest checkpoint")
+    return True
+
+  @staticmethod
+  def is_rl_agent():
     return True

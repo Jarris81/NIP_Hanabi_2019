@@ -417,8 +417,6 @@ def run_one_episode(agents_list, environment, obs_stacker):
         action = agents_list[current_player].act_train(player_observation)
         # print(action)
 
-    #print("First action is: ", type(action))
-
     is_done = False
     total_reward = 0
     step_number = 0
@@ -433,20 +431,6 @@ def run_one_episode(agents_list, environment, obs_stacker):
 
         modified_reward = max(reward, 0) if LENIENT_SCORE else reward
         total_reward += modified_reward
-
-        should_get_rewarded = info['should_get_rewarded']
-
-        if should_get_rewarded is not None:
-
-            for turns_since, player_fix, reward_fix in should_get_rewarded:
-
-                for idx, agent in enumerate(agents_list):
-
-                    if agent.is_rl_agent() and idx==player_fix:
-
-                        print("Will give agent at pos{}, reward of {}, for move at:{}"
-                              .format(player_fix, reward_fix, turns_since))
-                        agent.reset_transition(player_fix, turns_since, reward_fix)
 
         reward_since_last_action += modified_reward
 

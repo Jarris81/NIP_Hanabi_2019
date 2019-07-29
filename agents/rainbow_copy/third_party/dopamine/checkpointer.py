@@ -76,7 +76,7 @@ def get_latest_checkpoint_number(base_directory):
   try:
     latest_iteration = max(extract_iteration(x) for x in checkpoint_files)
     print("=================")
-    print(f"LATEST ITERATION DEBUG: {latest_iteration}")
+    print("LATEST ITERATION DEBUG: {latest_iteration}")
     print("=================")
     return latest_iteration
 
@@ -166,7 +166,7 @@ class Checkpointer(object):
 
   def _load_data_from_file(self, filename):
     print("==========================")
-    print(f"Filename of trained model {filename}")
+    print("Filename of trained model {filename}")
     print("==========================")
     if not tf.gfile.Exists(filename):
       return None

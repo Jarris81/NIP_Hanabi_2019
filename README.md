@@ -39,6 +39,13 @@ python3 train_ppo_agent.py --root_dir="ENTER_PREFERRED_BASE_DIR" --alsologtostde
 The ```root_dir path``` specifies the directory where training checkpoints(neural network weights, logs etc.) are saved during training.
 
 ### Training with rule based agents
+To train a rainbow agent in an adhoc setting, we use the gin-config file: ```hanabi_adhoc_rainbow_rule_based```. In it the team number is specified, which determines the number of rainbow agents playing with rule-based agents in a team of 4.
+Setting ```create_adhoc_team.team_no``` to ```1``` therefore creates a team with 1 rainbow agent, and 3 rule-based agent. The training is started similar as the rainbow variants:
+```
+python -um train_adhoc_rainbow_rule_based --base_dir="tmp/adhoc_team1" --gin_files='configs/hanabi_adhoc_rainbow_rule_based.gin'
+```
+
+
 
 ## Evaluate Performances
 In order to evaluate how the agents perform in self and adhoc play, run the jupyter-notebook:
