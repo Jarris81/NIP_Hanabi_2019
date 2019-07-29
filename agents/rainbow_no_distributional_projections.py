@@ -21,10 +21,10 @@ slim = tf.contrib.slim
 
 
 @gin.configurable
-class RainbowAgent(dqn_agent.DQNAgent):
+class RainbowAgentNoDist(dqn_agent.DQNAgent):
   """A compact implementation of the multiplayer Rainbow agent."""
 
-  # @gin.configurable
+  @gin.configurable
   def __init__(self,
                num_actions=None,
                observation_size=None,
@@ -67,7 +67,7 @@ class RainbowAgent(dqn_agent.DQNAgent):
     self.learning_rate = learning_rate
     self.optimizer_epsilon = optimizer_epsilon
 
-    super(RainbowAgent, self).__init__(
+    super(RainbowAgentNoDist, self).__init__(
         num_actions=num_actions,
         observation_size=observation_size,
         num_players=num_players,

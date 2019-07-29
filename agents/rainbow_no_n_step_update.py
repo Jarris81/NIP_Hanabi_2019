@@ -56,10 +56,10 @@ def rainbow_template(state,
 
 
 @gin.configurable
-class RainbowAgent(dqn_agent.DQNAgent):
+class RainbowAgentNoNStep(dqn_agent.DQNAgent):
   """A compact implementation of the multiplayer Rainbow agent."""
 
-  # @gin.configurable
+  @gin.configurable
   def __init__(self,
                num_actions=None,
                observation_size=None,
@@ -108,7 +108,7 @@ class RainbowAgent(dqn_agent.DQNAgent):
     self.optimizer_epsilon = optimizer_epsilon
 
     graph_template = functools.partial(rainbow_template, num_atoms=num_atoms)
-    super(RainbowAgent, self).__init__(
+    super(RainbowAgentNoNStep, self).__init__(
         num_actions=num_actions,
         observation_size=observation_size,
         num_players=num_players,

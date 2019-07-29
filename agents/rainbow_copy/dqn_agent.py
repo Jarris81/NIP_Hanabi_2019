@@ -34,12 +34,10 @@ import numpy as np
 import replay_memory
 import tensorflow as tf
 
-
 slim = tf.contrib.slim
 
 Transition = collections.namedtuple(
     'Transition', ['reward', 'observation', 'legal_actions', 'action', 'begin'])
-
 
 def linearly_decaying_epsilon(decay_period, step, warmup_steps, epsilon):
   """Returns the current epsilon parameter for the agent's e-greedy policy.
@@ -57,7 +55,6 @@ def linearly_decaying_epsilon(decay_period, step, warmup_steps, epsilon):
   bonus = (1.0 - epsilon) * steps_left / decay_period
   bonus = np.clip(bonus, 0.0, 1.0 - epsilon)
   return epsilon + bonus
-
 
 def dqn_template(state, num_actions, layer_size=512, num_layers=1):
   r"""Builds a DQN Network mapping states to Q-values.

@@ -28,8 +28,7 @@ from absl import app
 from absl import flags
 
 from agents.rainbow_copy.third_party.dopamine import logger
-
-import agents.rainbow_copy.run_experiment as run_experiment
+import agents.run_experiment as run_experiment
 
 FLAGS = flags.FLAGS
 
@@ -79,7 +78,9 @@ def launch_experiment():
 
   environment = run_experiment.create_environment()
   obs_stacker = run_experiment.create_obs_stacker(environment)
+  print("Before agent creation")
   agent = run_experiment.create_agent(environment, obs_stacker)
+  print("After agent creation")
 
   checkpoint_dir = '{}/checkpoints'.format(FLAGS.base_dir)
   start_iteration, experiment_checkpointer = (
