@@ -20,10 +20,10 @@ fp = str(__file__)[0:-len('evaluation/rule_based_agent_benchmarking.py')]
 sys.path.insert(1, fp+'hanabi-learning-environment/')
 
 import getopt
-import rl_env
+from hanabi_learning_environment import rl_env
 from agents.random_agent import RandomAgent
 from agents.simple_agent import SimpleAgent
-from agents.rainbow.dqn_agent import DQNAgent
+from agents.rainbow_copy.dqn_agent import DQNAgent
 from agents.rule_based_agent import RuleBasedAgent
 import numpy as np
 import matplotlib.pyplot as plt

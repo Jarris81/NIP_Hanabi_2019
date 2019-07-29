@@ -13,7 +13,9 @@ __pycache__*
 *.o
 *.so
 *.cmake
-env/Makefile
-env/game_example
-env/CMakeFiles/
-env/CMakeCache.txt
+*.bin
+hanabi_learning_environment/hanabi_lib/*
+hanabi_learning_environment/Makefile
+hanabi_learning_environment/game_example
+hanabi_learning_environment/CMakeFiles/*
+hanabi_learning_environment/CMakeCache.txt
