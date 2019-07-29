@@ -26,18 +26,20 @@ from __future__ import print_function
 
 import collections
 import math
-import os
-import random
+import os,sys
 
+import random
 import gin.tf
 import numpy as np
 import replay_memory
 import tensorflow as tf
 
+
 slim = tf.contrib.slim
 
 Transition = collections.namedtuple(
     'Transition', ['reward', 'observation', 'legal_actions', 'action', 'begin'])
+
 
 def linearly_decaying_epsilon(decay_period, step, warmup_steps, epsilon):
   """Returns the current epsilon parameter for the agent's e-greedy policy.
@@ -55,6 +57,7 @@ def linearly_decaying_epsilon(decay_period, step, warmup_steps, epsilon):
   bonus = (1.0 - epsilon) * steps_left / decay_period
   bonus = np.clip(bonus, 0.0, 1.0 - epsilon)
   return epsilon + bonus
+
 
 def dqn_template(state, num_actions, layer_size=512, num_layers=1):
   r"""Builds a DQN Network mapping states to Q-values.
@@ -135,6 +138,8 @@ class DQNAgent(object):
         sampling batch.
       optimizer: Optimizer instance used for learning.
     """
+
+    self.partial_reload = False
 
     tf.logging.info('Creating %s agent with the following parameters:',
                     self.__class__.__name__)
@@ -415,7 +420,8 @@ class DQNAgent(object):
       return action
 
   def _train_step(self):
-    """Runs a single training step.
+    """
+    Runs a single training step.
 
     Runs a training op if both:
     (1) A minimum number of frames have been added to the replay buffer.
@@ -495,6 +501,7 @@ class DQNAgent(object):
     return bundle_dictionary
 
   def unbundle(self, checkpoint_dir, iteration_number, bundle_dictionary):
+
     """Restores the agent from a checkpoint.
 
     Restores the agent's Python objects to those specified in bundle_dictionary,
@@ -510,14 +517,30 @@ class DQNAgent(object):
     Returns:
       A boolean indicating whether unbundling was successful.
     """
-    try:
-      # replay.load() will throw a GOSError if it does not find all the
-      # necessary files, in which case we should abort the process.
-      self._replay.load(checkpoint_dir, iteration_number)
-    except tf.errors.NotFoundError:
-      return False
+    print("=========================")
+    print("ENTERED UNBUNDLE FUNCTION")
+    print("=========================")
+    print(self.partial_reload)
+    if self.partial_reload == True:
+        print(f"partial reload = {self.partial_reload}")
+        print("Entered Partial Reload Loop")
+        try:
+          # replay.load() will throw a GOSError if it does not find all the
+          # necessary files, in which case we should abort the process.
+          self._replay.load(checkpoint_dir, iteration_number)
+          print("Replay Memory loading successful")
+        except tf.errors.NotFoundError:
+          return False
+    else:
+        print("Didn't enter partial reload loop")
     for key in self.__dict__:
       if key in bundle_dictionary:
         self.__dict__[key] = bundle_dictionary[key]
+    print("==============================")
+    print("Done loading bundle dictionary")
+    print("==============================")
+
+    tf.reset_default_graph()
     self._saver.restore(self._sess, tf.train.latest_checkpoint(checkpoint_dir))
+    print("Saver restored latest checkpoint")
     return True

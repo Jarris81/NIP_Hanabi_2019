@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+
 import tensorflow as tf
 
 from tf_agents.agents.ppo import ppo_agent
@@ -11,9 +13,9 @@ from tf_agents.networks.value_network import ValueNetwork
 from tensorflow.python.keras.engine.network import Network
 
 # own imports
-import agents.ppo_tf_agent.masked_networks as masked_networks
-from agents.ppo_tf_agent.pyhanabi_env_wrapper import PyhanabiEnvWrapper
-import rl_env
+import training.tf_agents_lib.masked_networks as masked_networks
+from training.tf_agents_lib.pyhanabi_env_wrapper import PyhanabiEnvWrapper
+import hanabi_learning_environment.rl_env as rl_env
 
 class PPOTfAgentAdHocPlayer(object):
 
@@ -68,7 +70,7 @@ class PPOTfAgentAdHocPlayer(object):
       self.policy = py_tf_policy.PyTFPolicy(tf_agent.policy)
 
       # load checkpoint
-      #train_dir = os.path.join(root_dir, 'train')
+      train_dir = os.path.join(root_dir, 'train')
       self.policy.initialize(None)
       self.policy.restore(root_dir)
       init_agent_op = tf_agent.initialize()

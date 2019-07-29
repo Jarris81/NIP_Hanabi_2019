@@ -1,4 +1,5 @@
 """Playable class used to play games with the server"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -8,9 +9,9 @@ import tensorflow as tf
 
 import agents.rainbow_copy.run_experiment_ui as xp
 import agents.rainbow_copy.rainbow_agent as rainbow
-from agents.rainbow_copy.rainbow_agent import rainbow_template
 
 from agents.rainbow_copy.third_party.dopamine import logger
+import os
 
 class RainbowAdHocRLPlayer(object):
 
@@ -26,6 +27,8 @@ class RainbowAdHocRLPlayer(object):
             "type": type
         }
 
+        self.base_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
         self.observation_size = agent_config["observation_size"]
         self.num_players = agent_config["num_players"]
         self.history_size = agent_config["history_size"]
@@ -34,26 +37,26 @@ class RainbowAdHocRLPlayer(object):
 
 
         if agent_config["type"] == "rainbow_10kit":
-            self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+            self.base_dir = self.base_dir+"/agents/trained_models/rainbow_10kit"
 
         elif agent_config["type"] == "Rainbow":
             if agent_version == "10k":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_10kit"
+                self.base_dir = self.base_dir+"/agents/trained_models/rainbow_10kit"
 
             if agent_version == "20k":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_20kit"
+                self.base_dir = self.base_dir+"/agents/trained_models/rainbow_20kit"
 
             if agent_version == "custom_r1":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/rainbow_custom_r_discard_playable"
+                self.base_dir = self.base_dir+"/agents/trained_models/rainbow_custom_r_discard_playable"
 
             if agent_version == "team1_adhoc":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/team1_adhoc"
+                self.base_dir = self.base_dir+"/agents/trained_models/team1_adhoc"
 
             if agent_version == "team2_adhoc":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/team2_adhoc"
+                self.base_dir = self.base_dir+"/agents/trained_models/team2_adhoc"
 
             if agent_version == "team3_adhoc":
-                self.base_dir = "/home/dg/Projects/RL/Hanabi/NIP_Hanabi_2019/agents/trained_models/team3_adhoc"
+                self.base_dir = self.base_dir+"/agents/trained_models/team3_adhoc"
 
             self.experiment_logger = logger.Logger(self.base_dir+'/logs')
 

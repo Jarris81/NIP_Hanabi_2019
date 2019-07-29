@@ -9,6 +9,8 @@ baselines/
 *__pycache__
 __pycache__*
 *.ipynb
+*.pyc
+*.idea/
 *.make
 *.o
 *.so
@@ -19,3 +21,4 @@ hanabi_learning_environment/Makefile
 hanabi_learning_environment/game_example
 hanabi_learning_environment/CMakeFiles/*
 hanabi_learning_environment/CMakeCache.txt
+
