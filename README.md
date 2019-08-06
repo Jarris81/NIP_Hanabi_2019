@@ -74,7 +74,7 @@ Unpack the server to GOPATH:
     unzip the gui/server/go.zip to "$GOPATH/"
 Install the project dependencies:
 	cd "$GOPATH/src/github.com/Zamiell/hanabi-live/install"
-	./install_dependencies
+	./install_dependencies.sh
 Set up a database user and import the database schema:
 	sudo mysql -u root -p
 	    CREATE DATABASE hanabi;
