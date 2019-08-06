@@ -71,7 +71,7 @@ Install MariaDB:
 	sudo mysql_secure_installation
 	Follow the prompts.
 Unpack the server to GOPATH:
-    unzip the UI/go.zip to "$GOPATH/"
+    unzip the gui/server/go.zip to "$GOPATH/"
 Install the project dependencies:
 	cd "$GOPATH/src/github.com/Zamiell/hanabi-live/install"
 	./install_dependencies
