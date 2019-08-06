@@ -1,5 +1,3 @@
-torch
-torchvision
 numpy
 sklearn
 scipy
@@ -8,3 +6,9 @@ absl-py
 gin-config 
 tensorflow
 cffi
+tf-agents
+tf-agents-nightly
+tensorflow-probability
+gym
+websocket
+websocket-client

@@ -13,7 +13,7 @@
 # limitations under the License.
 import sys
 """Simple Agent."""
-from rl_env import Agent
+from hanabi_learning_environment.rl_env import Agent
 
 
 class SimpleAgent(Agent):

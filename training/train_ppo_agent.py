@@ -61,9 +61,8 @@ from tf_agents.utils import common
 # own imports
 import sys
 sys.path.insert(0, 'lib')
-import masked_networks
-import rl_env
-import pyhanabi_env_wrapper
+from hanabi_learning_environment import rl_env
+from training.tf_agents_lib import masked_networks, pyhanabi_env_wrapper
 
 flags.DEFINE_string('root_dir', os.getenv('UNDEFINED'),
                     'Root directory for writing logs/summaries/checkpoints.')

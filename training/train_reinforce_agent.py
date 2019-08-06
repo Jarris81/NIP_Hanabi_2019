@@ -52,8 +52,9 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
 # own imports
-import rl_env
-from tf_agents_lib import masked_networks, pyhanabi_env_wrapper
+from hanabi_learning_environment import rl_env
+from training.tf_agents_lib import masked_networks, pyhanabi_env_wrapper
+
 
 flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')

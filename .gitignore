@@ -8,7 +8,6 @@ baselines/
 .idea/
 *__pycache__
 __pycache__*
-*.ipynb
 *.pyc
 *.idea/
 *.make

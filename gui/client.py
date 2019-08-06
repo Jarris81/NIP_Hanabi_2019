@@ -3,7 +3,7 @@
 from game_state_wrapper import GameStateWrapper
 import config as conf, utils, commands_websocket as cmd
 from agents.simple_agent import SimpleAgent
-from agents.agent_player import RLPlayer
+
 """ PYTHON IMPORTS """
 from typing import Dict
 import requests
@@ -14,7 +14,7 @@ import re
 from itertools import count
 import argparse
 
-
+# Just to immitate clients that have compatible browsers
 BROWSERS = [
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) snap Chromium/74.0.3729.131 Chrome/74.0.3729.131 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
