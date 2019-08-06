@@ -23,6 +23,7 @@ Training the different algorithms is straight forward. Before running training t
 ```
 export PYTHONPATH="Enter-root-directory-of-this-project-here"
 ```
+You may want to add this line to the .bashrc file in order to run it each time the shell is started.
 ### Training DQN Agent variations:
 Enter the ```training/``` directory and run:
 ```
