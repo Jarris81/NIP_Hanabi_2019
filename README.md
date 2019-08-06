@@ -5,7 +5,7 @@ In order to get everything up and running please first run the follwing commands
 sudo apt-get install g++       
 sudo apt-get install cmake       
 sudo apt-get install python-pip
-pip -r install requirements.txt
+pip3 install -r requirements.txt
 ```
 
 Next compile the environemnt by entering the hanabi_learning_enviroment directory
@@ -23,6 +23,7 @@ Training the different algorithms is straight forward. Before running training t
 ```
 export PYTHONPATH="Enter-root-directory-of-this-project-here"
 ```
+You may want to add this line to the .bashrc file in order to run it each time the shell is started.
 ### Training DQN Agent variations:
 Enter the ```training/``` directory and run:
 ```
@@ -71,10 +72,7 @@ Install MariaDB:
 	sudo mysql_secure_installation
 	Follow the prompts.
 Unpack the server to GOPATH:
-    unzip the UI/go.zip to "$GOPATH/"
-Install the project dependencies:
-	cd "$GOPATH/src/github.com/Zamiell/hanabi-live/install"
-	./install_dependencies
+    unzip the gui/server/go.zip to "$GOPATH/"
 Set up a database user and import the database schema:
 	sudo mysql -u root -p
 	    CREATE DATABASE hanabi;
