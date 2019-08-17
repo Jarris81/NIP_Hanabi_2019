@@ -16,7 +16,8 @@ The keys of agent_classes provide the possible values for what you can call the 
 
 AGENT_CLASSES = {
     'simple': {'filepath': path_simple_agent, 'class': 'SimpleAgent'},
-    'rainbow_copy': {'filepath': path_rainbow_agent, 'class': 'RLPlayer'},
+    'rainbow_copy': {'filepath': path_rainbow_agent, 'class': 'RainbowPlayer'},
+    'rainbow': {'filepath': path_rainbow_agent, 'class': 'RainbowPlayer'}
     # You can add your own agents here, simply follow this structure:
     # 'sys argument': {'filepath': path_sexy_agent, 'class': 'MySexyAgent'},
     # just make sure they match the imports in client.py and if not, simply add a corresponding import statement there

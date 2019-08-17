@@ -23,7 +23,7 @@ def get_agent_config(game_config: Dict, agent: str):
     if agent not in conf.AGENT_CLASSES:
         raise NotImplementedError
 
-    if agent == 'rainbow_copy':
+    if agent == 'rainbow_copy' or agent == 'rainbow':
         return dict({
             'observation_size': get_observation_size(game_config),
             'num_actions': get_num_actions(game_config),

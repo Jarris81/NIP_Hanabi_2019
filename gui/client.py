@@ -3,7 +3,7 @@
 from game_state_wrapper import GameStateWrapper
 import config as conf, utils, commands_websocket as cmd
 from agents.simple_agent import SimpleAgent
-
+from evaluation.rainbow_gui import RainbowPlayer
 """ PYTHON IMPORTS """
 from typing import Dict
 import requests
@@ -62,7 +62,8 @@ class Client:
         self.username = client_config['username']
         # Stores observations for agent
         self.game = GameStateWrapper(client_config)
-
+        if self.id == 0:
+            self.game.caller_is_admin = True
         # Will be set when server sends notification that a game has been created (auto-join always joins last game)
         self.gameID = None
 
