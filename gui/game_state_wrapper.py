@@ -90,7 +90,7 @@ class GameStateWrapper:
         # environment observations in order to be able to keep the vectorized observations synchronized
         if self.agent_name[-2:] == '00':
             self.caller_is_admin = True  # admin is the first instance of the client class
-        self.idx_human_player = None  # used to determine whenever human is target of a card hint and thus when
+        self.idx_human_player = -1  # used to determine whenever human is target of a card hint and thus when
         # hints will be out of sync with vectorizer environment state
         self.vectorizer_is_synced = False  # if human player got card hints, the other vectorizer instances must know
         self.vectorizer = vectorizer.ObservationVectorizer(self.env)
@@ -133,13 +133,14 @@ class GameStateWrapper:
         # determine if there are human players and if not, get their index
         # as of now we hardcode it assuming there are only rainbow agents and simple agents
         for p_name in self.players:
-            if p_name not in ['SimpleAgent', 'RainbowPlayer']:  # Assume it is a human player
+            if ('SimpleAgent' not in p_name) and ('RainbowPlayer' not in p_name):  # Assume it is a human player
                 self.idx_human_player = self.players.index(p_name)
                 break  # assume there is at most one human player
         if self.player_position < self.idx_human_player:
             # We set this flag to False, whenever it was our turn, to indicate a new round
             self.vectorizer_is_synced = True
-
+        if self.idx_human_player == - 1: # idx_human_players is equal to -1 if there is no human
+            self.vectorizer_is_synced = True  # in which case we do not sync anything
         return
 
     def deal_cards(self, notify_msg):
@@ -226,7 +227,7 @@ class GameStateWrapper:
                 obs_stub['card_knowledge'] = humans_card_knowledge
                 # synchronize vectorizer
                 _ = self.vectorizer.vectorize_observation(obs_stub)
-
+                self.vectorizer_is_synced = True
         return
 
     def update_state(self, notify_msg):
@@ -306,8 +307,9 @@ class GameStateWrapper:
         if d['type'] == 'turn' and d['who'] == -1:
             pass
 
-        if self.caller_is_admin:
-            self.sync_vectorizer(d)  # if necessary, invoke the vectorize_observation()-method with the card knowledge of
+        if not self.vectorizer_is_synced:
+            if self.caller_is_admin:
+                self.sync_vectorizer(d)  # if necessary, invoke the vectorize_observation()-method with the card knowledge of
         # the human player, in order to keep the vectorizer synced, as it is stateful across all its instances
 
         return
