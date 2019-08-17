@@ -436,7 +436,8 @@ def init_args(argparser):
         '--num_episodes',
         help='Number of games that will be played until agents idle. Default is e=1. -e flag will only be parsed when '
              '-n flag is set to 0, i.e. in AGENTS_ONLY mode',
-        default=1
+        default=1,
+        type=int
     )
     argparser.add_argument(
         '-a',
