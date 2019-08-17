@@ -294,7 +294,8 @@ class GameStateWrapper:
         if d['type'] == 'turn':
             if d['who'] == self.player_position:
                 self.agents_turn = True
-                self.vectorizer_is_synced = False
+                if self.idx_human_player != -1:
+                    self.vectorizer_is_synced = False
             else:
                 self.agents_turn = False
 
