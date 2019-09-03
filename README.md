@@ -5,7 +5,7 @@ In order to get everything up and running please first run the follwing commands
 sudo apt-get install g++       
 sudo apt-get install cmake       
 sudo apt-get install python-pip
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt (RUN THIS COMMAND TWICE FOR NOW)
 ```
 
 Next compile the environemnt by entering the hanabi_learning_enviroment directory
